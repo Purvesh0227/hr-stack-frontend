@@ -1,325 +1,394 @@
-/* ==========================================
-   ATTENDANCE PAGE
-   ========================================== */
-
-.attendance-card {
+/* Attendance page */
+.attendance-page {
     width: 100%;
     box-sizing: border-box;
 }
 
-
-/* Header */
-
-.attendance-card .card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-}
-
-.attendance-card .card-header h2 {
-    margin: 0;
-    font-size: 24px;
-    color: #172033;
-}
-
-.attendance-subtitle {
-    margin: 5px 0 0;
-    color: #6b7280;
-    font-size: 14px;
-}
-
-
-/* ==========================================
-   ADMIN BUTTONS
-   ========================================== */
-
-.attendance-actions {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 25px;
-}
-
-
-/* ==========================================
-   TABLE CONTAINER
-   ========================================== */
-
-.attendance-table-container {
+.attendance-page .content-card {
     width: 100%;
-    margin-top: 20px;
-}
-
-.attendance-table-container h3 {
-    margin-bottom: 15px;
-    color: #172033;
-}
-
-
-/* ==========================================
-   ATTENDANCE TABLE
-   ========================================== */
-
-.attendance-table {
-    width: 100%;
-    border-collapse: collapse;
+    box-sizing: border-box;
     background: #ffffff;
-    border-radius: 8px;
-    overflow: hidden;
-    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 28px;
+    margin-top: 20px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.07);
 }
-
 
 /* Header */
-
-.attendance-table thead {
-    background: #f3f4f6;
-}
-
-.attendance-table th {
-    padding: 14px 12px;
-    text-align: left;
-    font-size: 14px;
-    font-weight: 600;
-    color: #374151 !important;
-    border-bottom: 1px solid #e5e7eb;
-}
-
-
-/* Body */
-
-.attendance-table td {
-    padding: 14px 12px;
-    font-size: 14px;
-    color: #1f2937 !important;
-    border-bottom: 1px solid #e5e7eb;
-}
-
-
-/* Hover */
-
-.attendance-table tbody tr:hover {
-    background: #f9fafb;
-}
-
-
-/* Last row */
-
-.attendance-table tbody tr:last-child td {
-    border-bottom: none;
-}
-
-
-/* ==========================================
-   STATUS
-   ========================================== */
-
-.status-present {
-    display: inline-block;
-    padding: 5px 10px;
-    border-radius: 5px;
-    font-size: 12px;
-    font-weight: 600;
-    background: #dcfce7;
-    color: #166534 !important;
-}
-
-
-/* ==========================================
-   NO DATA
-   ========================================== */
-
-.no-attendance {
-    padding: 30px;
-    text-align: center;
-    color: #6b7280;
-    background: #f9fafb;
-    border-radius: 8px;
-    border: 1px solid #e5e7eb;
-}
-
-
-/* ==========================================
-   MODAL
-   ========================================== */
-
-.modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.45);
-
+.attendance-page .card-header {
     display: flex;
     align-items: center;
-    justify-content: center;
-
-    z-index: 1000;
+    justify-content: space-between;
+    margin-bottom: 22px;
+}
+.attendance-page .card-header h2 {
+    margin: 0;
+    color: #172554;
+    font-size: 25px;
 }
 
-
-.modal {
-    width: 420px;
-    max-width: 90%;
-
-    background: white;
-    padding: 25px;
-
-    border-radius: 12px;
-
-    box-shadow:
-        0 15px 40px rgba(0, 0, 0, 0.2);
-
-    box-sizing: border-box;
-}
-
-
-.modal h2 {
-    margin-top: 0;
-    margin-bottom: 20px;
-    color: #172033;
-}
-
-
-/* Modal labels */
-
-.modal label {
-    display: block;
-    margin-top: 15px;
-    margin-bottom: 6px;
-
+/* Buttons */
+.attendance-page .primary-btn {
+    border: none;
+    background: #2563eb;
+    color: #ffffff;
+    padding: 10px 18px;
+    border-radius: 8px;
     font-size: 14px;
     font-weight: 600;
-
-    color: #374151;
-}
-
-
-/* Modal inputs */
-
-.modal input,
-.modal select {
-    width: 100%;
-    padding: 11px;
-
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
-
-    font-size: 14px;
-
-    box-sizing: border-box;
-}
-
-
-.modal input:focus,
-.modal select:focus {
-    outline: none;
-    border-color: #2563eb;
-}
-
-
-/* Generate OTP */
-
-.generate-otp-btn {
-    width: 100%;
-    margin-top: 20px;
-}
-
-
-/* ==========================================
-   OTP DISPLAY
-   ========================================== */
-
-.otp-display {
-    margin-top: 20px;
-    padding: 18px;
-
-    text-align: center;
-
-    background: #eff6ff;
-    border: 1px solid #bfdbfe;
-
-    border-radius: 8px;
-}
-
-
-.otp-display h3 {
-    margin: 0 0 10px;
-
-    color: #1e3a8a;
-}
-
-
-.otp-display strong {
-    display: block;
-
-    font-size: 32px;
-    letter-spacing: 6px;
-
-    color: #1d4ed8;
-}
-
-
-.otp-display p {
-    margin-bottom: 0;
-
-    color: #6b7280;
-    font-size: 13px;
-}
-
-
-/* ==========================================
-   MODAL BUTTONS
-   ========================================== */
-
-.modal-buttons {
-    display: flex;
-    justify-content: flex-end;
-
-    margin-top: 20px;
-}
-
-
-.cancel-btn {
-    border: none;
-    padding: 10px 20px;
-
-    border-radius: 6px;
-
-    background: #6b7280;
-    color: white;
-
     cursor: pointer;
-
-    font-size: 14px;
+    transition: 0.2s ease;
 }
-
-
-.cancel-btn:hover {
+.attendance-page .primary-btn:hover {
+    background: #1d4ed8;
+}
+.attendance-page .primary-btn:disabled {
+    background: #93c5fd;
+    cursor: not-allowed;
+}
+.attendance-page .cancel-btn {
+    border: none;
+    background: #6b7280;
+    color: #ffffff;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+.attendance-page .cancel-btn:hover {
     background: #4b5563;
 }
 
+/* Admin buttons */
+.attendance-page .attendance-actions {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+}
+.attendance-page .attendance-actions button {
+    min-width: 145px;
+}
 
-/* ==========================================
-   RESPONSIVE
-   ========================================== */
+/* Table */
+.attendance-page .attendance-table-container {
+    width: 100%;
+    margin-top: 20px;
+    overflow-x: auto;
+}
+.attendance-page .attendance-table-container h3 {
+    margin: 0 0 15px 0;
+    color: #172554;
+    font-size: 19px;
+}
+.attendance-page .employee-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #ffffff;
+}
+.attendance-page .employee-table thead {
+    background: #2563eb;
+}
+.attendance-page .employee-table th {
+    padding: 14px;
+    color: #ffffff;
+    text-align: left;
+    font-size: 14px;
+    font-weight: 600;
+}
+.attendance-page .employee-table td {
+    padding: 14px;
+    color: #111827;
+    font-size: 14px;
+    border-bottom: 1px solid #e5e7eb;
+}
+.attendance-page .employee-table tbody tr:hover {
+    background: #f8fafc;
+}
 
-@media (max-width: 768px) {
+/* Modal overlay */
+.attendance-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(15, 23, 42, 0.60);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    box-sizing: border-box;
+    z-index: 9999;
+    overflow-y: auto;
+}
 
-    .attendance-card .card-header {
+/* Common modal */
+.attendance-initiate-modal,
+.attendance-mark-modal {
+    position: relative;
+    background: #ffffff;
+    border-radius: 16px;
+    box-sizing: border-box;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.25);
+    margin: auto;
+    animation: attendanceModalOpen 0.2s ease-out;
+}
+@keyframes attendanceModalOpen {
+    from {
+        opacity: 0;
+        transform: translateY(-10px) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Initiate attendance modal */
+.attendance-initiate-modal {
+    width: 460px;
+    max-width: calc(100vw - 40px);
+    padding: 30px;
+}
+
+/* Modal title */
+.attendance-initiate-modal .modal-title,
+.attendance-mark-modal .modal-title {
+    margin: 0 0 25px 0;
+    font-size: 24px;
+    font-weight: 700;
+    color: #111827;
+}
+
+/* Form */
+.attendance-form-group {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+}
+
+/* Prevents global label styles from breaking modal layout */
+.attendance-initiate-modal .attendance-form-group label {
+    display: block;
+    width: 100%;
+    margin: 0 0 8px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+}
+
+/* Input + select */
+.attendance-initiate-modal .attendance-form-group input,
+.attendance-initiate-modal .attendance-form-group select {
+    display: block;
+    width: 100%;
+    height: 44px;
+    box-sizing: border-box;
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #111827;
+    font-size: 14px;
+    outline: none;
+    transition: 0.2s ease;
+}
+.attendance-initiate-modal .attendance-form-group input:focus,
+.attendance-initiate-modal .attendance-form-group select:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+/* Date picker */
+.attendance-initiate-modal .attendance-form-group input[type="date"] {
+    cursor: pointer;
+}
+
+/* Select */
+.attendance-initiate-modal .attendance-form-group select {
+    cursor: pointer;
+}
+
+/* Date + department row */
+.attendance-form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    width: 100%;
+}
+
+/* Generate OTP button */
+.attendance-generate-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 44px;
+    margin-top: 2px;
+    border: none;
+    border-radius: 8px;
+    background: #2563eb;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+.attendance-generate-btn:hover {
+    background: #1d4ed8;
+}
+
+/* OTP display */
+.attendance-otp-box {
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: 20px;
+    padding: 18px;
+    text-align: center;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 10px;
+}
+.attendance-otp-box h3 {
+    margin: 0 0 8px 0;
+    font-size: 15px;
+    color: #1e3a8a;
+}
+.attendance-otp-value {
+    display: block;
+    font-size: 30px;
+    font-weight: 700;
+    letter-spacing: 5px;
+    color: #1d4ed8;
+    margin: 5px 0;
+}
+.attendance-otp-validity {
+    margin: 8px 0 0 0;
+    font-size: 13px;
+    color: #64748b;
+}
+.attendance-otp-countdown {
+    margin-top: 4px;
+    font-size: 15px;
+    font-weight: 700;
+    color: #dc2626;
+}
+
+/* Modal footer */
+.attendance-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+    margin-top: 25px;
+}
+
+/* Mark attendance modal */
+.attendance-mark-modal {
+    width: 430px;
+    max-width: calc(100vw - 40px);
+    padding: 30px;
+}
+
+/* Mark attendance description */
+.attendance-mark-description {
+    margin: 0 0 20px 0;
+    font-size: 14px;
+    color: #4b5563;
+    line-height: 1.6;
+}
+
+/* OTP input */
+.attendance-otp-input-group {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 22px;
+}
+.attendance-otp-input-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+}
+.attendance-otp-input {
+    width: 100%;
+    height: 46px;
+    box-sizing: border-box;
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 16px;
+    letter-spacing: 3px;
+    outline: none;
+    color: #111827;
+}
+.attendance-otp-input:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+/* Mark buttons */
+.attendance-mark-buttons {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+}
+.attendance-mark-buttons .primary-btn,
+.attendance-mark-buttons .cancel-btn {
+    min-width: 110px;
+}
+
+/* Close button */
+.attendance-modal-footer .cancel-btn {
+    min-width: 80px;
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+    .attendance-page .content-card {
+        padding: 20px;
+    }
+    .attendance-page .card-header {
         flex-direction: column;
         align-items: flex-start;
         gap: 15px;
     }
-
-    .attendance-actions {
+    .attendance-page .attendance-actions {
         flex-direction: column;
     }
-
-    .attendance-table {
-        font-size: 13px;
+    .attendance-page .attendance-actions button {
+        width: 100%;
     }
-
-    .attendance-table th,
-    .attendance-table td {
-        padding: 10px 8px;
+    .attendance-initiate-modal,
+    .attendance-mark-modal {
+        width: 100%;
+        max-width: calc(100vw - 30px);
+        padding: 24px;
+    }
+    .attendance-form-row {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+    .attendance-mark-buttons {
+        flex-direction: column-reverse;
+        width: 100%;
+    }
+    .attendance-mark-buttons button {
+        width: 100%;
+    }
+    .attendance-modal-footer {
+        width: 100%;
+    }
+    .attendance-modal-footer button {
+        width: 100%;
     }
 }

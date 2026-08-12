@@ -34,7 +34,7 @@ export const getAdminProfile = (email) => API.get("/adminProfile", { params: { e
 export const getAllEmployees = (email) => API.get("/allEmployees", { params: { email }});
 
 //mark attendance
-export const markAttendance = () =>API.post("/attendance");
+export const markAttendance = (otp) =>API.post("/attendance", {otp} );
 
 export const getMyAttendance = () => API.get("/attendance/my");
 
@@ -43,6 +43,5 @@ export const getAllAttendance = () => API.get("/attendance/all");
 //create otp 
 
 export const createOtp = (otpData) => API.post("/createotp", otpData);
-
 
 export default API;
