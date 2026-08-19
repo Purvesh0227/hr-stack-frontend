@@ -5,7 +5,7 @@ import AdminSidebar from "../components/AdminSidebar";
 import Footer from "../components/Footer";
 import AddAdminModal from "../components/AddAdminModal";
 import Attendance from "../components/Attendance";
-
+import Finance from "../components/Finance";
 
 function Dashboard() {
 
@@ -178,6 +178,10 @@ function Dashboard() {
                             <Attendance role={role} />
                         )}
 
+                        {activeMenu === "finance" && (
+                            <Finance role={role} />
+                        )}
+
                         {activeMenu === "settings" && (
                             <div className="content-card">
                                 <h2>My Profile</h2>
@@ -232,6 +236,10 @@ function Dashboard() {
 
             {activeMenu === "attendance" && (
                 <Attendance role={role} />
+            )}
+
+            {activeMenu === "finance" && (
+                <Finance role={role} />
             )}
 
             {/* Settings */}
