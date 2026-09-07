@@ -81,6 +81,32 @@
     flex-wrap: wrap;
 }
 
+/* Replace button */
+
+.finance-page .replace-btn {
+    border: 1px solid #f59e0b;
+    background: #ffffff;
+    color: #d97706;
+    padding: 9px 17px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.finance-page .replace-btn:hover {
+    background: #fffbeb;
+    border-color: #d97706;
+}
+
+.finance-page .replace-btn:disabled {
+    background: #f3f4f6;
+    color: #9ca3af;
+    border-color: #d1d5db;
+    cursor: not-allowed;
+}
+
 /* Generate modal hint */
 .finance-generate-hint {
     margin: -5px 0 0 0;

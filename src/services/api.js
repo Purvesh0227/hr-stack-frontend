@@ -20,26 +20,62 @@ API.interceptors.request.use(
     }
 );
 
+// Separate API for file endpoints
+const FILE_API = axios.create({
+    baseURL: "http://localhost:8080"
+});
+
+// Automatically attach JWT to file requests
+FILE_API.interceptors.request.use(
+    (config) => {
+        const token = localStorage.getItem("token");
+
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
+);
+
 // Login
 export const loginEmployee = (loginData) => API.post("/login", loginData);
+
 // Register Employee
-export const registerEmployee = (employeeData) => API.post("/register", employeeData);
+export const registerEmployee = (employeeData) =>
+    API.post("/register", employeeData);
+
 // Create Admin
-export const createAdmin = (adminData) => API.post("/createAdmin", adminData);
+export const createAdmin = (adminData) =>
+    API.post("/createAdmin", adminData);
+
 // Get All Admins
-export const getAllAdmins = (email) => API.get("/allAdmins", { params: { email } });
+export const getAllAdmins = (email) =>
+    API.get("/allAdmins", { params: { email } });
+
 // Get Admin Profile
-export const getAdminProfile = (email) => API.get("/adminProfile", { params: { email } });
+export const getAdminProfile = (email) =>
+    API.get("/adminProfile", { params: { email } });
+
 // Get All Employees
-export const getAllEmployees = (email) => API.get("/allEmployees", { params: { email } });
+export const getAllEmployees = (email) =>
+    API.get("/allEmployees", { params: { email } });
 
 // Mark attendance
-export const markAttendance = (otp) => API.post("/attendance", { otp });
+export const markAttendance = (otp) =>
+    API.post("/attendance", { otp });
+
 // Get attendance
-export const getAttendance = (scope) => API.get("/attendance/view", { params: { scope } });
+export const getAttendance = (scope) =>
+    API.get("/attendance/view", { params: { scope } });
 
 // Create OTP
-export const createOtp = (otpData) => API.post("/createotp", otpData);
+export const createOtp = (otpData) =>
+    API.post("/createotp", otpData);
+
 
 // ---------------- Salary / Finance ----------------
 
@@ -53,17 +89,45 @@ export const getSalaryStructure = (empId) =>
 
 // Generate salary slip for an employee/month/year (Admin)
 export const generateSalary = (empId, month, year) =>
-    API.post("/salary/generate", null, { params: { empId, month, year } });
+    API.post("/salary/generate", null, {
+        params: { empId, month, year }
+    });
 
-// View salary slips - scope: "MY" (Admin + Employee) or "ALL" (Admin only)
+// View salary slips - scope: "MY" or "ALL"
 export const viewSalarySlips = (scope) =>
     API.get("/salary/view", { params: { scope } });
 
-// Download salary slip PDF (Admin + Employee, own record only)
+// Download salary slip PDF
 export const downloadSalarySlip = (empId, month, year) =>
     API.get("/salary/download", {
         params: { empId, month, year },
         responseType: "blob"
+    });
+
+// Upload salary slip to temporary MinIO bucket
+export const uploadTempFile  = (file,empId, month, year) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("empId", empId);
+    formData.append("month", month);
+    formData.append("year", year);
+
+    return FILE_API.post("/files/temp/upload", formData);
+};
+// Replace existing salary slip
+export const replaceSalarySlip = (
+    empId,
+    month,
+    year,
+    tempObjectKey
+) =>
+    API.post("/salary/replace", null, {
+        params: {
+            empId,
+            month,
+            year,
+            tempObjectKey
+        }
     });
 
 export default API;

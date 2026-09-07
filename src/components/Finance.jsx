@@ -3,7 +3,9 @@ import {
     viewSalarySlips,
     downloadSalarySlip,
     createOrUpdateSalaryStructure,
-    generateSalary
+    generateSalary,
+    uploadTempFile,
+    replaceSalarySlip
 } from "../services/api";
 import { getMonthName, formatCurrency, sortSlipsNewestFirst } from "../utils/salaryUtils";
 import "../styles/finance.css";
@@ -29,6 +31,7 @@ function Finance({ role }) {
 
     const [selectedSlip, setSelectedSlip] = useState(null);
     const [downloadingId, setDownloadingId] = useState(null);
+    const [replacingId, setReplacingId] = useState(null);
 
     const [showStructureModal, setShowStructureModal] = useState(false);
     const [structureForm, setStructureForm] = useState(EMPTY_STRUCTURE_FORM);
@@ -111,6 +114,62 @@ function Finance({ role }) {
             setDownloadingId(null);
         }
     };
+
+    // Replace salary slip PDF (Admin only)
+const handleReplace = async (slip) => {
+    const fileInput = document.createElement("input");
+
+    fileInput.type = "file";
+    fileInput.accept = "application/pdf";
+
+    fileInput.onchange = async (event) => {
+        const file = event.target.files?.[0];
+
+        if (!file) {
+            return;
+        }
+
+        if (file.type !== "application/pdf") {
+            alert("Please select a PDF file");
+            return;
+        }
+
+        try {
+            setReplacingId(slip.id);
+
+            // Upload selected PDF to temporary MinIO bucket
+            const tempResponse = await uploadTempFile(file, slip.empId, slip.month, slip.year);
+
+            const tempObjectKey = tempResponse.data;
+
+            // Move temporary PDF to permanent storage
+            await replaceSalarySlip(
+                slip.empId,
+                slip.month,
+                slip.year,
+                tempObjectKey
+            );
+
+            alert("Salary slip replaced successfully");
+
+            // Refresh current salary slips
+            await loadSalarySlips(
+                showMySalary ? "MY" : "ALL"
+            );
+
+        } catch (error) {
+            alert(
+                error.response?.data?.error ||
+                error.response?.data?.message ||
+                "Unable to replace salary slip"
+            );
+        } finally {
+            setReplacingId(null);
+        }
+    };
+
+    fileInput.click();
+};
 
     // ---------------- Create Salary Structure (Admin) ----------------
 
@@ -300,6 +359,15 @@ function Finance({ role }) {
                                             >
                                                 {downloadingId === slip.id ? "Downloading..." : "Download"}
                                             </button>
+                                            {slip.replaceAllowed && (
+                                                    <button
+                                                    className="replace-btn"
+                                                        onClick={() => handleReplace(slip)}
+                                                        disabled={replacingId === slip.id}
+                                                    >
+                                                        {replacingId === slip.id ? "Replacing..." : "Replace"}
+                                                    </button>
+                                                )}
                                         </td>
                                     </tr>
                                 ))}
