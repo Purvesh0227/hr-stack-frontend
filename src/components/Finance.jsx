@@ -4,8 +4,9 @@ import {
     downloadSalarySlip,
     createOrUpdateSalaryStructure,
     generateSalary,
-    uploadTempFile,
-    replaceSalarySlip
+    replaceSalarySlip,
+    getTempUploadUrl,
+    uploadFileDirectlyToMinio
 } from "../services/api";
 import { getMonthName, formatCurrency, sortSlipsNewestFirst } from "../utils/salaryUtils";
 import "../styles/finance.css";
@@ -125,9 +126,7 @@ const handleReplace = async (slip) => {
     fileInput.onchange = async (event) => {
         const file = event.target.files?.[0];
 
-        if (!file) {
-            return;
-        }
+        if (!file) return;
 
         if (file.type !== "application/pdf") {
             alert("Please select a PDF file");
@@ -137,12 +136,26 @@ const handleReplace = async (slip) => {
         try {
             setReplacingId(slip.id);
 
-            // Upload selected PDF to temporary MinIO bucket
-            const tempResponse = await uploadTempFile(file, slip.empId, slip.month, slip.year);
+            // 1. Get presigned upload URL from backend
+            const response = await getTempUploadUrl(
+                slip.empId,
+                slip.month,
+                slip.year
+            );
 
-            const tempObjectKey = tempResponse.data;
+            const uploadUrl = response.data;
 
-            // Move temporary PDF to permanent storage
+            // 2. Upload PDF directly to MinIO
+            await uploadFileDirectlyToMinio(
+                uploadUrl,
+                file
+            );
+
+            // 3. Create the object key
+            const tempObjectKey =
+                `salary-slips/${slip.year}/${slip.month}/${slip.empId}.pdf`;
+
+            // 4. Tell backend which MinIO object to replace
             await replaceSalarySlip(
                 slip.empId,
                 slip.month,
@@ -152,12 +165,13 @@ const handleReplace = async (slip) => {
 
             alert("Salary slip replaced successfully");
 
-            // Refresh current salary slips
             await loadSalarySlips(
                 showMySalary ? "MY" : "ALL"
             );
 
         } catch (error) {
+            console.error("Replace salary slip error:", error);
+
             alert(
                 error.response?.data?.error ||
                 error.response?.data?.message ||

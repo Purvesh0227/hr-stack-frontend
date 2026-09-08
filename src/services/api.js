@@ -63,6 +63,10 @@ export const getAdminProfile = (email) =>
 // Get All Employees
 export const getAllEmployees = (email) =>
     API.get("/allEmployees", { params: { email } });
+//update Employee
+// Update Employee
+export const updateEmployee = (uuid, employeeData) =>
+    API.put(`/${uuid}`, employeeData);
 
 // Mark attendance
 export const markAttendance = (otp) =>
@@ -105,15 +109,14 @@ export const downloadSalarySlip = (empId, month, year) =>
     });
 
 // Upload salary slip to temporary MinIO bucket
-export const uploadTempFile  = (file,empId, month, year) => {
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("empId", empId);
-    formData.append("month", month);
-    formData.append("year", year);
-
-    return FILE_API.post("/files/temp/upload", formData);
-};
+export const getTempUploadUrl = (empId, month, year) =>
+    FILE_API.post("/files/temp/upload-url", null, {
+        params: {
+            empId,
+            month,
+            year
+        }
+    });
 // Replace existing salary slip
 export const replaceSalarySlip = (
     empId,
@@ -130,4 +133,10 @@ export const replaceSalarySlip = (
         }
     });
 
+    export const uploadFileDirectlyToMinio = (uploadUrl, file) =>
+    axios.put(uploadUrl, file, {
+        headers: {
+            "Content-Type": file.type
+        }
+    });
 export default API;
