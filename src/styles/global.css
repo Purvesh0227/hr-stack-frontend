@@ -7,7 +7,6 @@ body{
     background:#f4f7fc;
     font-family:Arial, Helvetica, sans-serif;
 }
-
 /* ============================================================
    NAVBAR  (was: Navbar.css)
    ============================================================ */
@@ -78,7 +77,6 @@ body{
         display:none;
     }
 }
-
 /* ============================================================
    SIDEBAR  (was: Sidebar.css)
    ============================================================ */
@@ -144,7 +142,6 @@ body{
 .sidebar-menu span{
     font-size:16px;
 }
-
 /* ============================================================
    FOOTER  (was: Footer.css)
    ============================================================ */
@@ -167,7 +164,6 @@ body{
     font-weight:600;
     color:#374151;
 }
-
 /* ============================================================
    DASHBOARD  (was: Dashboard.css)
    ============================================================ */
@@ -298,7 +294,6 @@ body{
         overflow-x:auto;
     }
 }
-
 /* ============================================================
    LOGIN  (was: Login.css)
    ============================================================ */
@@ -355,7 +350,6 @@ body{
     color:#2563eb;
     font-weight:bold;
 }
-
 /* ============================================================
    REGISTER  (was: Register.css)
    ============================================================ */
@@ -435,7 +429,6 @@ body{
 .invalid{
     color:#dc2626;
 }
-
 /* ============================================================
    NOT FOUND PAGE  (was: NotFound.css)
    ============================================================ */
@@ -475,7 +468,6 @@ body{
 .not-found-container a:hover {
     background: #1d4ed8;
 }
-
 /* ============================================================
    ADD ADMIN MODAL  (was: AddAdminModal.css)
    ============================================================ */
@@ -534,247 +526,527 @@ body{
     border-radius:8px;
     cursor:pointer;
 }
-
 /* ================================
    Employee View / Edit Modal
    ================================ */
-
 .modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-
     background: rgba(0, 0, 0, 0.5);
-
     display: flex;
     justify-content: center;
     align-items: center;
-
     z-index: 1000;
 }
-
-
 /* Modal Box */
-
 .modal {
     width: 450px;
     max-width: 90%;
-
     background: #ffffff;
-
     border-radius: 10px;
-
     padding: 25px;
-
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
-
     animation: modalOpen 0.2s ease-in-out;
 }
-
-
 /* Modal Animation */
-
 @keyframes modalOpen {
-
     from {
         opacity: 0;
         transform: scale(0.95);
     }
-
     to {
         opacity: 1;
         transform: scale(1);
     }
 }
-
-
 /* Modal Header */
-
 .modal-header {
     display: flex;
-
     justify-content: space-between;
     align-items: center;
-
     margin-bottom: 20px;
 }
-
 .modal-header h2 {
     margin: 0;
-
     font-size: 22px;
 }
-
-
 /* Close Button */
-
 .modal-close {
     border: none;
-
     background: transparent;
-
     font-size: 28px;
-
     cursor: pointer;
-
     color: #555;
-
     line-height: 1;
 }
-
 .modal-close:hover {
     color: #000;
 }
-
-
 /* Form Group */
-
 .form-group {
     display: flex;
-
     flex-direction: column;
-
     margin-bottom: 15px;
 }
-
 .form-group label {
     margin-bottom: 6px;
-
     font-weight: 600;
-
     font-size: 14px;
 }
-
-
 /* Input */
-
 .form-group input {
     width: 100%;
-
     box-sizing: border-box;
-
     padding: 10px 12px;
-
     border: 1px solid #ccc;
-
     border-radius: 6px;
-
     font-size: 14px;
-
     outline: none;
 }
-
-
 /* Editable Input */
-
 .form-group input:not([readonly]):focus {
     border-color: #333;
-
     box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.08);
 }
-
-
 /* Read-only Input */
-
 .form-group input[readonly] {
     background-color: #f5f5f5;
-
     color: #666;
-
     cursor: not-allowed;
 }
-
-
 /* Modal Actions */
-
 .modal-actions {
     display: flex;
-
     justify-content: flex-end;
-
     gap: 10px;
-
     margin-top: 20px;
 }
-
-
 /* Close / Secondary Button */
-
 .secondary-btn {
     padding: 9px 18px;
-
     border: 1px solid #ccc;
-
     background: #ffffff;
-
     border-radius: 6px;
-
     cursor: pointer;
-
     font-size: 14px;
 }
-
 .secondary-btn:hover {
     background: #f3f3f3;
 }
-
-
 /* Save Button */
-
 .modal-actions .primary-btn {
     padding: 9px 18px;
 }
-
-
 /* Employee Action Buttons */
-
 .action-buttons {
     display: flex;
-
     gap: 8px;
-
     align-items: center;
 }
-
-
 /* View Button */
-
 .view-btn,
 .edit-btn {
     border: none;
-
     background: transparent;
-
     cursor: pointer;
-
     font-size: 18px;
-
     padding: 5px;
-
     border-radius: 5px;
 }
-
 .view-btn:hover,
 .edit-btn:hover {
     background: #f0f0f0;
 }
-
-
-
-
 .employee-id-btn {
     border: none;
     background: transparent;
     padding: 0;
-
     font: inherit;
     color: #007bff;
-
     cursor: pointer;
 }
-
 .employee-id-btn:hover {
     text-decoration: underline;
+}
+/* //banner  */
+.document-verification-banner {
+    margin: 20px 0;
+    padding: 16px 20px;
+    border: 1px solid #f0ad4e;
+    border-radius: 8px;
+    background: #fff8e6;
+}
+.document-verification-banner strong {
+    display: block;
+    font-size: 18px;
+    margin-bottom: 6px;
+}
+.document-verification-banner p {
+    margin: 0;
+}
+/* //activate modal  */
+.employee-documents {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #ddd;
+}
+.employee-documents h3 {
+    margin-bottom: 15px;
+}
+.document-section {
+    margin-bottom: 15px;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+}
+.document-section h4 {
+    margin-top: 0;
+    margin-bottom: 8px;
+}
+.document-section p {
+    margin: 5px 0;
+}
+.activate-btn {
+    padding: 10px 18px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+/* Document Verification Banner */
+.document-verification-banner {
+    margin-bottom: 20px;
+    padding: 16px 20px;
+    border: 1px solid #f0ad4e;
+    border-radius: 8px;
+    background-color: #fff8e7;
+}
+.document-verification-banner strong {
+    display: block;
+    font-size: 16px;
+    margin-bottom: 6px;
+}
+.document-verification-banner p {
+    margin: 0;
+}
+/* Employee Document Upload */
+/* Document Upload Layout */
+.document-upload-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px;
+    margin-top: 20px;
+}
+.document-card {
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #fafafa;
+}
+.document-card h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+.document-form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 18px;
+}
+.document-form-group label {
+    margin-bottom: 7px;
+    font-weight: 600;
+}
+.document-form-group input,
+.document-form-group select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+.document-submit-btn {
+    margin-top: 20px;
+}
+/* Responsive */
+@media (max-width: 768px) {
+    .document-upload-grid {
+        grid-template-columns: 1fr;
+    }
+}
+/* Employee Modal */
+.employee-modal {
+    width: 850px;
+    max-width: 90vw;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+/* Employee Details */
+.employee-details-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px 25px;
+    margin-bottom: 25px;
+}
+.modal-field {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.modal-field label {
+    width: 110px;
+    min-width: 110px;
+    font-weight: 600;
+}
+.modal-field input {
+    flex: 1;
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    box-sizing: border-box;
+}
+/* Documents */
+.employee-documents {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #ddd;
+}
+.employee-documents h3 {
+    margin-bottom: 15px;
+}
+.document-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    padding: 15px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+.document-info {
+    flex: 1;
+}
+.document-section h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+.document-info div {
+    margin: 6px 0;
+}
+.document-info strong {
+    display: inline-block;
+    width: 70px;
+}
+.document-view-btn {
+    padding: 9px 14px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    background: #2563eb;
+    color: white;
+    font-weight: 600;
+}
+.document-view-btn:hover {
+    opacity: 0.9;
+}
+/* Buttons */
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 25px;
+}
+/* Mobile */
+@media (max-width: 768px) {
+    .employee-modal {
+        width: 95vw;
+    }
+    .employee-details-grid {
+        grid-template-columns: 1fr;
+    }
+    .modal-field {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 5px;
+    }
+    .modal-field label {
+        width: auto;
+    }
+    .modal-field input {
+        width: 100%;
+    }
+    .document-section {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+/* =========================================
+   EMPLOYEE MODAL
+========================================= */
+.employee-modal {
+    width: 850px;
+    max-width: 90vw;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+/* Employee fields */
+.employee-details-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px 25px;
+    margin-bottom: 25px;
+}
+.modal-field {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.modal-field label {
+    width: 110px;
+    min-width: 110px;
+    font-weight: 600;
+}
+.modal-field input {
+    flex: 1;
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    box-sizing: border-box;
+}
+/* =========================================
+   DOCUMENTS
+========================================= */
+.employee-documents {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #ddd;
+}
+.employee-documents h3 {
+    margin-bottom: 15px;
+}
+.document-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    padding: 15px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+.document-info {
+    flex: 1;
+}
+.document-section h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+.document-info div {
+    margin: 6px 0;
+}
+.document-info strong {
+    display: inline-block;
+    width: 70px;
+}
+/* View document button */
+.document-view-btn {
+    padding: 9px 15px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+}
+/* =========================================
+   DOCUMENT VIEWER
+========================================= */
+.document-viewer-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.55);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+.document-viewer {
+    width: 750px;
+    max-width: 90vw;
+    height: 80vh;
+    max-height: 90vh;
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+}
+/* Viewer header */
+.document-viewer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 18px;
+    border-bottom: 1px solid #ddd;
+}
+.document-viewer-header h3 {
+    margin: 0;
+}
+/* Cross button */
+.document-viewer-close {
+    width: 35px;
+    height: 35px;
+    border: none;
+    background: transparent;
+    font-size: 25px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+.document-viewer-close:hover {
+    background: #eee;
+}
+/* Viewer content */
+.document-viewer-content {
+    flex: 1;
+    padding: 0;
+    overflow: hidden;
+}
+/* PDF / image */
+.document-viewer-frame {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+/* Mobile */
+@media (max-width: 768px) {
+    .employee-modal {
+        width: 95vw;
+    }
+    .employee-details-grid {
+        grid-template-columns: 1fr;
+    }
+    .modal-field {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 5px;
+    }
+    .modal-field label {
+        width: auto;
+    }
+    .modal-field input {
+        width: 100%;
+    }
+    .document-section {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .document-viewer {
+        width: 95vw;
+        height: 85vh;
+    }
 }

@@ -63,7 +63,11 @@ export const getAdminProfile = (email) =>
 // Get All Employees
 export const getAllEmployees = (email) =>
     API.get("/allEmployees", { params: { email } });
-//update Employee
+
+// Get Employee by UUID
+export const getEmployeeById = (uuid) =>
+    API.get(`/${uuid}`);
+
 // Update Employee
 export const updateEmployee = (uuid, employeeData) =>
     API.put(`/${uuid}`, employeeData);
@@ -139,4 +143,34 @@ export const replaceSalarySlip = (
             "Content-Type": file.type
         }
     });
+
+export const getEmployeeDocumentUploadUrl = (uuid, documentType) =>
+    API.get(`/${uuid}/documents/upload-url`, {
+        params: { documentType }
+    });
+
+export const uploadDocumentDirectlyToMinio = (uploadUrl, file) =>
+    axios.put(uploadUrl, file, {
+        headers: {
+            "Content-Type": file.type
+        }
+    });
+
+    export const saveEmployeeDocuments = (uuid, data) =>
+    API.post(`/${uuid}/documents`, data);
+
+    export const activateEmployee = (uuid) =>
+    API.patch(`/${uuid}/activate`);
+
+    export const requestEmployeeDocuments = (uuid) =>
+        API.patch(`/${uuid}/request-documents`);
+
+    export const getEmployeeDocumentViewUrl = (
+    uuid,
+    documentType) =>
+    API.get(`/${uuid}/documents/view-url`, { params: { documentType }});
+
+
+
+
 export default API;

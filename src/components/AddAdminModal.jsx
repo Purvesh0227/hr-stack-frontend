@@ -1,14 +1,11 @@
 import { useState } from "react";
 import API from "../services/api";
-
 import {
     isValidEmail,
     isValidPhone,
     getPasswordChecks
 } from "../utils/validators";
-
 function AddAdminModal({ isOpen, onClose, refreshAdmins }) {
-
     const [adminData, setAdminData] = useState({
         firstName: "",
         lastName: "",
@@ -16,29 +13,23 @@ function AddAdminModal({ isOpen, onClose, refreshAdmins }) {
         mobile: "",
         password: ""
     });
-
     const handleChange = (e) => {
         setAdminData({
             ...adminData,
             [e.target.name]: e.target.value
         });
     };
-
     // Validation - runs while typing
     const firstNameValid =
         adminData.firstName !== "" &&
         /^\S+$/.test(adminData.firstName);
-
     const lastNameValid =
         adminData.lastName !== "" &&
         /^\S+$/.test(adminData.lastName);
-
     const emailValid =
         isValidEmail(adminData.email);
-
     const phoneValid =
         isValidPhone(adminData.mobile);
-
     const {
         hasMinLength,
         hasUpperCase,
@@ -46,36 +37,27 @@ function AddAdminModal({ isOpen, onClose, refreshAdmins }) {
         hasNumber,
         hasSpecial
     } = getPasswordChecks(adminData.password);
-
     const passwordValid =
         hasMinLength &&
         hasUpperCase &&
         hasLowerCase &&
         hasNumber &&
         hasSpecial;
-
     const formValid =
         firstNameValid &&
         lastNameValid &&
         emailValid &&
         phoneValid &&
         passwordValid;
-
     const handleSubmit = async (e) => {
         e.preventDefault();
-
         if (!formValid) {
             return;
         }
-
         try {
-
             await API.post("/createAdmin", adminData);
-
             alert("Admin created successfully");
-
             refreshAdmins();
-
             setAdminData({
                 firstName: "",
                 lastName: "",
@@ -83,13 +65,9 @@ function AddAdminModal({ isOpen, onClose, refreshAdmins }) {
                 mobile: "",
                 password: ""
             });
-
             onClose();
-
         } catch (error) {
-
             console.log(error.response);
-
             if (error.response?.data?.errors) {
                 alert(error.response.data.errors.join("\n"));
             }
@@ -101,20 +79,14 @@ function AddAdminModal({ isOpen, onClose, refreshAdmins }) {
             }
         }
     };
-
     if (!isOpen) {
         return null;
     }
-
     return (
         <div className="modal-overlay">
-
             <div className="modal">
-
                 <h2>Add Admin</h2>
-
                 <form onSubmit={handleSubmit}>
-
                     {/* First Name */}
                     <input
                         type="text"
@@ -124,7 +96,6 @@ function AddAdminModal({ isOpen, onClose, refreshAdmins }) {
                         onChange={handleChange}
                         required
                     />
-
                     {adminData.firstName !== "" && (
                         <small
                             className={
@@ -138,8 +109,6 @@ function AddAdminModal({ isOpen, onClose, refreshAdmins }) {
                                 : "✗ First name must not contain spaces"}
                         </small>
                     )}
-
-
                     {/* Last Name */}
                     <input
                         type="text"
@@ -149,7 +118,6 @@ function AddAdminModal({ isOpen, onClose, refreshAdmins }) {
                         onChange={handleChange}
                         required
                     />
-
                     {adminData.lastName !== "" && (
                         <small
                             className={
@@ -163,8 +131,6 @@ function AddAdminModal({ isOpen, onClose, refreshAdmins }) {
                                 : "✗ Last name must not contain spaces"}
                         </small>
                     )}
-
-
                     {/* Email */}
                     <input
                         type="email"
@@ -174,7 +140,6 @@ function AddAdminModal({ isOpen, onClose, refreshAdmins }) {
                         onChange={handleChange}
                         required
                     />
-
                     {adminData.email !== "" && (
                         <small
                             className={
@@ -188,8 +153,6 @@ function AddAdminModal({ isOpen, onClose, refreshAdmins }) {
                                 : "✗ Enter a valid email address"}
                         </small>
                     )}
-
-
                     {/* Mobile */}
                     <input
                         type="text"
@@ -200,7 +163,6 @@ function AddAdminModal({ isOpen, onClose, refreshAdmins }) {
                         maxLength="10"
                         required
                     />
-
                     {adminData.mobile !== "" && (
                         <small
                             className={
@@ -214,8 +176,6 @@ function AddAdminModal({ isOpen, onClose, refreshAdmins }) {
                                 : "✗ Mobile number must contain exactly 10 digits"}
                         </small>
                     )}
-
-
                     {/* Password */}
                     <input
                         type="password"
@@ -225,10 +185,8 @@ function AddAdminModal({ isOpen, onClose, refreshAdmins }) {
                         onChange={handleChange}
                         required
                     />
-
                     {adminData.password !== "" && (
                         <div className="password-rules">
-
                             <p className={
                                 hasMinLength
                                     ? "valid"
@@ -237,7 +195,6 @@ function AddAdminModal({ isOpen, onClose, refreshAdmins }) {
                                 {hasMinLength ? "✓" : "✗"}
                                 {" "}Minimum 8 characters
                             </p>
-
                             <p className={
                                 hasUpperCase
                                     ? "valid"
@@ -246,7 +203,6 @@ function AddAdminModal({ isOpen, onClose, refreshAdmins }) {
                                 {hasUpperCase ? "✓" : "✗"}
                                 {" "}One uppercase letter
                             </p>
-
                             <p className={
                                 hasLowerCase
                                     ? "valid"
@@ -255,7 +211,6 @@ function AddAdminModal({ isOpen, onClose, refreshAdmins }) {
                                 {hasLowerCase ? "✓" : "✗"}
                                 {" "}One lowercase letter
                             </p>
-
                             <p className={
                                 hasNumber
                                     ? "valid"
@@ -264,7 +219,6 @@ function AddAdminModal({ isOpen, onClose, refreshAdmins }) {
                                 {hasNumber ? "✓" : "✗"}
                                 {" "}One number
                             </p>
-
                             <p className={
                                 hasSpecial
                                     ? "valid"
@@ -273,14 +227,10 @@ function AddAdminModal({ isOpen, onClose, refreshAdmins }) {
                                 {hasSpecial ? "✓" : "✗"}
                                 {" "}One special character
                             </p>
-
                         </div>
                     )}
-
-
                     {/* Buttons */}
                     <div className="modal-buttons">
-
                         <button
                             type="button"
                             className="cancel-btn"
@@ -288,7 +238,6 @@ function AddAdminModal({ isOpen, onClose, refreshAdmins }) {
                         >
                             Cancel
                         </button>
-
                         <button
                             type="submit"
                             className="save-btn"
@@ -296,15 +245,10 @@ function AddAdminModal({ isOpen, onClose, refreshAdmins }) {
                         >
                             Save
                         </button>
-
                     </div>
-
                 </form>
-
             </div>
-
         </div>
     );
 }
-
 export default AddAdminModal;
