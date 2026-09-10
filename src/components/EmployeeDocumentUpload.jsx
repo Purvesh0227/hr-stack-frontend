@@ -4,8 +4,10 @@ import {
     uploadDocumentDirectlyToMinio,
     saveEmployeeDocuments
 } from "../services/api";
+import { useNotification } from "../contexts/NotificationContext";
 
 function EmployeeDocumentUpload({ employee }) {
+    const { showNotification } = useNotification();
 
     const [idProofType, setIdProofType] = useState("");
     const [idProofNumber, setIdProofNumber] = useState("");
@@ -21,17 +23,17 @@ function EmployeeDocumentUpload({ employee }) {
         e.preventDefault();
 
         if (!idProofFile || !addressProofFile) {
-            alert("Please select both documents");
+            showNotification("Please select both documents", "error");
             return;
         }
 
         if (!idProofType || !idProofNumber) {
-            alert("Please enter ID proof details");
+            showNotification("Please enter ID proof details", "error");
             return;
         }
 
         if (!addressProofType || !addressProofNumber) {
-            alert("Please enter address proof details");
+            showNotification("Please enter address proof details", "error");
             return;
         }
 
@@ -89,7 +91,7 @@ function EmployeeDocumentUpload({ employee }) {
                 }
             );
 
-            alert("Documents submitted successfully");
+            showNotification("Documents submitted successfully", "success");
 
         } catch (error) {
 
@@ -98,10 +100,11 @@ function EmployeeDocumentUpload({ employee }) {
                 error
             );
 
-            alert(
+            showNotification(
                 error.response?.data?.message ||
                 error.response?.data ||
-                "Unable to submit documents"
+                "Unable to submit documents",
+                "error"
             );
         }
     };

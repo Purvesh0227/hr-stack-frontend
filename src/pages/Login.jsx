@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { loginEmployee } from "../services/api";
-
+import { useNotification } from "../contexts/NotificationContext";
 
 function Login() {
 
     const navigate = useNavigate();
+    const { showNotification } = useNotification();
     const [loginData, setLoginData] = useState({
         email: "",
         password: ""
@@ -47,15 +48,16 @@ function Login() {
             employee.role
         );
 
-        alert("Login Successful");
+        showNotification("Login Successful", "success");
 
         navigate("/dashboard");
 
     } catch (error) {
 
-        alert(
+        showNotification(
             error.response?.data?.error ||
-            "Invalid Credentials"
+            "Invalid Credentials",
+            "error"
         );
     }
 };

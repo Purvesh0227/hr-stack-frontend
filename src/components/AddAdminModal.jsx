@@ -5,7 +5,10 @@ import {
     isValidPhone,
     getPasswordChecks
 } from "../utils/validators";
+import { useNotification } from "../contexts/NotificationContext";
+
 function AddAdminModal({ isOpen, onClose, refreshAdmins }) {
+    const { showNotification } = useNotification();
     const [adminData, setAdminData] = useState({
         firstName: "",
         lastName: "",
@@ -56,7 +59,10 @@ function AddAdminModal({ isOpen, onClose, refreshAdmins }) {
         }
         try {
             await API.post("/createAdmin", adminData);
-            alert("Admin created successfully");
+            showNotification(
+                "Admin added successfully",
+                "success"
+            );
             refreshAdmins();
             setAdminData({
                 firstName: "",

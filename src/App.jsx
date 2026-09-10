@@ -5,37 +5,55 @@ import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
+
+import { NotificationProvider } from "./contexts/NotificationContext";
+
 import "./App.css";
+
 
 function App() {
 
     return (
 
-        <Routes>
+        <NotificationProvider>
 
-            <Route path="/" element={<Login />} />
+            <Routes>
 
-            <Route path="/login" element={<Login />} />
+                <Route
+                    path="/"
+                    element={<Login />}
+                />
 
-            <Route path="/register" element={<Register />} />
+                <Route
+                    path="/login"
+                    element={<Login />}
+                />
 
-            <Route
-                path="/dashboard"
-                element={
-                    <ProtectedRoute>
-                        <Dashboard />
-                    </ProtectedRoute>
-                }
-            />
+                <Route
+                    path="/register"
+                    element={<Register />}
+                />
 
-            <Route path="*" element={<NotFound />} />
+                <Route
+                    path="/dashboard"
+                    element={
+                        <ProtectedRoute>
+                            <Dashboard />
+                        </ProtectedRoute>
+                    }
+                />
 
-            /* "*" is a wildcard route that will match any route that is not defined above it
-                */
+                <Route
+                    path="*"
+                    element={<NotFound />}
+                />
+
             </Routes>
 
-    );
+        </NotificationProvider>
 
+    );
 }
+
 
 export default App;

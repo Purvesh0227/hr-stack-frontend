@@ -2,9 +2,11 @@ import { useEffect, useState } from "react";
 import { markAttendance, getAttendance, createOtp } from "../services/api";
 import { formatDateTime, dateToMillis } from "../utils/dateUtils";
 import { DEPARTMENTS } from "../constants/departmentConstants";
+import { useNotification } from "../contexts/NotificationContext";
 import "../styles/Attendance.css";
 
 function Attendance({ role }) {
+    const { showNotification } = useNotification();
     const [attendance, setAttendance] = useState([]);
     const [showInitiate, setShowInitiate] = useState(false);
     const [showOtpModal, setShowOtpModal] = useState(false);
@@ -23,7 +25,10 @@ function Attendance({ role }) {
             setAttendance(response.data);
             setShowMyAttendance(scope === "MY");
         } catch (error) {
-            alert(error.response?.data?.error || "Unable to fetch attendance");
+            showNotification(
+                error.response?.data?.error || "Unable to fetch attendance",
+                "error"
+            );
         }
     };
 
@@ -73,17 +78,17 @@ function Attendance({ role }) {
     // Submit OTP
     const handleSubmitOtp = async () => {
         if (!enteredOtp) {
-            alert("Please enter OTP");
+            showNotification("Please enter OTP", "error");
             return;
         }
         if (enteredOtp.length !== 6) {
-            alert("OTP must be 6 digits");
+            showNotification("OTP must be 6 digits", "error");
             return;
         }
         try {
             setLoading(true);
             await markAttendance(enteredOtp);
-            alert("Attendance marked successfully");
+            showNotification("Attendance marked successfully", "success");
             setShowOtpModal(false);
             setEnteredOtp("");
 
@@ -96,7 +101,10 @@ function Attendance({ role }) {
                 await loadAttendance("MY");
             }
         } catch (error) {
-            alert(error.response?.data?.error || "Unable to mark attendance");
+            showNotification(
+                error.response?.data?.error || "Unable to mark attendance",
+                "error"
+            );
         } finally {
             setLoading(false);
         }
@@ -108,9 +116,12 @@ function Attendance({ role }) {
             const dateInMillis = dateToMillis(selectedDate);
             const response = await createOtp({ date: dateInMillis, department: department });
             setOtp(response.data);
-            alert("OTP generated successfully");
+            showNotification("OTP generated successfully", "success");
         } catch (error) {
-            alert(error.response?.data?.error || "Unable to generate OTP");
+            showNotification(
+                error.response?.data?.error || "Unable to generate OTP",
+                "error"
+            );
         }
     };
 

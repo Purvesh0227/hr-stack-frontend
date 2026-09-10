@@ -9,6 +9,7 @@ import {
     uploadFileDirectlyToMinio
 } from "../services/api";
 import { getMonthName, formatCurrency, sortSlipsNewestFirst } from "../utils/salaryUtils";
+import { useNotification } from "../contexts/NotificationContext";
 import "../styles/finance.css";
 
 const EMPTY_STRUCTURE_FORM = {
@@ -26,6 +27,8 @@ const EMPTY_GENERATE_FORM = {
 };
 
 function Finance({ role }) {
+    const { showNotification } = useNotification();
+
     const [salarySlips, setSalarySlips] = useState([]);
     const [showMySalary, setShowMySalary] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -50,7 +53,10 @@ function Finance({ role }) {
             setSalarySlips(sortSlipsNewestFirst(response.data));
             setShowMySalary(scope === "MY");
         } catch (error) {
-            alert(error.response?.data?.error || "Unable to fetch salary slips");
+            showNotification(
+                error.response?.data?.error || "Unable to fetch salary slips",
+                "error"
+            );
         } finally {
             setLoading(false);
         }
@@ -110,7 +116,10 @@ function Finance({ role }) {
 
             window.URL.revokeObjectURL(blobUrl);
         } catch (error) {
-            alert(error.response?.data?.error || "Unable to download salary slip");
+            showNotification(
+                error.response?.data?.error || "Unable to download salary slip",
+                "error"
+            );
         } finally {
             setDownloadingId(null);
         }
@@ -129,7 +138,7 @@ const handleReplace = async (slip) => {
         if (!file) return;
 
         if (file.type !== "application/pdf") {
-            alert("Please select a PDF file");
+            showNotification("Please select a PDF file", "error");
             return;
         }
 
@@ -163,7 +172,7 @@ const handleReplace = async (slip) => {
                 tempObjectKey
             );
 
-            alert("Salary slip replaced successfully");
+            showNotification("Salary slip replaced successfully", "success");
 
             await loadSalarySlips(
                 showMySalary ? "MY" : "ALL"
@@ -172,10 +181,11 @@ const handleReplace = async (slip) => {
         } catch (error) {
             console.error("Replace salary slip error:", error);
 
-            alert(
+            showNotification(
                 error.response?.data?.error ||
                 error.response?.data?.message ||
-                "Unable to replace salary slip"
+                "Unable to replace salary slip",
+                "error"
             );
         } finally {
             setReplacingId(null);
@@ -229,10 +239,13 @@ const handleReplace = async (slip) => {
                 pfApplicable: structureForm.pfApplicable
             });
 
-            alert("Salary structure saved successfully");
+            showNotification("Salary structure saved successfully", "success");
             handleCloseStructureModal();
         } catch (error) {
-            alert(error.response?.data?.error || error.response?.data?.message || "Unable to save salary structure");
+            showNotification(
+                error.response?.data?.error || error.response?.data?.message || "Unable to save salary structure",
+                "error"
+            );
         } finally {
             setSavingStructure(false);
         }
@@ -280,13 +293,16 @@ const handleReplace = async (slip) => {
                 Number(generateForm.year)
             );
 
-            alert("Salary slip generated successfully");
+            showNotification("Salary slip generated successfully", "success");
             handleCloseGenerateModal();
 
             // Refresh whichever view is currently active
             loadSalarySlips(showMySalary ? "MY" : "ALL");
         } catch (error) {
-            alert(error.response?.data?.error || error.response?.data?.message || "Unable to generate salary slip");
+            showNotification(
+                error.response?.data?.error || error.response?.data?.message || "Unable to generate salary slip",
+                "error"
+            );
         } finally {
             setGenerating(false);
         }

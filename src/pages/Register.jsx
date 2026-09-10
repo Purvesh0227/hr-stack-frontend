@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { registerEmployee } from "../services/api";
+import { useNotification } from "../contexts/NotificationContext";
 import { isValidEmail, isValidPhone, getPasswordChecks, doPasswordsMatch } from "../utils/validators";
 
 
 function Register() {
 
     const navigate = useNavigate();
+    const { showNotification } = useNotification();
 
     const [employee, setEmployee] = useState({
         firstName: "",
@@ -37,34 +39,34 @@ function Register() {
         e.preventDefault();
 
         if(!emailValid) {
-            alert("Please enter a valid email.");
+            showNotification("Please enter a valid email.", "error");
             return;
         }
         if(!phoneValid) {
-            alert("Mobile number must contain exactly 10 digits.");
+            showNotification("Mobile number must contain exactly 10 digits.", "error");
             return;
         }
 
         if (!hasMinLength ||!hasUpperCase ||!hasLowerCase ||!hasNumber ||!hasSpecial) {
-            alert("Password does not satisfy all requirements.");
+            showNotification("Password does not satisfy all requirements.", "error");
             return;
         }
 
         if (!passwordsMatch) {
-            alert("Passwords do not match");
+            showNotification("Passwords do not match", "error");
             return;
         }
 
         try {
             await registerEmployee(employee);
-            alert("Employee Registered Successfully");
+            showNotification("Employee Registered Successfully", "success");
             navigate("/login");
         } catch (error) 
         {
 
             if (error.response) {
                 if (error.response.data.error) {
-                    alert(error.response.data.error);
+                    showNotification(error.response.data.error, "error");
                 } 
                 else 
                 {
@@ -75,12 +77,12 @@ function Register() {
                     message += errors[key] + "\n";
                 }
     
-                alert(message);
+                showNotification(message, "error");
                 }
 
             } 
             else {  
-                alert("Registration Failed");
+                showNotification("Registration Failed", "error");
             }
         }
     };
