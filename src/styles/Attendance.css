@@ -432,3 +432,35 @@
         width: 100%;
     }
 }
+
+.generating-otp-btn {
+    opacity: 0.7;
+    cursor: not-allowed;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.otp-spinner {
+    width: 15px;
+    height: 15px;
+    border: 2px solid currentColor;
+    border-top-color: transparent;
+    border-radius: 50%;
+    display: inline-block;
+    animation: otp-spin 0.7s linear infinite;
+}
+
+@keyframes otp-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.attendance-generate-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}

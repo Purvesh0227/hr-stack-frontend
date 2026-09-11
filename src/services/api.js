@@ -81,8 +81,12 @@ export const getAttendance = (scope) =>
     API.get("/attendance/view", { params: { scope } });
 
 // Create OTP
-export const createOtp = (otpData) =>
-    API.post("/createotp", otpData);
+// Create OTP
+export const createOtp = (date, department) =>
+    API.post("/createotp", {
+        date,
+        department
+    });
 
 
 // ---------------- Salary / Finance ----------------

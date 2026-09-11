@@ -18,6 +18,8 @@ function Attendance({ role }) {
     const [loading, setLoading] = useState(false);
     const [countdown, setCountdown] = useState(0);
 
+    const [generatingOtp, setGeneratingOtp] = useState(false);
+
     // Load attendance
     const loadAttendance = async (scope) => {
         try {
@@ -111,19 +113,36 @@ function Attendance({ role }) {
     };
 
     // Generate OTP
-    const handleGenerateOtp = async () => {
-        try {
-            const dateInMillis = dateToMillis(selectedDate);
-            const response = await createOtp({ date: dateInMillis, department: department });
-            setOtp(response.data);
-            showNotification("OTP generated successfully", "success");
-        } catch (error) {
-            showNotification(
-                error.response?.data?.error || "Unable to generate OTP",
-                "error"
-            );
-        }
-    };
+    // Generate OTP
+const handleGenerateOtp = async () => {
+    try {
+        setGeneratingOtp(true);
+
+        const response = await createOtp(
+            dateToMillis(selectedDate),
+            department
+        );
+
+        setOtp(response.data);
+
+        showNotification(
+            "OTP generated and sent successfully.",
+            "success"
+        );
+
+    } catch (error) {
+        console.error("Failed to generate OTP:", error);
+
+        showNotification(
+            error.response?.data?.error ||
+            "Failed to generate and send OTP.",
+            "error"
+        );
+
+    } finally {
+        setGeneratingOtp(false);
+    }
+};
 
     // Open initiate modal
     const handleOpenInitiate = () => {
@@ -204,7 +223,20 @@ function Attendance({ role }) {
                             </div>
 
                             {/* Generate OTP */}
-                            <button className="attendance-generate-btn" onClick={handleGenerateOtp}>Generate OTP</button>
+                            <button
+                                    className="attendance-generate-btn"
+                                    onClick={handleGenerateOtp}
+                                    disabled={generatingOtp}
+                                >
+                                    {generatingOtp ? (
+                                        <>
+                                            <span className="otp-spinner"></span>
+                                            Generating & Sending...
+                                        </>
+                                    ) : (
+                                        "Generate OTP"
+                                    )}
+                                </button>
 
                             {/* OTP display */}
                             {otp && countdown > 0 && (
