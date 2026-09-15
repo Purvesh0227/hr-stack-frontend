@@ -65,6 +65,7 @@ function Dashboard() {
     const [loadingProfile, setLoadingProfile] =
         useState(false);
 
+    const [requestingDocuments, setRequestingDocuments] = useState(false);
     // =========================================================
     // NOTIFICATION
     // =========================================================
@@ -350,52 +351,24 @@ function Dashboard() {
     };
 
 
-    // =========================================================
-    // REQUEST EMPLOYEE DOCUMENTS
-    // =========================================================
+      // REQUEST EMPLOYEE DOCUMENTS
+    const handleRequestDocuments = async (uuid) => {
+    try {
+        setRequestingDocuments(true);
 
-    const handleRequestDocuments = async (emp) => {
+        await requestEmployeeDocuments(uuid);
 
-        const confirmed = window.confirm(
-            `Request documents from ${emp.firstName} ${emp.lastName}?`
-        );
+        showNotification("Document request sent successfully.", "success" );
 
-        if (!confirmed) {
-            return;
-        }
 
-        try {
-
-            await requestEmployeeDocuments(emp.id);
-
-            showNotification(
-                "Document request sent successfully",
-                "success"
-            );
-
-            setShowEmployeeModal(false);
-
-            setSelectedEmployee(null);
-
-            await handleGetAllEmployees();
-
-        } catch (error) {
-
-            console.error(
-                "Request documents error:",
-                error
-            );
-
-            showNotification(
-                error.response?.data?.message ||
-                error.response?.data ||
-                "Unable to request documents",
-                "error"
-            );
-
-            throw error;
-        }
-    };
+    } catch (error) {
+        console.error(  "Failed to request documents:", error );
+        
+        showNotification( error.response?.data?.error ||  "Failed to request documents and send email.", "error"  );
+    } finally {
+        setRequestingDocuments(false);
+    }
+};
 
 
     // =========================================================

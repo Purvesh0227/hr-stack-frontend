@@ -23,6 +23,7 @@ function EmployeeModal({
     const [selectedDocument, setSelectedDocument] = useState(null);
 
     const [loading, setLoading] = useState(false);
+    const [requestingDocuments, setRequestingDocuments] = useState(false);
 
     /*
      * Reset document viewer whenever
@@ -147,15 +148,17 @@ function EmployeeModal({
      * Request Documents
      */
     const handleRequestDocuments = async () => {
-        try {
-            setLoading(true);
+    try {
+        setLoading(true);
+        setRequestingDocuments(true);
 
-            await onRequestDocuments(employee);
+        await onRequestDocuments(employee.id);
 
-        } finally {
-            setLoading(false);
-        }
-    };
+    } finally {
+        setLoading(false);
+        setRequestingDocuments(false);
+    }
+};
 
     /*
      * Activate Employee
@@ -514,8 +517,11 @@ function EmployeeModal({
                                     type="button"
                                     className="primary-btn"
                                     onClick={handleRequestDocuments}
+                                    disabled ={requestingDocuments}
                                 >
-                                    REQUEST DOCUMENTS
+                                    {requestingDocuments 
+                                        ? "Requesting & sending....."
+                                    : "Request Documents"}
                                 </button>
 
                             )}

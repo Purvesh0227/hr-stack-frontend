@@ -6,7 +6,7 @@ import {
 } from "../services/api";
 import { useNotification } from "../contexts/NotificationContext";
 
-function EmployeeDocumentUpload({ employee }) {
+function EmployeeDocumentUpload({ employee, onUploadComplete }) {
     const { showNotification } = useNotification();
 
     const [idProofType, setIdProofType] = useState("");
@@ -17,29 +17,38 @@ function EmployeeDocumentUpload({ employee }) {
     const [idProofFile, setIdProofFile] = useState(null);
     const [addressProofFile, setAddressProofFile] = useState(null);
 
+    const [documentsSubmitted, setDocumentsSubmitted] = useState(false);
 
     const handleSubmit = async (e) => {
-
         e.preventDefault();
 
         if (!idProofFile || !addressProofFile) {
-            showNotification("Please select both documents", "error");
+            showNotification(
+                "Please select both documents",
+                "error"
+            );
             return;
         }
 
         if (!idProofType || !idProofNumber) {
-            showNotification("Please enter ID proof details", "error");
+            showNotification(
+                "Please enter ID proof details",
+                "error"
+            );
             return;
         }
 
         if (!addressProofType || !addressProofNumber) {
-            showNotification("Please enter address proof details", "error");
+            showNotification(
+                "Please enter address proof details",
+                "error"
+            );
             return;
         }
 
         try {
+            // ================= ID PROOF =================
 
-            // ID PROOF
             const idResponse =
                 await getEmployeeDocumentUploadUrl(
                     employee.id,
@@ -57,8 +66,8 @@ function EmployeeDocumentUpload({ employee }) {
                 idProofFile
             );
 
+            // ================= ADDRESS PROOF =================
 
-            // ADDRESS PROOF
             const addressResponse =
                 await getEmployeeDocumentUploadUrl(
                     employee.id,
@@ -76,8 +85,8 @@ function EmployeeDocumentUpload({ employee }) {
                 addressProofFile
             );
 
+            // ================= SAVE DOCUMENT DETAILS =================
 
-            // SAVE DOCUMENT DETAILS
             await saveEmployeeDocuments(
                 employee.id,
                 {
@@ -91,10 +100,21 @@ function EmployeeDocumentUpload({ employee }) {
                 }
             );
 
-            showNotification("Documents submitted successfully", "success");
+            // ================= SUCCESS =================
+
+            showNotification(
+                "Documents uploaded successfully. Waiting for verification.",
+                "success"
+            );
+
+            setDocumentsSubmitted(true);
+
+            // Tell Dashboard that upload is completed
+            if (onUploadComplete) {
+                onUploadComplete();
+            }
 
         } catch (error) {
-
             console.error(
                 "Document submission error:",
                 error
@@ -109,6 +129,18 @@ function EmployeeDocumentUpload({ employee }) {
         }
     };
 
+    // ================= DOCUMENTS SUBMITTED =================
+
+    if (documentsSubmitted) {
+        return (
+            <div className="document-upload-status">
+                <strong>✓ Documents Uploaded</strong>
+                <span>Waiting for verification.</span>
+            </div>
+        );
+    }
+
+    // ================= UPLOAD FORM =================
 
     return (
         <div className="content-card employee-document-upload">
@@ -137,7 +169,6 @@ function EmployeeDocumentUpload({ employee }) {
                                     setIdProofType(e.target.value)
                                 }
                             >
-
                                 <option value="">
                                     Select ID Proof
                                 </option>
@@ -149,11 +180,9 @@ function EmployeeDocumentUpload({ employee }) {
                                 <option value="PAN">
                                     PAN
                                 </option>
-
                             </select>
 
                         </div>
-
 
                         <div className="document-form-group">
 
@@ -172,7 +201,6 @@ function EmployeeDocumentUpload({ employee }) {
 
                         </div>
 
-
                         <div className="document-form-group">
 
                             <label>
@@ -183,14 +211,15 @@ function EmployeeDocumentUpload({ employee }) {
                                 type="file"
                                 accept=".pdf,image/*"
                                 onChange={(e) =>
-                                    setIdProofFile(e.target.files[0])
+                                    setIdProofFile(
+                                        e.target.files[0]
+                                    )
                                 }
                             />
 
                         </div>
 
                     </div>
-
 
                     {/* ================= ADDRESS PROOF ================= */}
 
@@ -207,10 +236,11 @@ function EmployeeDocumentUpload({ employee }) {
                             <select
                                 value={addressProofType}
                                 onChange={(e) =>
-                                    setAddressProofType(e.target.value)
+                                    setAddressProofType(
+                                        e.target.value
+                                    )
                                 }
                             >
-
                                 <option value="">
                                     Select Address Proof
                                 </option>
@@ -222,11 +252,9 @@ function EmployeeDocumentUpload({ employee }) {
                                 <option value="LIGHT_BILL">
                                     Light Bill
                                 </option>
-
                             </select>
 
                         </div>
-
 
                         <div className="document-form-group">
 
@@ -238,13 +266,14 @@ function EmployeeDocumentUpload({ employee }) {
                                 type="text"
                                 value={addressProofNumber}
                                 onChange={(e) =>
-                                    setAddressProofNumber(e.target.value)
+                                    setAddressProofNumber(
+                                        e.target.value
+                                    )
                                 }
                                 placeholder="Enter address proof number"
                             />
 
                         </div>
-
 
                         <div className="document-form-group">
 
@@ -256,7 +285,9 @@ function EmployeeDocumentUpload({ employee }) {
                                 type="file"
                                 accept=".pdf,image/*"
                                 onChange={(e) =>
-                                    setAddressProofFile(e.target.files[0])
+                                    setAddressProofFile(
+                                        e.target.files[0]
+                                    )
                                 }
                             />
 
@@ -266,8 +297,7 @@ function EmployeeDocumentUpload({ employee }) {
 
                 </div>
 
-
-                {/* SUBMIT */}
+                {/* ================= SUBMIT ================= */}
 
                 <button
                     type="submit"
