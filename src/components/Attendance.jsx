@@ -20,6 +20,8 @@ function Attendance({ role }) {
 
     const [generatingOtp, setGeneratingOtp] = useState(false);
 
+    const [otpCooldown, setOtpCooldown] = useState(0);
+
     // Load attendance
     const loadAttendance = async (scope) => {
         try {
@@ -64,11 +66,34 @@ function Attendance({ role }) {
         };
     }, [otp]);
 
+    useEffect(() => {
+    if (otpCooldown <= 0) return;
+
+        const timer = setInterval(() => {
+            setOtpCooldown((prev) => {
+                if (prev <= 1) {
+                    clearInterval(timer);
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+
+        return () => clearInterval(timer);
+    }, [otpCooldown]);
+
     // Format countdown
     const formatCountdown = () => {
         const minutes = Math.floor(countdown / 60);
         const seconds = countdown % 60;
         return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+    };
+
+    const formatOtpCooldown = () => {
+    const minutes = Math.floor(otpCooldown / 60);
+    const seconds = otpCooldown % 60;
+
+    return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
     };
 
     // Mark attendance
@@ -114,7 +139,12 @@ function Attendance({ role }) {
 
     // Generate OTP
     // Generate OTP
-const handleGenerateOtp = async () => {
+    const handleGenerateOtp = async () => {
+    // Prevent generating another OTP during cooldown
+    if (otpCooldown > 0) {
+        return;
+    }
+
     try {
         setGeneratingOtp(true);
 
@@ -124,6 +154,9 @@ const handleGenerateOtp = async () => {
         );
 
         setOtp(response.data);
+
+        // Start 5-minute cooldown after successful OTP generation
+        setOtpCooldown(5 * 60);
 
         showNotification(
             "OTP generated and sent successfully.",
@@ -224,25 +257,26 @@ const handleGenerateOtp = async () => {
 
                             {/* Generate OTP */}
                             <button
-                                    className="attendance-generate-btn"
-                                    onClick={handleGenerateOtp}
-                                    disabled={generatingOtp}
-                                >
-                                    {generatingOtp ? (
-                                        <>
-                                            <span className="otp-spinner"></span>
-                                            Generating & Sending...
-                                        </>
-                                    ) : (
-                                        "Generate OTP"
-                                    )}
-                                </button>
+                                className="attendance-generate-btn"
+                                onClick={handleGenerateOtp}
+                                disabled={generatingOtp || otpCooldown > 0}
+                            >
+                                {generatingOtp ? (
+                                    <>
+                                        <span className="otp-spinner"></span>
+                                        Generating & Sending...
+                                    </>
+                                ) : otpCooldown > 0 ? (
+                                    `Generate OTP (${formatOtpCooldown()})`
+                                ) : (
+                                    "Generate OTP"
+                                )}
+                            </button>
 
                             {/* OTP display */}
                             {otp && countdown > 0 && (
                                 <div className="attendance-otp-box">
-                                    <div className="otp-label">OTP</div>
-                                    <div className="attendance-otp-value">{otp.otp}</div>
+                                    <div className="otp-label">OTP Sent Successfully to email</div>
                                     <div className="otp-divider"></div>
                                     <div className="otp-countdown-label">OTP expires in</div>
                                     <div className="attendance-otp-countdown">{formatCountdown()}</div>
@@ -264,7 +298,15 @@ const handleGenerateOtp = async () => {
                                 <div className="attendance-otp-box expired">
                                     <div className="otp-label">OTP Expired</div>
                                     <p>Generate a new OTP to start attendance.</p>
-                                    <button className="primary-btn" onClick={handleGenerateOtp}>Generate New OTP</button>
+                                    <button
+                                        className="primary-btn"
+                                        onClick={handleGenerateOtp}
+                                        disabled={generatingOtp || otpCooldown > 0}
+                                    >
+                                        {otpCooldown > 0
+                                            ? `Generate New OTP (${formatOtpCooldown()})`
+                                            : "Generate New OTP"}
+                                    </button>
                                 </div>
                             )}
 
