@@ -9,22 +9,17 @@ import {
     requestEmployeeDocuments,
     getEmployeeById
 } from "../services/api";
+
 import { paginate } from "../utils/pagination";
-import Pagination from "../components/Pagination";
+import { filterBySearch } from "../utils/tableFilters";
+import { toDisplayText } from "../utils/stringUtil";
 
 import Navbar from "../components/Navbar";
-import AdminSidebar from "../components/AdminSidebar";
 import Footer from "../components/Footer";
-import AddAdminModal from "../components/AddAdminModal";
-import Attendance from "../components/Attendance";
-import Finance from "../components/Finance";
-import EmployeeModal from "../components/EmployeeModal";
-import EmployeeDocumentUpload from "../components/EmployeeDocumentUpload";
-import Loader from "../components/Loader";
 import Notification from "../components/Notification";
 
-import { toDisplayText } from "../utils/stringUtil";
-import { filterBySearch } from "../utils/tableFilters";
+import AdminDashboard from "../components/dashboard/AdminDashboard";
+import EmployeeDashboard from "../components/dashboard/EmployeeDashboard";
 
 function Dashboard() {
     const role = localStorage.getItem("role");
@@ -50,24 +45,24 @@ function Dashboard() {
     // Employee Search
     const [employeeSearchTerm, setEmployeeSearchTerm] = useState("");
 
-    // =========================================================
-    // LOADING STATES
-    // =========================================================
+    // Loading States
     const [loadingEmployees, setLoadingEmployees] = useState(false);
     const [loadingAdmins, setLoadingAdmins] = useState(false);
     const [loadingProfile, setLoadingProfile] = useState(false);
     const [requestingDocuments, setRequestingDocuments] = useState(false);
 
+    // Employee Pagination
     const [employeeCurrentPage, setEmployeeCurrentPage] = useState(1);
 
-    // =========================================================
-    // NOTIFICATION
-    // =========================================================
+    // Notification
     const [notification, setNotification] = useState({
         message: "",
         type: "success"
     });
 
+    // =========================================================
+    // NOTIFICATION
+    // =========================================================
     const showNotification = (message, type = "success") => {
         setNotification({
             message,
@@ -162,13 +157,14 @@ function Dashboard() {
     };
 
     // =========================================================
-    // EMPLOYEE SEARCH
+    // EMPLOYEE SEARCH + PAGINATION
     // =========================================================
     const filteredEmployees = filterBySearch(
         employees,
         employeeSearchTerm,
         "empId"
     );
+
     const employeeRecordsPerPage = 10;
 
     const {
@@ -355,10 +351,16 @@ function Dashboard() {
         return () => clearInterval(interval);
     }, [role, employee?.id]);
 
+    // =========================================================
+    // NORMALIZED EMPLOYEE STATUS
+    // =========================================================
     const normalizedEmployeeStatus = employee?.status
         ?.replace(/[\s_]+/g, "_")
         .toUpperCase();
 
+    // =========================================================
+    // DASHBOARD
+    // =========================================================
     return (
         <>
             <Navbar />
@@ -373,492 +375,66 @@ function Dashboard() {
             />
 
             {/* =================================================
-                ADMIN DASHBOARD
+                ADMIN / EMPLOYEE DASHBOARD
             ================================================= */}
             {role === "ADMIN" ? (
-                <div className="dashboard-wrapper">
-                    <AdminSidebar
-                        activeMenu={activeMenu}
-                        setActiveMenu={setActiveMenu}
-                        role={role}
-                    />
+                <AdminDashboard
+                    role={role}
+                    employee={employee}
+                    activeMenu={activeMenu}
+                    setActiveMenu={setActiveMenu}
 
-                    <main className="dashboard-main">
-                        {/* =================================================
-                            ADMIN HEADER
-                        ================================================= */}
-                        <div className="dashboard-header">
-                            <div>
-                                <h1>
-                                    Welcome, {employee?.firstName}
-                                </h1>
-                                <p>
-                                    Manage employees and administrators.
-                                </p>
-                            </div>
-                        </div>
+                    // Employee Data
+                    employees={employees}
+                    filteredEmployees={filteredEmployees}
+                    paginatedEmployees={paginatedEmployees}
+                    loadingEmployees={loadingEmployees}
+                    employeeSearchTerm={employeeSearchTerm}
+                    setEmployeeSearchTerm={setEmployeeSearchTerm}
+                    employeeCurrentPage={employeeCurrentPage}
+                    employeeTotalPages={employeeTotalPages}
+                    setEmployeeCurrentPage={setEmployeeCurrentPage}
 
-                        {/* =================================================
-                            EMPLOYEES
-                        ================================================= */}
-                        {activeMenu === "dashboard" && (
-                            <div className="content-card">
-                                <div className="card-header">
-                                    <h2>
-                                        Employees
-                                    </h2>
+                    // Admin Data
+                    admins={admins}
+                    loadingAdmins={loadingAdmins}
 
-                                    <div className="employee-table-actions">
-                                        <button
-                                            className="primary-btn"
-                                            onClick={handleGetAllEmployees}
-                                            disabled={loadingEmployees}
-                                        >
-                                            View Employees
-                                        </button>
+                    // Admin Profile
+                    adminProfile={adminProfile}
+                    loadingProfile={loadingProfile}
 
-                                        <input
-                                            type="text"
-                                            placeholder="Search Employee ID..."
-                                            value={employeeSearchTerm}
-                                            onChange={(e) =>
-                                                setEmployeeSearchTerm(e.target.value)
-                                            }
-                                            className="employee-search-input"
-                                        />
-                                    </div>
-                                </div>
+                    // Add Admin Modal
+                    showAddAdminModal={showAddAdminModal}
+                    setShowAddAdminModal={setShowAddAdminModal}
 
-                                {/* Employee Loader */}
-                                {loadingEmployees && (
-                                    <Loader />
-                                )}
+                    // Employee Modal
+                    showEmployeeModal={showEmployeeModal}
+                    selectedEmployee={selectedEmployee}
+                    employeeModalMode={employeeModalMode}
 
-                                {/* Employee Table */}
-                                {!loadingEmployees &&
-                                    filteredEmployees.length > 0 && (
-                                        <table className="employee-table">
-                                            <thead>
-                                                <tr>
-                                                    <th>
-                                                        ID
-                                                    </th>
-                                                    <th>
-                                                        Name
-                                                    </th>
-                                                    <th>
-                                                        Email
-                                                    </th>
-                                                    <th>
-                                                        Mobile
-                                                    </th>
-                                                    <th>
-                                                        Role
-                                                    </th>
-                                                    <th>
-                                                        Status
-                                                    </th>
-                                                    <th>
-                                                        Action
-                                                    </th>
-                                                </tr>
-                                            </thead>
+                    // API Handlers
+                    handleGetAllEmployees={handleGetAllEmployees}
+                    handleGetAllAdmins={handleGetAllAdmins}
+                    handleViewEmployee={handleViewEmployee}
+                    handleEditEmployee={handleEditEmployee}
+                    handleCloseEmployeeModal={handleCloseEmployeeModal}
+                    handleSaveEmployee={handleSaveEmployee}
+                    handleActivateEmployee={handleActivateEmployee}
+                    handleRequestDocuments={handleRequestDocuments}
 
-                                            <tbody>
-                                                {paginatedEmployees.map((emp) => (
-                                                    <tr key={emp.id}>
-                                                        <td>
-                                                            <button
-                                                                className="employee-id-btn"
-                                                                onClick={() =>
-                                                                    handleViewEmployee(emp)
-                                                                }
-                                                            >
-                                                                {emp.empId}
-                                                            </button>
-                                                        </td>
-
-                                                        <td>
-                                                            {emp.firstName} {emp.lastName}
-                                                        </td>
-
-                                                        <td>
-                                                            {emp.email}
-                                                        </td>
-
-                                                        <td>
-                                                            {emp.mobile}
-                                                        </td>
-
-                                                        <td>
-                                                            {emp.role}
-                                                        </td>
-
-                                                        {/* STATUS */}
-                                                        <td>
-                                                            <span
-                                                                className={`status-badge status-${emp.status
-                                                                    ?.toLowerCase()
-                                                                    .replace(/_/g, "-")}`}
-                                                            >
-                                                                {toDisplayText(emp.status)}
-                                                            </span>
-                                                        </td>
-
-                                                        {/* ACTIONS */}
-                                                        <td className="action-buttons">
-                                                            {/* VIEW */}
-                                                            <button
-                                                                className="view-btn"
-                                                                onClick={() =>
-                                                                    handleViewEmployee(emp)
-                                                                }
-                                                                title="View Employee"
-                                                            >
-                                                                👁️
-                                                            </button>
-
-                                                            {/* EDIT */}
-                                                            <button
-                                                                className="edit-btn"
-                                                                onClick={() =>
-                                                                    handleEditEmployee(emp)
-                                                                }
-                                                                title="Edit Employee"
-                                                            >
-                                                                ✏️
-                                                            </button>
-                                                        </td>
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
-                                )}
-                                <Pagination
-                                    currentPage={employeeCurrentPage}
-                                    totalPages={employeeTotalPages}
-                                    onPageChange={setEmployeeCurrentPage}
-                                />
-
-                                {/* No Employee Search Results */}
-                                {!loadingEmployees &&
-                                    employees.length > 0 &&
-                                    filteredEmployees.length === 0 && (
-                                        <p className="no-attendance">
-                                            No employees found.
-                                        </p>
-                                    )}
-                            </div>
-                        )}
-
-                        {/* =================================================
-                            ADMINS
-                        ================================================= */}
-                        {activeMenu === "admins" && (
-                            <div className="content-card">
-                                <div className="card-header">
-                                    <h2>
-                                        Administrators
-                                    </h2>
-
-                                    <div
-                                        style={{
-                                            display: "flex",
-                                            gap: "10px"
-                                        }}
-                                    >
-                                        {/* VIEW ADMINS */}
-                                        <button
-                                            className="primary-btn"
-                                            onClick={handleGetAllAdmins}
-                                            disabled={loadingAdmins}
-                                        >
-                                            View Admins
-                                        </button>
-
-                                        {/* ADD ADMIN */}
-                                        <button
-                                            className="primary-btn"
-                                            onClick={() => setShowAddAdminModal(true)}
-                                        >
-                                            Add Admin
-                                        </button>
-                                    </div>
-                                </div>
-
-                                {/* Admin Loader */}
-                                {loadingAdmins && (
-                                    <Loader />
-                                )}
-
-                                {/* Admin Table */}
-                                {!loadingAdmins &&
-                                    admins.length > 0 && (
-                                        <table className="employee-table">
-                                            <thead>
-                                                <tr>
-                                                    <th>
-                                                        ID
-                                                    </th>
-                                                    <th>
-                                                        Name
-                                                    </th>
-                                                    <th>
-                                                        Email
-                                                    </th>
-                                                    <th>
-                                                        Mobile
-                                                    </th>
-                                                    <th>
-                                                        Role
-                                                    </th>
-                                                </tr>
-                                            </thead>
-
-                                            <tbody>
-                                                {admins.map((admin) => (
-                                                    <tr key={admin.id}>
-                                                        <td>
-                                                            {admin.empId}
-                                                        </td>
-
-                                                        <td>
-                                                            {admin.firstName} {admin.lastName}
-                                                        </td>
-
-                                                        <td>
-                                                            {admin.email}
-                                                        </td>
-
-                                                        <td>
-                                                            {admin.mobile}
-                                                        </td>
-
-                                                        <td>
-                                                            {admin.role}
-                                                        </td>
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
-                                    )}
-
-                                <AddAdminModal
-                                    isOpen={showAddAdminModal}
-                                    onClose={() => setShowAddAdminModal(false)}
-                                    refreshAdmins={handleGetAllAdmins}
-                                />
-                            </div>
-                        )}
-
-                        {/* =================================================
-                            ATTENDANCE
-                        ================================================= */}
-                        {activeMenu === "attendance" && (
-                            <Attendance role={role} />
-                        )}
-
-                        {/* =================================================
-                            FINANCE
-                        ================================================= */}
-                        {activeMenu === "finance" && (
-                            <Finance role={role} />
-                        )}
-
-                        {/* =================================================
-                            ADMIN SETTINGS
-                        ================================================= */}
-                        {activeMenu === "settings" && (
-                            <div className="content-card">
-                                <h2>
-                                    My Profile
-                                </h2>
-
-                                {loadingProfile ? (
-                                    <Loader />
-                                ) : adminProfile && (
-                                    <div className="profile-details">
-                                        <p>
-                                            <strong>
-                                                First Name :
-                                            </strong>{" "}
-                                            {adminProfile.firstName}
-                                        </p>
-
-                                        <p>
-                                            <strong>
-                                                Last Name :
-                                            </strong>{" "}
-                                            {adminProfile.lastName}
-                                        </p>
-
-                                        <p>
-                                            <strong>
-                                                Email :
-                                            </strong>{" "}
-                                            {adminProfile.email}
-                                        </p>
-
-                                        <p>
-                                            <strong>
-                                                Role :
-                                            </strong>{" "}
-                                            {adminProfile.role}
-                                        </p>
-                                    </div>
-                                )}
-                            </div>
-                        )}
-
-                        {/* =================================================
-                            EMPLOYEE VIEW / EDIT MODAL
-                        ================================================= */}
-                        <EmployeeModal
-                            isOpen={showEmployeeModal}
-                            employee={selectedEmployee}
-                            mode={employeeModalMode}
-                            onClose={handleCloseEmployeeModal}
-                            onSave={handleSaveEmployee}
-                            onActivate={handleActivateEmployee}
-                            onRequestDocuments={handleRequestDocuments}
-                        />
-                    </main>
-                </div>
+                    // Utility
+                    toDisplayText={toDisplayText}
+                />
             ) : (
-                /* =========================================================
-                   EMPLOYEE DASHBOARD
-                ========================================================= */
-                <div className="dashboard-wrapper">
-                    <AdminSidebar
-                        activeMenu={activeMenu}
-                        setActiveMenu={setActiveMenu}
-                        role={role}
-                    />
-
-                    <main className="dashboard-main">
-                        {/* =================================================
-                            HOME
-                        ================================================= */}
-                        {activeMenu === "dashboard" && (
-                            <>
-                                <div className="dashboard-header">
-                                    <div>
-                                        <h1>
-                                            Welcome, {employee?.firstName}
-                                        </h1>
-                                        <p>
-                                            Welcome to your employee dashboard.
-                                        </p>
-                                    </div>
-                                </div>
-
-                                {/* HOME CARD */}
-                                <div className="content-card">
-                                    <h2>
-                                        Home
-                                    </h2>
-                                    <p>
-                                        Welcome to HR-Stack Employee Dashboard.
-                                    </p>
-                                </div>
-
-                                {/* =================================================
-                                    DOCUMENT VERIFICATION BANNER
-                                ================================================= */}
-                                {normalizedEmployeeStatus === "PENDING_VERIFICATION" && (
-                                    <div className="document-verification-banner">
-                                        <strong>
-                                            Please Upload Required Documents
-                                        </strong>
-                                        <p>
-                                            Your account is pending
-                                            document verification.
-                                            Please upload your ID proof
-                                            and Address proof.
-                                        </p>
-                                    </div>
-                                )}
-
-                                {/* =================================================
-                                    DOCUMENT UPLOAD
-                                ================================================= */}
-                                {normalizedEmployeeStatus === "PENDING_VERIFICATION" && (
-                                    <EmployeeDocumentUpload employee={employee} />
-                                )}
-                            </>
-                        )}
-
-                        {/* =================================================
-                            ATTENDANCE
-                        ================================================= */}
-                        {activeMenu === "attendance" && (
-                            <Attendance role={role} />
-                        )}
-
-                        {/* =================================================
-                            FINANCE
-                        ================================================= */}
-                        {activeMenu === "finance" && (
-                            <Finance role={role} />
-                        )}
-
-                        {/* =================================================
-                            EMPLOYEE SETTINGS
-                        ================================================= */}
-                        {activeMenu === "settings" && (
-                            <div className="content-card">
-                                <h2>
-                                    My Profile
-                                </h2>
-
-                                <div className="profile-details">
-                                    <p>
-                                        <strong>
-                                            Employee ID :
-                                        </strong>{" "}
-                                        {employee?.id}
-                                    </p>
-
-                                    <p>
-                                        <strong>
-                                            First Name :
-                                        </strong>{" "}
-                                        {employee?.firstName}
-                                    </p>
-
-                                    <p>
-                                        <strong>
-                                            Last Name :
-                                        </strong>{" "}
-                                        {employee?.lastName}
-                                    </p>
-
-                                    <p>
-                                        <strong>
-                                            Email :
-                                        </strong>{" "}
-                                        {employee?.email}
-                                    </p>
-
-                                    <p>
-                                        <strong>
-                                            Mobile :
-                                        </strong>{" "}
-                                        {employee?.mobile}
-                                    </p>
-
-                                    <p>
-                                        <strong>
-                                            Role :
-                                        </strong>{" "}
-                                        {employee?.role}
-                                    </p>
-                                </div>
-                            </div>
-                        )}
-                    </main>
-                </div>
+                <EmployeeDashboard
+                    role={role}
+                    employee={employee}
+                    activeMenu={activeMenu}
+                    setActiveMenu={setActiveMenu}
+                    normalizedEmployeeStatus={normalizedEmployeeStatus}
+                />
             )}
+
             <Footer />
         </>
     );
