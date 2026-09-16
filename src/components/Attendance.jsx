@@ -4,10 +4,17 @@ import { formatDateTime, dateToMillis } from "../utils/dateUtils";
 import { DEPARTMENTS } from "../constants/departmentConstants";
 import { useNotification } from "../contexts/NotificationContext";
 import "../styles/Attendance.css";
+import { filterBySearch } from "../utils/tableFilters";
+import { paginate } from "../utils/pagination";
+import Pagination from "../components/Pagination";
 
 function Attendance({ role }) {
     const { showNotification } = useNotification();
+    
     const [attendance, setAttendance] = useState([]);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [selectedMonth, setSelectedMonth] = useState("");
+
     const [showInitiate, setShowInitiate] = useState(false);
     const [showOtpModal, setShowOtpModal] = useState(false);
     const [showMyAttendance, setShowMyAttendance] = useState(false);
@@ -21,6 +28,8 @@ function Attendance({ role }) {
     const [generatingOtp, setGeneratingOtp] = useState(false);
 
     const [otpCooldown, setOtpCooldown] = useState(0);
+
+    const [currentPage, setCurrentPage] = useState(1);
 
     // Load attendance
     const loadAttendance = async (scope) => {
@@ -81,6 +90,10 @@ function Attendance({ role }) {
 
         return () => clearInterval(timer);
     }, [otpCooldown]);
+
+    useEffect(() => {
+    setCurrentPage(1);
+        }, [searchTerm, selectedMonth]);
 
     // Format countdown
     const formatCountdown = () => {
@@ -201,6 +214,31 @@ function Attendance({ role }) {
     const handleMyAttendance = () => {
         loadAttendance("MY");
     };
+
+    //search attendance
+   const searchFilteredAttendance = filterBySearch(
+    attendance,
+    searchTerm,
+    "empId"
+    );
+
+    const filteredAttendance = searchFilteredAttendance.filter((record) => {
+        return (
+            selectedMonth === "" ||
+            new Date(record.markedOn).getMonth() + 1 === Number(selectedMonth)
+        );
+    });
+
+    const recordsPerPage = 7;
+
+    const {
+        currentItems: paginatedAttendance,
+        totalPages
+    } = paginate(
+        filteredAttendance,
+        currentPage,
+        recordsPerPage
+    );
 
     return (
         <div className="attendance-page">
@@ -366,9 +404,40 @@ function Attendance({ role }) {
                                     ? "All Employee Attendance"
                                     : "My Attendance"}
                         </h3>
+
+                        <div className="attendance-filters">
+                            {role === "ADMIN" && (
+                                    <input
+                                        type="text"
+                                        placeholder="Search Employee ID..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        className="attendance-search-input"
+                                    />
+                                )}
+
+                            <select className="attendance-month-filter"
+                                value={selectedMonth}
+                                onChange={(e) => setSelectedMonth(e.target.value)}
+                            >
+                                <option value="">All Months</option>
+                                <option value="1">January</option>
+                                <option value="2">February</option>
+                                <option value="3">March</option>
+                                <option value="4">April</option>
+                                <option value="5">May</option>
+                                <option value="6">June</option>
+                                <option value="7">July</option>
+                                <option value="8">August</option>
+                                <option value="9">September</option>
+                                <option value="10">October</option>
+                                <option value="11">November</option>
+                                <option value="12">December</option>
+                            </select>
+                        </div>
                     </div>
 
-                    {attendance.length === 0 ? (
+                    {filteredAttendance.length === 0 ? (
                         <p className="no-attendance">No attendance records found.</p>
                     ) : (
                         <table className="employee-table">
@@ -380,7 +449,7 @@ function Attendance({ role }) {
                                 </tr>
                             </thead>
                             <tbody>
-                                {attendance.map((record) => (
+                                {paginatedAttendance.map((record) => (
                                     <tr key={record.uuid}>
                                         <td>{record.empId}</td>
                                         <td>{formatDateTime(record.markedOn)}</td>
@@ -390,6 +459,11 @@ function Attendance({ role }) {
                             </tbody>
                         </table>
                     )}
+                    <Pagination
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        onPageChange={setCurrentPage}
+                    />
                 </div>
             </div>
         </div>

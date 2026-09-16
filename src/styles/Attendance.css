@@ -464,3 +464,80 @@
     justify-content: center;
     gap: 8px;
 }
+
+
+/* Search Input */
+.attendance-table-header {
+    display: flex;
+    align-items: center;
+    justify-content:  space-between;
+    gap: 20px;
+}
+
+.attendance-filters {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.attendance-search-input,
+.attendance-month-filter {
+    height: 38px;
+    padding: 8px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 14px;
+    outline: none;
+    box-sizing: border-box;
+}
+
+.attendance-search-input {
+    width: 220px;
+}
+
+.attendance-month-filter {
+    width: 160px;
+}
+
+.attendance-search-input:focus,
+.attendance-month-filter:focus {
+    border-color: #2563eb;
+}
+
+
+/* Pagination */
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 15px;
+    padding: 10px 0;
+}
+
+.pagination button {
+    padding: 8px 14px;
+    border: none;
+    border-radius: 6px;
+    background: #2563eb;
+    color: white;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.pagination button:hover:not(:disabled) {
+    background: #1d4ed8;
+}
+
+.pagination button:disabled {
+    background: #d1d5db;
+    color: #6b7280;
+    cursor: not-allowed;
+}
+
+.pagination span {
+    font-size: 14px;
+    font-weight: 500;
+    color: #374151;
+}
