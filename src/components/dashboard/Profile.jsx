@@ -9,6 +9,9 @@ import {
 } from "../../services/api";
 
 import PdfViewer from "../../components/common/PdfViewer";
+import EmployeeIdCard from "../../components/common/EmployeeIdCard";
+
+import { FiEdit2, FiEye } from "react-icons/fi";
 
 
 function Profile({
@@ -43,6 +46,12 @@ function Profile({
     const [showProfilePhoto, setShowProfilePhoto] =
         useState(false);
 
+    const [selectedPhoto, setSelectedPhoto] =
+        useState(null);
+
+    const [previewPhotoUrl, setPreviewPhotoUrl] =
+        useState(null);
+
     const [updatingProfilePhoto, setUpdatingProfilePhoto] =
         useState(false);
 
@@ -51,11 +60,11 @@ function Profile({
 
 
     // =========================================================
-    // DOCUMENT VIEWER
+    // ID CARD
     // =========================================================
 
-    const [selectedDocument, setSelectedDocument] =
-        useState(null);
+    const [showIdCard, setShowIdCard] =
+        useState(false);
 
 
     // =========================================================
@@ -162,6 +171,27 @@ function Profile({
 
 
     // =========================================================
+    // CLEAN PREVIEW URL
+    // =========================================================
+
+    useEffect(() => {
+
+        return () => {
+
+            if (previewPhotoUrl) {
+
+                URL.revokeObjectURL(
+                    previewPhotoUrl
+                );
+
+            }
+
+        };
+
+    }, [previewPhotoUrl]);
+
+
+    // =========================================================
     // LOADING
     // =========================================================
 
@@ -183,6 +213,7 @@ function Profile({
             </div>
 
         );
+
     }
 
 
@@ -203,6 +234,7 @@ function Profile({
             </div>
 
         );
+
     }
 
 
@@ -239,6 +271,7 @@ function Profile({
         );
 
         setIsEditingDetails(true);
+
     };
 
 
@@ -253,69 +286,7 @@ function Profile({
         setEditedFirstName("");
         setEditedLastName("");
         setEditedMobile("");
-    };
 
-
-    // =========================================================
-    // SAVE DETAILS
-    // =========================================================
-
-    const handleSaveDetails = async () => {
-
-        if (
-            !profile ||
-            role !== "EMPLOYEE"
-        ) {
-            return;
-        }
-
-
-        const firstName =
-            editedFirstName.trim();
-
-        const lastName =
-            editedLastName.trim();
-
-        const mobile =
-            editedMobile.trim();
-
-
-        if (
-            !firstName ||
-            !lastName ||
-            !mobile
-        ) {
-            return;
-        }
-
-
-        setSavingDetails(true);
-
-
-        try {
-
-            await handleSaveOwnProfile({
-                firstName,
-                lastName,
-                mobile
-            });
-
-
-            setIsEditingDetails(false);
-
-            setEditedFirstName("");
-            setEditedLastName("");
-            setEditedMobile("");
-
-        } catch (error) {
-
-            // Parent handles notification.
-
-        } finally {
-
-            setSavingDetails(false);
-
-        }
     };
 
 
@@ -327,13 +298,17 @@ function Profile({
 
         if (
             updatingProfilePhoto ||
+            savingDetails ||
             !profilePhotoInputRef.current
         ) {
+
             return;
+
         }
 
 
         profilePhotoInputRef.current.click();
+
     };
 
 
@@ -341,9 +316,7 @@ function Profile({
     // PROFILE PHOTO CHANGE
     // =========================================================
 
-    const handleProfilePhotoChange = async (
-        event
-    ) => {
+    const handleProfilePhotoChange = (event) => {
 
         const file =
             event.target.files?.[0];
@@ -351,6 +324,7 @@ function Profile({
 
         // Reset input so the same file
         // can be selected again later.
+
         event.target.value = "";
 
 
@@ -380,6 +354,7 @@ function Profile({
             );
 
             return;
+
         }
 
 
@@ -400,51 +375,175 @@ function Profile({
             );
 
             return;
+
         }
 
 
         // =====================================================
-        // UPDATE PHOTO
+        // STORE PHOTO LOCALLY
+        // =====================================================
+
+        if (previewPhotoUrl) {
+
+            URL.revokeObjectURL(
+                previewPhotoUrl
+            );
+
+        }
+
+
+        const previewUrl =
+            URL.createObjectURL(file);
+
+
+        setSelectedPhoto(file);
+        setPreviewPhotoUrl(previewUrl);
+
+    };
+
+
+    // =========================================================
+    // SAVE DETAILS + PHOTO
+    // =========================================================
+
+    const handleSaveChanges = async () => {
+
+        if (
+            !profile ||
+            role !== "EMPLOYEE"
+        ) {
+
+            return;
+
+        }
+
+
+        const firstName =
+            editedFirstName.trim();
+
+        const lastName =
+            editedLastName.trim();
+
+        const mobile =
+            editedMobile.trim();
+
+
+        // =====================================================
+        // VALIDATION
         // =====================================================
 
         if (
-            !profile?.id ||
-            role !== "EMPLOYEE"
+            isEditingDetails &&
+            (
+                !firstName ||
+                !lastName ||
+                !mobile
+            )
         ) {
+
+            window.alert(
+                "First name, last name and mobile number are required."
+            );
+
             return;
+
         }
 
 
-        setUpdatingProfilePhoto(true);
+        // If no details are currently being edited,
+        // retain the existing profile values.
+
+        const finalFirstName =
+            isEditingDetails
+                ? firstName
+                : profile.firstName;
+
+        const finalLastName =
+            isEditingDetails
+                ? lastName
+                : profile.lastName;
+
+        const finalMobile =
+            isEditingDetails
+                ? mobile
+                : profile.mobile;
+
+
+        setSavingDetails(true);
 
 
         try {
 
-            await updateEmployeeProfilePhoto(
-                profile.id,
-                file
-            );
+            // =================================================
+            // SAVE EMPLOYEE DETAILS
+            // =================================================
+
+            if (isEditingDetails) {
+
+                await handleSaveOwnProfile({
+
+                    firstName:
+                        finalFirstName,
+
+                    lastName:
+                        finalLastName,
+
+                    mobile:
+                        finalMobile
+
+                });
+
+            }
 
 
-            /*
-             * The Dashboard already refreshes the employee
-             * profile using getEmployeeById().
-             *
-             * Wait briefly for that refresh cycle so the
-             * new signed MinIO URL appears.
-             */
-            setShowProfilePhoto(false);
+            // =================================================
+            // SAVE PROFILE PHOTO
+            // =================================================
+
+            if (selectedPhoto) {
+
+                setUpdatingProfilePhoto(true);
+
+
+                await updateEmployeeProfilePhoto(
+                    profile.id,
+                    selectedPhoto
+                );
+
+            }
+
+
+            // =================================================
+            // RESET LOCAL PHOTO STATE
+            // =================================================
+
+            if (previewPhotoUrl) {
+
+                URL.revokeObjectURL(
+                    previewPhotoUrl
+                );
+
+            }
+
+
+            setSelectedPhoto(null);
+            setPreviewPhotoUrl(null);
+
+            setIsEditingDetails(false);
+
+            setEditedFirstName("");
+            setEditedLastName("");
+            setEditedMobile("");
 
 
             window.alert(
-                "Profile photo updated successfully."
+                "Profile changes saved successfully."
             );
-
 
         } catch (error) {
 
             console.error(
-                "Profile photo update error:",
+                "Profile save error:",
                 error
             );
 
@@ -452,14 +551,16 @@ function Profile({
             window.alert(
                 error.response?.data?.error ||
                 error.response?.data?.message ||
-                "Unable to update profile photo."
+                "Unable to save profile changes."
             );
 
         } finally {
 
+            setSavingDetails(false);
             setUpdatingProfilePhoto(false);
 
         }
+
     };
 
 
@@ -474,18 +575,23 @@ function Profile({
         if (
             type === "ID_PROOF"
         ) {
+
             return "Identity Proof";
+
         }
 
 
         if (
             type === "ADDRESS_PROOF"
         ) {
+
             return "Address Proof";
+
         }
 
 
         return "Document";
+
     };
 
 
@@ -495,7 +601,10 @@ function Profile({
 
     const profilePhotoViewer =
         showProfilePhoto &&
-        profile.profilePhotoUrl
+        (
+            previewPhotoUrl ||
+            profile.profilePhotoUrl
+        )
             ? createPortal(
 
                 <div
@@ -531,6 +640,7 @@ function Profile({
 
                         <img
                             src={
+                                previewPhotoUrl ||
                                 profile.profilePhotoUrl
                             }
                             alt="Profile"
@@ -540,24 +650,29 @@ function Profile({
 
                         {/* Replace Photo */}
 
-                        <button
-                            type="button"
-                            className="profile-photo-replace-btn"
-                            onClick={
-                                handleProfilePhotoSelect
-                            }
-                            disabled={
-                                updatingProfilePhoto
-                            }
-                            title="Replace Photo"
-                            aria-label="Replace Photo"
-                        >
+                        {role === "EMPLOYEE" && (
 
-                            {updatingProfilePhoto
-                                ? "..."
-                                : "✎"}
+                            <button
+                                type="button"
+                                className="profile-photo-replace-btn"
+                                onClick={
+                                    handleProfilePhotoSelect
+                                }
+                                disabled={
+                                    updatingProfilePhoto ||
+                                    savingDetails
+                                }
+                                title="Replace Photo"
+                                aria-label="Replace Photo"
+                            >
 
-                        </button>
+                                {savingDetails
+                                    ? "..."
+                                    : <FiEdit2 size={20} />}
+
+                            </button>
+
+                        )}
 
 
                         {/* Hidden File Input */}
@@ -600,6 +715,81 @@ function Profile({
 
 
                 {/* =================================================
+                    ID CARD MODAL
+                ================================================= */}
+
+                {showIdCard && (
+
+                    <div
+                        style={{
+                            position: "fixed",
+                            inset: 0,
+                            background:
+                                "rgba(0, 0, 0, 0.55)",
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            zIndex: 9999,
+                            overflowY: "auto",
+                            padding: "30px"
+                        }}
+                        onClick={() =>
+                            setShowIdCard(false)
+                        }
+                    >
+
+                        <div
+                            onClick={(event) =>
+                                event.stopPropagation()
+                            }
+                            style={{
+                                position: "relative"
+                            }}
+                        >
+
+                            {/* CLOSE BUTTON */}
+
+                            <button
+                                type="button"
+                                onClick={() =>
+                                    setShowIdCard(false)
+                                }
+                                style={{
+                                    position: "absolute",
+                                    top: "-5px",
+                                    right: "-5px",
+                                    width: "36px",
+                                    height: "36px",
+                                    borderRadius: "50%",
+                                    border: "none",
+                                    background: "#ffffff",
+                                    color: "#333333",
+                                    fontSize: "22px",
+                                    fontWeight: "600",
+                                    cursor: "pointer",
+                                    boxShadow:
+                                        "0 3px 10px rgba(0,0,0,0.25)",
+                                    zIndex: 10
+                                }}
+                                title="Close"
+                                aria-label="Close ID Card"
+                            >
+                                ×
+                            </button>
+
+
+                            <EmployeeIdCard
+                                employee={profile}
+                            />
+
+                        </div>
+
+                    </div>
+
+                )}
+
+
+                {/* =================================================
                     PROFILE HEADER
                 ================================================= */}
 
@@ -612,7 +802,15 @@ function Profile({
 
                         <div className="profile-photo-wrapper">
 
-                            {profile.profilePhotoUrl ? (
+                            {previewPhotoUrl ? (
+
+                                <img
+                                    src={previewPhotoUrl}
+                                    alt="Selected Profile"
+                                    className="profile-photo"
+                                />
+
+                            ) : profile.profilePhotoUrl ? (
 
                                 <img
                                     src={
@@ -636,7 +834,8 @@ function Profile({
                             )}
 
 
-                            {profile.profilePhotoUrl && (
+                            {(profile.profilePhotoUrl ||
+                                previewPhotoUrl) && (
 
                                 <button
                                     type="button"
@@ -649,7 +848,7 @@ function Profile({
                                     title="View Photo"
                                     aria-label="View Photo"
                                 >
-                                    👁️
+                                    <FiEye size={16} />
                                 </button>
 
                             )}
@@ -664,16 +863,50 @@ function Profile({
                     <div className="profile-header-info">
 
                         <h3>
-                            {fullName ||
-                                "Employee"}
+                            {fullName || "Employee"}
                         </h3>
 
                         <p>
-                            {profile.role ||
-                                "Employee"}
+                            {profile.role || "Employee"}
                         </p>
 
                     </div>
+
+
+                    {/* ID CARD */}
+
+                    {role === "EMPLOYEE" && (
+
+                        <div>
+
+                            <button
+                                type="button"
+                                onClick={() =>
+                                    setShowIdCard(true)
+                                }
+                                style={{
+                                    padding: "10px 18px",
+                                    border: "1px solid #1f2937",
+                                    borderRadius: "8px",
+                                    background: "#ffffff",
+                                    color: "#1f2937",
+                                    fontSize: "14px",
+                                    fontWeight: "600",
+                                    cursor: "pointer",
+                                    display: "inline-flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    gap: "8px",
+                                    transition:
+                                        "all 0.2s ease"
+                                }}
+                            >
+                                View ID Card
+                            </button>
+
+                        </div>
+
+                    )}
 
                 </div>
 
@@ -696,51 +929,27 @@ function Profile({
                             <button
                                 type="button"
                                 className="profile-edit-btn"
-                                onClick={
-                                    handleEdit
-                                }
+                                onClick={handleEdit}
                                 title="Edit Employee Details"
                                 aria-label="Edit Employee Details"
                             >
-                                ✏️
+                                <FiEdit2 size={16} />
                             </button>
 
                         ) : (
 
-                            <div className="profile-edit-actions">
-
-                                <button
-                                    type="button"
-                                    className="profile-cancel-btn"
-                                    onClick={
-                                        handleCancelEdit
-                                    }
-                                    disabled={
-                                        savingDetails
-                                    }
-                                >
-                                    Cancel
-                                </button>
-
-
-                                <button
-                                    type="button"
-                                    className="profile-save-btn"
-                                    onClick={
-                                        handleSaveDetails
-                                    }
-                                    disabled={
-                                        savingDetails
-                                    }
-                                >
-
-                                    {savingDetails
-                                        ? "Saving..."
-                                        : "Save Changes"}
-
-                                </button>
-
-                            </div>
+                            <button
+                                type="button"
+                                className="profile-cancel-btn"
+                                onClick={
+                                    handleCancelEdit
+                                }
+                                disabled={
+                                    savingDetails
+                                }
+                            >
+                                Cancel
+                            </button>
 
                         )}
 
@@ -759,8 +968,7 @@ function Profile({
                             </span>
 
                             <strong>
-                                {profile.empId ||
-                                    "-"}
+                                {profile.empId || "-"}
                             </strong>
 
                         </div>
@@ -817,8 +1025,7 @@ function Profile({
                             ) : (
 
                                 <strong>
-                                    {fullName ||
-                                        "-"}
+                                    {fullName || "-"}
                                 </strong>
 
                             )}
@@ -835,8 +1042,7 @@ function Profile({
                             </span>
 
                             <strong>
-                                {profile.email ||
-                                    "-"}
+                                {profile.email || "-"}
                             </strong>
 
                         </div>
@@ -873,8 +1079,7 @@ function Profile({
                             ) : (
 
                                 <strong>
-                                    {profile.mobile ||
-                                        "-"}
+                                    {profile.mobile || "-"}
                                 </strong>
 
                             )}
@@ -891,8 +1096,7 @@ function Profile({
                             </span>
 
                             <strong>
-                                {profile.role ||
-                                    "-"}
+                                {profile.role || "-"}
                             </strong>
 
                         </div>
@@ -903,10 +1107,49 @@ function Profile({
 
 
                 {/* =================================================
+                    SAVE CHANGES
+                ================================================= */}
+
+                {role === "EMPLOYEE" && (
+
+                    <div
+                        style={{
+                            display: "flex",
+                            justifyContent: "flex-end",
+                            marginTop: "20px",
+                            marginBottom: "20px"
+                        }}
+                    >
+
+                        <button
+                            type="button"
+                            className="profile-save-btn"
+                            onClick={
+                                handleSaveChanges
+                            }
+                            disabled={
+                                savingDetails ||
+                                updatingProfilePhoto
+                            }
+                        >
+
+                            {savingDetails ||
+                            updatingProfilePhoto
+                                ? "Saving..."
+                                : "Save Changes"}
+
+                        </button>
+
+                    </div>
+
+                )}
+
+
+                {/* =================================================
                     UPLOADED DOCUMENTS
                 ================================================= */}
 
-                {documents.length > 0 && (
+                {role === "EMPLOYEE" && (
 
                     <div className="profile-section uploaded-documents-section">
 
@@ -915,134 +1158,82 @@ function Profile({
                         </h3>
 
 
-                        <div className="uploaded-documents-list">
+                        {documents.length > 0 ? (
 
-                            {documents.map(
-                                (document) => (
+                            <div className="uploaded-documents-list">
 
-                                    <div
-                                        className="uploaded-document-wrapper"
-                                        key={
-                                            document.type
-                                        }
-                                    >
+                                {documents.map(
+                                    (document) => (
 
-                                        <div className="uploaded-document-card">
+                                        <div
+                                            className="uploaded-document-wrapper"
+                                            key={
+                                                document.type
+                                            }
+                                        >
 
-                                            <div className="document-icon">
-                                                📄
-                                            </div>
+                                            <div className="uploaded-document-card">
 
-
-                                            <div className="uploaded-document-info">
-
-                                                <span>
-                                                    Uploaded Document
-                                                </span>
-
-                                                <strong>
-                                                    {
-                                                        getDocumentName(
-                                                            document.type
-                                                        )
-                                                    }
-                                                </strong>
-
-                                            </div>
+                                                <div className="document-icon">
+                                                    📄
+                                                </div>
 
 
-                                            <button
-                                                type="button"
-                                                className="document-view-btn"
-                                                onClick={() => {
+                                                <div className="uploaded-document-info">
 
-                                                    if (
-                                                        selectedDocument?.type ===
-                                                        document.type
-                                                    ) {
+                                                    <span>
+                                                        Uploaded Document
+                                                    </span>
 
-                                                        setSelectedDocument(
-                                                            null
-                                                        );
-
-                                                    } else {
-
-                                                        setSelectedDocument(
-                                                            document
-                                                        );
-
-                                                    }
-
-                                                }}
-                                            >
-
-                                                {
-                                                    selectedDocument?.type ===
-                                                    document.type
-                                                        ? "✕ Close"
-                                                        : "👁 View"
-                                                }
-
-                                            </button>
-
-                                        </div>
-
-
-                                        {selectedDocument?.type ===
-                                            document.type && (
-
-                                            <div className="document-inline-viewer">
-
-                                                <div className="document-inline-header">
-
-                                                    <h3>
+                                                    <strong>
                                                         {
                                                             getDocumentName(
                                                                 document.type
                                                             )
                                                         }
-                                                    </h3>
-
-
-                                                    <button
-                                                        type="button"
-                                                        className="document-inline-close"
-                                                        onClick={() =>
-                                                            setSelectedDocument(
-                                                                null
-                                                            )
-                                                        }
-                                                        title="Close"
-                                                        aria-label="Close"
-                                                    >
-                                                        ✕
-                                                    </button>
-
-                                                </div>
-
-
-                                                <div className="document-inline-content">
-
-                                                    <div className="document-inline-content">
-
-                                                        <PdfViewer
-                                                            url={document.url}
-                                                        />
-
-                                                    </div>
+                                                    </strong>
 
                                                 </div>
 
                                             </div>
 
-                                        )}
 
-                                    </div>
+                                            {/* DIRECT DOCUMENT VIEW */}
 
-                                )
-                            )}
+                                            <div
+                                                className="document-inline-viewer"
+                                                style={{
+                                                    marginTop:
+                                                        "15px"
+                                                }}
+                                            >
 
-                        </div>
+                                                <div className="document-inline-content">
+
+                                                    <PdfViewer
+                                                        url={
+                                                            document.url
+                                                        }
+                                                    />
+
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+
+                                    )
+                                )}
+
+                            </div>
+
+                        ) : !loadingDocuments ? (
+
+                            <p>
+                                No documents uploaded.
+                            </p>
+
+                        ) : null}
 
                     </div>
 
@@ -1075,6 +1266,7 @@ function Profile({
         </>
 
     );
+
 }
 
 

@@ -1,5 +1,6 @@
 import Loader from "../Loader";
 import Pagination from "../Pagination";
+import { FiEdit2, FiEye } from "react-icons/fi";
 
 function EmployeeTable({
     employees,
@@ -101,7 +102,7 @@ function EmployeeTable({
                                             }
                                             title="View Employee"
                                         >
-                                            👁️
+                                            <FiEye size={16} />
                                         </button>
 
                                         <button
@@ -111,7 +112,7 @@ function EmployeeTable({
                                             }
                                             title="Edit Employee"
                                         >
-                                            ✏️
+                                            <FiEdit2 size={16} />
                                         </button>
                                     </td>
                                 </tr>
