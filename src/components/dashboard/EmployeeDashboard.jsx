@@ -9,7 +9,8 @@ function EmployeeDashboard({
     employee,
     activeMenu,
     setActiveMenu,
-    normalizedEmployeeStatus
+    normalizedEmployeeStatus,
+    handleSaveOwnProfile
 }) {
     return (
         <div className="dashboard-wrapper">
@@ -93,6 +94,9 @@ function EmployeeDashboard({
                     <Profile
                         role={role}
                         employee={employee}
+                        adminProfile={null}
+                        loadingProfile={false}
+                        handleSaveOwnProfile={handleSaveOwnProfile}
                     />
                 )}
 

@@ -3,6 +3,7 @@ import { isValidPhone } from "../utils/validators";
 import { getEmployeeDocumentViewUrl } from "../services/api";
 import { useNotification } from "../contexts/NotificationContext";
 import Loader from "./Loader";
+import PdfViewer from "./common/PdfViewer";
 
 function EmployeeModal({
     isOpen,
@@ -591,15 +592,13 @@ function EmployeeModal({
 
                             <div className="document-viewer-content">
 
-                                <iframe
-                                    src={
-                                        selectedDocument.url
-                                    }
-                                    title={
-                                        selectedDocument.title
-                                    }
-                                    className="document-viewer-frame"
-                                />
+                               <div className="document-viewer-content">
+
+                                    <PdfViewer
+                                        url={selectedDocument.url}
+                                    />
+
+                                </div>
 
                             </div>
 

@@ -19,6 +19,9 @@ function Register() {
         confirmPassword: ""
     });
 
+    const [profilePhoto, setProfilePhoto] = useState(null);
+    const [profilePhotoPreview, setProfilePhotoPreview] = useState(null);
+
     const handleChange = (e) => {
 
         setEmployee({
@@ -34,6 +37,30 @@ function Register() {
     const { hasMinLength, hasUpperCase, hasLowerCase, hasNumber, hasSpecial } = getPasswordChecks(employee.password);
     const passwordsMatch = doPasswordsMatch(employee.password, employee.confirmPassword);
 
+    const handleProfilePhotoChange = (e) => {
+        const file = e.target.files[0];
+        if (!file) {
+            return;
+        }
+        const allowedTypes = ["image/jpeg", "image/png"];
+        if (!allowedTypes.includes(file.type)) {
+            showNotification(
+                "Only JPG, JPEG and PNG images are allowed.",
+                "error"
+            );
+            return;
+        }
+        const maxSize = 2 * 1024 * 1024; // 2 MB
+        if (file.size > maxSize) {
+            showNotification(
+                "Profile photo must be less than 2 MB.",
+                "error"
+            );
+            return;
+        }
+        setProfilePhoto(file);
+        setProfilePhotoPreview(URL.createObjectURL(file));
+    };
 
     const handleRegister = async (e) => {
         e.preventDefault();
@@ -58,7 +85,17 @@ function Register() {
         }
 
         try {
-            await registerEmployee(employee);
+            const formData = new FormData();
+            formData.append("firstName", employee.firstName);
+            formData.append("lastName", employee.lastName);
+            formData.append("email", employee.email);
+            formData.append("mobile", employee.mobile);
+            formData.append("password", employee.password);
+            if (profilePhoto) {
+                formData.append("profilePhoto", profilePhoto);
+            }
+            await registerEmployee(formData);
+            
             showNotification("Employee Registered Successfully", "success");
             navigate("/login");
         } catch (error) 
@@ -90,6 +127,32 @@ function Register() {
         <div className="register-container">
             <form className="register-card" onSubmit={handleRegister}>
                 <h2>Employee Registration</h2>
+                    <div className="profile-photo-section">
+                    <div className="profile-photo-preview">
+                        {profilePhotoPreview ? (
+                            <img
+                                src={profilePhotoPreview}
+                                alt="Profile Preview"
+                            />
+                        ) : (
+                            <span>Photo</span>
+                        )}
+                    </div>
+
+                    <label htmlFor="profilePhoto" className="upload-photo-btn">
+                        Upload Photo
+                    </label>
+
+                    <input
+                        id="profilePhoto"
+                        type="file"
+                        accept="image/jpeg,image/png"
+                        onChange={handleProfilePhotoChange}
+                        hidden
+                    />
+
+                    <small>JPG, JPEG or PNG • Maximum 2 MB</small>
+                </div>
                 <input
                     type="text"
                     name="firstName"

@@ -240,6 +240,57 @@ function Dashboard() {
     };
 
     // =========================================================
+// SAVE OWN PROFILE
+// =========================================================
+const handleSaveOwnProfile = async (updatedDetails) => {
+    try {
+        await updateEmployee(
+            employee.id,
+            {
+                firstName: updatedDetails.firstName,
+                lastName: updatedDetails.lastName,
+                mobile: updatedDetails.mobile
+            }
+        );
+
+        // Fetch latest profile using existing GET API
+        const response = await getEmployeeById(employee.id);
+
+        const latestEmployee = response.data;
+
+        // Update React state
+        setEmployee(latestEmployee);
+
+        // Update localStorage
+        localStorage.setItem(
+            "employee",
+            JSON.stringify(latestEmployee)
+        );
+
+        showNotification(
+            "Changes applied successfully.",
+            "success"
+        );
+
+        return latestEmployee;
+
+    } catch (error) {
+        console.error(
+            "Update own profile error:",
+            error
+        );
+
+        showNotification(
+            error.response?.data?.error ||
+            error.response?.data?.message ||
+            "Unable to update profile",
+            "error"
+        );
+
+        throw error;
+    }
+};
+    // =========================================================
     // ACTIVATE EMPLOYEE
     // =========================================================
     const handleActivateEmployee = async (emp) => {
@@ -345,8 +396,8 @@ function Dashboard() {
         // Fetch immediately
         refreshEmployee();
 
-        // Refresh every 5 seconds
-        const interval = setInterval(refreshEmployee, 5000);
+        // Refresh every 60 seconds
+        const interval = setInterval(refreshEmployee, 60000);
 
         return () => clearInterval(interval);
     }, [role, employee?.id]);
@@ -426,12 +477,13 @@ function Dashboard() {
                     toDisplayText={toDisplayText}
                 />
             ) : (
-                <EmployeeDashboard
+               <EmployeeDashboard
                     role={role}
                     employee={employee}
                     activeMenu={activeMenu}
                     setActiveMenu={setActiveMenu}
                     normalizedEmployeeStatus={normalizedEmployeeStatus}
+                    handleSaveOwnProfile={handleSaveOwnProfile}
                 />
             )}
 

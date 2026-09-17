@@ -45,16 +45,19 @@ FILE_API.interceptors.request.use(
 export const loginEmployee = (loginData) => API.post("/login", loginData);
 
 // Register Employee
-export const registerEmployee = (employeeData) =>
-    API.post("/register", employeeData);
+export const registerEmployee = (employeeData) => API.post("/register", employeeData,
+    {
+        headers: {
+            "Content-Type": "multipart/form-data"
+        }
+    }
+);
 
 // Create Admin
-export const createAdmin = (adminData) =>
-    API.post("/createAdmin", adminData);
+export const createAdmin = (adminData) =>  API.post("/createAdmin", adminData);
 
 // Get All Admins
-export const getAllAdmins = (email) =>
-    API.get("/allAdmins", { params: { email } });
+export const getAllAdmins = (email) => API.get("/allAdmins", { params: { email } });
 
 // Get Admin Profile
 export const getAdminProfile = (email) =>
@@ -69,8 +72,35 @@ export const getEmployeeById = (uuid) =>
     API.get(`/${uuid}`);
 
 // Update Employee
+// Update Employee Details
 export const updateEmployee = (uuid, employeeData) =>
     API.put(`/${uuid}`, employeeData);
+
+
+// Update Employee Profile Photo
+// Uses the same PUT /employee/{uuid} endpoint
+export const updateEmployeeProfilePhoto = (
+    uuid,
+    profilePhoto
+) => {
+
+    const formData = new FormData();
+
+    formData.append(
+        "profilePhoto",
+        profilePhoto
+    );
+
+    return API.put(
+        `/${uuid}`,
+        formData,
+        {
+            headers: {
+                "Content-Type": "multipart/form-data"
+            }
+        }
+    );
+};
 
 // Mark attendance
 export const markAttendance = (otp) =>
