@@ -156,6 +156,22 @@ function Dashboard() {
         }
     };
 
+        const refreshAdminProfile = async () => {
+        try {
+            const response = await getAdminProfile(email);
+
+            setAdminProfile(response.data);
+
+            return response.data;
+        } catch (error) {
+            console.error(
+                "Refresh admin profile error:",
+                error
+            );
+
+            throw error;
+        }
+    };
     // =========================================================
     // EMPLOYEE SEARCH + PAGINATION
     // =========================================================
@@ -205,45 +221,50 @@ function Dashboard() {
     // =========================================================
     // SAVE EMPLOYEE
     // =========================================================
-    const handleSaveEmployee = async (updatedEmployee) => {
-        try {
+       const handleSaveOwnProfile = async (updatedDetails) => {
+    try {
+        // ================================
+        // ADMIN PROFILE
+        // ================================
+        if (role === "ADMIN") {
+
+            if (!adminProfile?.id) {
+                throw new Error(
+                    "Admin profile ID not available."
+                );
+            }
+
             await updateEmployee(
-                updatedEmployee.id,
+                adminProfile.id,
                 {
-                    firstName: updatedEmployee.firstName,
-                    lastName: updatedEmployee.lastName,
-                    mobile: updatedEmployee.mobile
+                    firstName: updatedDetails.firstName,
+                    lastName: updatedDetails.lastName,
+                    mobile: updatedDetails.mobile
                 }
             );
 
+            const response =
+                await getAdminProfile(email);
+
+            const latestAdminProfile =
+                response.data;
+
+            setAdminProfile(
+                latestAdminProfile
+            );
+
             showNotification(
-                "Employee updated successfully",
+                "Changes applied successfully.",
                 "success"
             );
 
-            setShowEmployeeModal(false);
-            setSelectedEmployee(null);
-
-            await handleGetAllEmployees();
-        } catch (error) {
-            console.error("Update employee error:", error);
-
-            showNotification(
-                error.response?.data?.error ||
-                error.response?.data?.message ||
-                "Unable to update employee",
-                "error"
-            );
-
-            throw error;
+            return latestAdminProfile;
         }
-    };
 
-    // =========================================================
-// SAVE OWN PROFILE
-// =========================================================
-const handleSaveOwnProfile = async (updatedDetails) => {
-    try {
+        // ================================
+        // EMPLOYEE PROFILE
+        // ================================
+
         await updateEmployee(
             employee.id,
             {
@@ -253,15 +274,14 @@ const handleSaveOwnProfile = async (updatedDetails) => {
             }
         );
 
-        // Fetch latest profile using existing GET API
-        const response = await getEmployeeById(employee.id);
+        const response =
+            await getEmployeeById(employee.id);
 
-        const latestEmployee = response.data;
+        const latestEmployee =
+            response.data;
 
-        // Update React state
         setEmployee(latestEmployee);
 
-        // Update localStorage
         localStorage.setItem(
             "employee",
             JSON.stringify(latestEmployee)
@@ -275,6 +295,7 @@ const handleSaveOwnProfile = async (updatedDetails) => {
         return latestEmployee;
 
     } catch (error) {
+
         console.error(
             "Update own profile error:",
             error
@@ -283,6 +304,7 @@ const handleSaveOwnProfile = async (updatedDetails) => {
         showNotification(
             error.response?.data?.error ||
             error.response?.data?.message ||
+            error.message ||
             "Unable to update profile",
             "error"
         );
@@ -290,6 +312,50 @@ const handleSaveOwnProfile = async (updatedDetails) => {
         throw error;
     }
 };
+
+    const handleSaveEmployee = async (updatedEmployee) => {
+        try {
+            if (!updatedEmployee?.id) {
+                throw new Error("Employee ID not available.");
+            }
+
+            await updateEmployee(
+                updatedEmployee.id,
+                {
+                    firstName: updatedEmployee.firstName,
+                    lastName: updatedEmployee.lastName,
+                    mobile: updatedEmployee.mobile
+                }
+            );
+
+            await handleGetAllEmployees();
+
+            const refreshedEmployee = await getEmployeeById(updatedEmployee.id);
+            const latestEmployee = refreshedEmployee.data;
+
+            if (selectedEmployee?.id === updatedEmployee.id) {
+                setSelectedEmployee(latestEmployee);
+            }
+
+            showNotification(
+                "Employee details updated successfully.",
+                "success"
+            );
+
+            return latestEmployee;
+        } catch (error) {
+            console.error("Save employee error:", error);
+
+            showNotification(
+                error.response?.data?.error ||
+                error.response?.data?.message ||
+                "Unable to update employee",
+                "error"
+            );
+
+            throw error;
+        }
+    };
     // =========================================================
     // ACTIVATE EMPLOYEE
     // =========================================================
@@ -450,9 +516,12 @@ const handleSaveOwnProfile = async (updatedDetails) => {
                     admins={admins}
                     loadingAdmins={loadingAdmins}
 
+                    handleSaveOwnProfile={handleSaveOwnProfile}
+
                     // Admin Profile
                     adminProfile={adminProfile}
                     loadingProfile={loadingProfile}
+                    refreshAdminProfile={refreshAdminProfile}
 
                     // Add Admin Modal
                     showAddAdminModal={showAddAdminModal}
@@ -475,6 +544,7 @@ const handleSaveOwnProfile = async (updatedDetails) => {
 
                     // Utility
                     toDisplayText={toDisplayText}
+
                 />
             ) : (
                <EmployeeDashboard

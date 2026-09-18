@@ -30,6 +30,9 @@ function AdminDashboard({
     adminProfile,
     loadingProfile,
 
+    handleSaveOwnProfile,
+    refreshAdminProfile,
+
     showAddAdminModal,
     setShowAddAdminModal,
 
@@ -176,8 +179,11 @@ function AdminDashboard({
                 {activeMenu === "settings" && (
                     <Profile
                         role={role}
+                        employee={employee}
                         adminProfile={adminProfile}
                         loadingProfile={loadingProfile}
+                        handleSaveOwnProfile={handleSaveOwnProfile}
+                        refreshAdminProfile={refreshAdminProfile}
                     />
                 )}
 
