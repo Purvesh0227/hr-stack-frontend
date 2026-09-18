@@ -195,20 +195,46 @@ function Dashboard() {
     // =========================================================
     // EMPLOYEE VIEW
     // =========================================================
-    const handleViewEmployee = (emp) => {
-        setSelectedEmployee(emp);
+const handleViewEmployee = async (emp) => {
+    try {
+        const response = await getEmployeeById(emp.id);
+
+        setSelectedEmployee(response.data);
         setEmployeeModalMode("view");
         setShowEmployeeModal(true);
-    };
+
+    } catch (error) {
+        console.error("Unable to load employee details:", error);
+
+        showNotification(
+            error.response?.data?.message ||
+            "Unable to load employee details",
+            "error"
+        );
+    }
+};
 
     // =========================================================
     // EMPLOYEE EDIT
     // =========================================================
-    const handleEditEmployee = (emp) => {
-        setSelectedEmployee(emp);
+const handleEditEmployee = async (emp) => {
+    try {
+        const response = await getEmployeeById(emp.id);
+
+        setSelectedEmployee(response.data);
         setEmployeeModalMode("edit");
         setShowEmployeeModal(true);
-    };
+
+    } catch (error) {
+        console.error("Unable to load employee details:", error);
+
+        showNotification(
+            error.response?.data?.message ||
+            "Unable to load employee details",
+            "error"
+        );
+    }
+};
 
     // =========================================================
     // CLOSE EMPLOYEE MODAL

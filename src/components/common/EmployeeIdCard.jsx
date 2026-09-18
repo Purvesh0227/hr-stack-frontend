@@ -407,14 +407,6 @@ const EmployeeIdCard = forwardRef(function EmployeeIdCard(
                     : "View Back Side"}
             </button>
 
-            {/* =====================================================
-                DOWNLOAD CAPTURE AREA
-
-                These cards are positioned outside the visible
-                screen area but are NOT display:none, allowing
-                html2canvas to capture them.
-            ====================================================== */}
-
             <div
                 style={{
                     position: "fixed",

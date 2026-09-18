@@ -1,9 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { isValidPhone } from "../utils/validators";
 import { getEmployeeDocumentViewUrl } from "../services/api";
 import { useNotification } from "../contexts/NotificationContext";
 import Loader from "./Loader";
 import PdfViewer from "./common/PdfViewer";
+import EmployeeIdCard from "./common/EmployeeIdCard";
+import { FiEye } from "react-icons/fi";
 
 function EmployeeModal({
     isOpen,
@@ -26,18 +28,18 @@ function EmployeeModal({
     const [loading, setLoading] = useState(false);
     const [requestingDocuments, setRequestingDocuments] = useState(false);
 
-    /*
-     * Reset document viewer whenever
-     * employee changes or modal opens.
-     */
-    useEffect(() => {
-        setDocumentUrls({
-            idProof: null,
-            addressProof: null
-        });
+    const idCardRef = useRef(null);
+    const [showIdCard, setShowIdCard] = useState(false);
 
-        setSelectedDocument(null);
-    }, [employee?.id, isOpen]);
+useEffect(() => {
+    setDocumentUrls({
+        idProof: null,
+        addressProof: null
+    });
+
+    setSelectedDocument(null);
+    setShowIdCard(false);
+}, [employee?.id, isOpen]);
 
     if (!isOpen || !employee) {
         return null;
@@ -212,6 +214,44 @@ function EmployeeModal({
                     {/* ================= EMPLOYEE DETAILS ================= */}
 
                     <div className="employee-details-grid">
+                        {/* ================= PROFILE PHOTO ================= */}
+
+                        <div className="employee-profile-preview">
+
+                            <div className="employee-profile-photo">
+
+                                {employee.profilePhotoUrl ? (
+                                    <img
+                                        src={employee.profilePhotoUrl}
+                                        alt="Employee Profile"
+                                    />
+                                ) : (
+                                    <div className="employee-profile-photo-placeholder">
+                                        No Photo
+                                    </div>
+                                )}
+
+                            </div>
+
+                            <div className="employee-profile-actions">
+
+                                <span className="employee-profile-name">
+                                    {employee.firstName || ""}{" "}
+                                    {employee.lastName || ""}
+                                </span>
+
+                                <button
+                                    type="button"
+                                    className="document-view-btn"
+                                    onClick={() => setShowIdCard(true)}
+                                >
+                                    <FiEye />
+                                    View ID Card
+                                </button>
+
+                            </div>
+
+                        </div>
 
                         {/* Employee ID */}
 
@@ -606,6 +646,43 @@ function EmployeeModal({
 
                     </div>
 
+                )}
+
+                {/* ================= ID CARD MODAL ================= */}
+
+                {showIdCard && (
+                    <div className="modal-overlay">
+
+                        <div className="modal id-card-modal">
+
+                            <div className="modal-header">
+
+                                <h2>
+                                    Employee ID Card
+                                </h2>
+
+                                <button
+                                    type="button"
+                                    className="modal-close"
+                                    onClick={() => setShowIdCard(false)}
+                                >
+                                    ×
+                                </button>
+
+                            </div>
+
+                            <div className="id-card-modal-content">
+
+                                <EmployeeIdCard
+                                    ref={idCardRef}
+                                    employee={employee}
+                                />
+
+                            </div>
+
+                        </div>
+
+                    </div>
                 )}
 
             </div>

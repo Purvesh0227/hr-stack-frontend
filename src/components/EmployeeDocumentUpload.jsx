@@ -19,6 +19,54 @@ function EmployeeDocumentUpload({ employee, onUploadComplete }) {
 
     const [documentsSubmitted, setDocumentsSubmitted] = useState(false);
 
+
+    const getDocumentNumberConfig = (type) => {
+    switch (type) {
+        case "AADHAAR":
+            return {
+                maxLength: 12,
+                placeholder: "Enter 12-digit Aadhaar number",
+                inputMode: "numeric",
+            };
+
+        case "PAN":
+            return {
+                maxLength: 10,
+                placeholder: "Enter PAN (ABCDE1234F)",
+                inputMode: "text",
+            };
+
+        case "LIGHT_BILL":
+            return {
+                maxLength: 15,
+                placeholder: "Enter light bill number",
+                inputMode: "numeric",
+            };
+
+        default:
+            return {
+                maxLength: 50,
+                placeholder: "Select proof type first",
+                inputMode: "text",
+            };
+    }
+};
+
+const validateDocumentNumber = (type, number) => {
+    switch (type) {
+        case "AADHAAR":
+            return /^\d{12}$/.test(number);
+
+        case "PAN":
+            return /^[A-Z]{5}[0-9]{4}[A-Z]$/.test(number);
+
+        case "LIGHT_BILL":
+            return /^\d{6,15}$/.test(number);
+
+        default:
+            return false;
+    }
+};
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -38,6 +86,16 @@ function EmployeeDocumentUpload({ employee, onUploadComplete }) {
             return;
         }
 
+        if (!validateDocumentNumber(idProofType, idProofNumber)) {
+                showNotification(
+                    idProofType === "AADHAAR"
+                        ? "Aadhaar number must contain exactly 12 digits"
+                        : "PAN must be in format ABCDE1234F",
+                    "error"
+                );
+                return;
+            }
+
         if (!addressProofType || !addressProofNumber) {
             showNotification(
                 "Please enter address proof details",
@@ -45,6 +103,19 @@ function EmployeeDocumentUpload({ employee, onUploadComplete }) {
             );
             return;
         }
+        if (!validateDocumentNumber(
+            addressProofType,
+            addressProofNumber
+        )) {
+            showNotification(
+                addressProofType === "AADHAAR"
+                    ? "Aadhaar number must contain exactly 12 digits"
+                    : "Light bill number must contain 6 to 15 digits",
+                "error"
+            );
+            return;
+        }
+
 
         try {
             // ================= ID PROOF =================
@@ -144,160 +215,118 @@ function EmployeeDocumentUpload({ employee, onUploadComplete }) {
 
     return (
         <div className="content-card employee-document-upload">
-
             <h2>Upload Required Documents</h2>
 
             <form onSubmit={handleSubmit}>
-
                 <div className="document-upload-grid">
-
-                    {/* ================= ID PROOF ================= */}
-
                     <div className="document-card">
-
                         <h3>ID Proof</h3>
 
                         <div className="document-form-group">
-
-                            <label>
-                                Proof Type
-                            </label>
-
+                            <label>Proof Type</label>
                             <select
                                 value={idProofType}
-                                onChange={(e) =>
-                                    setIdProofType(e.target.value)
-                                }
+                                onChange={(e) => {
+                                    setIdProofType(e.target.value);
+                                    setIdProofNumber("");
+                                }}
                             >
-                                <option value="">
-                                    Select ID Proof
-                                </option>
-
-                                <option value="AADHAAR">
-                                    Aadhaar
-                                </option>
-
-                                <option value="PAN">
-                                    PAN
-                                </option>
+                                <option value="">Select ID Proof</option>
+                                <option value="AADHAAR">Aadhaar</option>
+                                <option value="PAN">PAN</option>
                             </select>
-
                         </div>
 
                         <div className="document-form-group">
-
-                            <label>
-                                Document Number
-                            </label>
-
+                            <label>Document Number</label>
                             <input
                                 type="text"
                                 value={idProofNumber}
-                                onChange={(e) =>
-                                    setIdProofNumber(e.target.value)
-                                }
-                                placeholder="Enter ID proof number"
-                            />
+                                maxLength={getDocumentNumberConfig(idProofType).maxLength}
+                                inputMode={getDocumentNumberConfig(idProofType).inputMode}
+                                placeholder={getDocumentNumberConfig(idProofType).placeholder}
+                                onChange={(e) => {
+                                    let value = e.target.value;
 
+                                    if (idProofType === "AADHAAR") {
+                                        value = value.replace(/\D/g, "");
+                                    }
+
+                                    if (idProofType === "PAN") {
+                                        value = value
+                                            .toUpperCase()
+                                            .replace(/[^A-Z0-9]/g, "");
+                                    }
+
+                                    setIdProofNumber(value);
+                                }}
+                                disabled={!idProofType}
+                            />
                         </div>
 
                         <div className="document-form-group">
-
-                            <label>
-                                Upload ID Proof
-                            </label>
-
+                            <label>Upload ID Proof</label>
                             <input
                                 type="file"
                                 accept=".pdf,image/*"
-                                onChange={(e) =>
-                                    setIdProofFile(
-                                        e.target.files[0]
-                                    )
-                                }
+                                onChange={(e) => setIdProofFile(e.target.files[0])}
                             />
-
                         </div>
-
                     </div>
 
-                    {/* ================= ADDRESS PROOF ================= */}
-
                     <div className="document-card">
-
                         <h3>Address Proof</h3>
 
                         <div className="document-form-group">
-
-                            <label>
-                                Proof Type
-                            </label>
-
+                            <label>Proof Type</label>
                             <select
                                 value={addressProofType}
-                                onChange={(e) =>
-                                    setAddressProofType(
-                                        e.target.value
-                                    )
-                                }
+                                onChange={(e) => {
+                                    setAddressProofType(e.target.value);
+                                    setAddressProofNumber("");
+                                }}
                             >
-                                <option value="">
-                                    Select Address Proof
-                                </option>
-
-                                <option value="AADHAAR">
-                                    Aadhaar
-                                </option>
-
-                                <option value="LIGHT_BILL">
-                                    Light Bill
-                                </option>
+                                <option value="">Select Address Proof</option>
+                                <option value="AADHAAR">Aadhaar</option>
+                                <option value="LIGHT_BILL">Light Bill</option>
                             </select>
-
                         </div>
 
                         <div className="document-form-group">
-
-                            <label>
-                                Document Number
-                            </label>
-
+                            <label>Document Number</label>
                             <input
                                 type="text"
                                 value={addressProofNumber}
-                                onChange={(e) =>
-                                    setAddressProofNumber(
-                                        e.target.value
-                                    )
-                                }
-                                placeholder="Enter address proof number"
-                            />
+                                maxLength={getDocumentNumberConfig(addressProofType).maxLength}
+                                inputMode={getDocumentNumberConfig(addressProofType).inputMode}
+                                placeholder={getDocumentNumberConfig(addressProofType).placeholder}
+                                onChange={(e) => {
+                                    let value = e.target.value;
 
+                                    if (addressProofType === "AADHAAR") {
+                                        value = value.replace(/\D/g, "");
+                                    }
+
+                                    if (addressProofType === "LIGHT_BILL") {
+                                        value = value.replace(/\D/g, "");
+                                    }
+
+                                    setAddressProofNumber(value);
+                                }}
+                                disabled={!addressProofType}
+                            />
                         </div>
 
                         <div className="document-form-group">
-
-                            <label>
-                                Upload Address Proof
-                            </label>
-
+                            <label>Upload Address Proof</label>
                             <input
                                 type="file"
                                 accept=".pdf,image/*"
-                                onChange={(e) =>
-                                    setAddressProofFile(
-                                        e.target.files[0]
-                                    )
-                                }
+                                onChange={(e) => setAddressProofFile(e.target.files[0])}
                             />
-
                         </div>
-
                     </div>
-
                 </div>
-
-                {/* ================= SUBMIT ================= */}
 
                 <button
                     type="submit"
@@ -305,9 +334,7 @@ function EmployeeDocumentUpload({ employee, onUploadComplete }) {
                 >
                     Submit Documents
                 </button>
-
             </form>
-
         </div>
     );
 }
