@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-
+import { Outlet } from "react-router-dom";
 import {
     getAllEmployees,
     getAllAdmins,
@@ -9,17 +9,13 @@ import {
     requestEmployeeDocuments,
     getEmployeeById
 } from "../services/api";
-
 import { paginate } from "../utils/pagination";
 import { filterBySearch } from "../utils/tableFilters";
 import { toDisplayText } from "../utils/stringUtil";
-
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import Notification from "../components/Notification";
-
-import AdminDashboard from "../components/dashboard/AdminDashboard";
-import EmployeeDashboard from "../components/dashboard/EmployeeDashboard";
+import AdminSidebar from "../components/AdminSidebar";
 
 function Dashboard() {
     const role = localStorage.getItem("role");
@@ -28,30 +24,25 @@ function Dashboard() {
     const [employee, setEmployee] = useState(
         JSON.parse(localStorage.getItem("employee"))
     );
-
     const [employees, setEmployees] = useState([]);
     const [admins, setAdmins] = useState([]);
     const [adminProfile, setAdminProfile] = useState(null);
 
-    const [activeMenu, setActiveMenu] = useState("dashboard");
-
-    const [showAddAdminModal, setShowAddAdminModal] = useState(false);
-
-    // Employee Modal
+    // Employee modal
     const [showEmployeeModal, setShowEmployeeModal] = useState(false);
     const [selectedEmployee, setSelectedEmployee] = useState(null);
     const [employeeModalMode, setEmployeeModalMode] = useState("view");
 
-    // Employee Search
+    // Employee search
     const [employeeSearchTerm, setEmployeeSearchTerm] = useState("");
 
-    // Loading States
+    // Loading states
     const [loadingEmployees, setLoadingEmployees] = useState(false);
     const [loadingAdmins, setLoadingAdmins] = useState(false);
     const [loadingProfile, setLoadingProfile] = useState(false);
     const [requestingDocuments, setRequestingDocuments] = useState(false);
 
-    // Employee Pagination
+    // Employee pagination
     const [employeeCurrentPage, setEmployeeCurrentPage] = useState(1);
 
     // Notification
@@ -60,9 +51,6 @@ function Dashboard() {
         type: "success"
     });
 
-    // =========================================================
-    // NOTIFICATION
-    // =========================================================
     const showNotification = (message, type = "success") => {
         setNotification({
             message,
@@ -77,7 +65,6 @@ function Dashboard() {
         });
     };
 
-    // Automatically hide notification
     useEffect(() => {
         if (!notification.message) {
             return;
@@ -90,9 +77,7 @@ function Dashboard() {
         return () => clearTimeout(timer);
     }, [notification.message]);
 
-    // =========================================================
-    // ADMIN FUNCTIONS
-    // =========================================================
+    // Admin employee list
     const handleGetAllEmployees = async () => {
         try {
             setLoadingEmployees(true);
@@ -114,6 +99,7 @@ function Dashboard() {
         }
     };
 
+    // Admin list
     const handleGetAllAdmins = async () => {
         try {
             setLoadingAdmins(true);
@@ -135,6 +121,7 @@ function Dashboard() {
         }
     };
 
+    // Admin profile
     const handleGetAdminProfile = async () => {
         try {
             setLoadingProfile(true);
@@ -156,7 +143,7 @@ function Dashboard() {
         }
     };
 
-        const refreshAdminProfile = async () => {
+    const refreshAdminProfile = async () => {
         try {
             const response = await getAdminProfile(email);
 
@@ -164,17 +151,12 @@ function Dashboard() {
 
             return response.data;
         } catch (error) {
-            console.error(
-                "Refresh admin profile error:",
-                error
-            );
-
+            console.error("Refresh admin profile error:", error);
             throw error;
         }
     };
-    // =========================================================
-    // EMPLOYEE SEARCH + PAGINATION
-    // =========================================================
+
+    // Employee search and pagination
     const filteredEmployees = filterBySearch(
         employees,
         employeeSearchTerm,
@@ -192,76 +174,81 @@ function Dashboard() {
         employeeRecordsPerPage
     );
 
-    // =========================================================
-    // EMPLOYEE VIEW
-    // =========================================================
-const handleViewEmployee = async (emp) => {
-    try {
-        const response = await getEmployeeById(emp.id);
+    // View employee
+    const handleViewEmployee = async (emp) => {
+        try {
+            const response = await getEmployeeById(emp.id);
 
-        setSelectedEmployee(response.data);
-        setEmployeeModalMode("view");
-        setShowEmployeeModal(true);
+            setSelectedEmployee(response.data);
+            setEmployeeModalMode("view");
+            setShowEmployeeModal(true);
+        } catch (error) {
+            console.error("Unable to load employee details:", error);
 
-    } catch (error) {
-        console.error("Unable to load employee details:", error);
+            showNotification(
+                error.response?.data?.message ||
+                "Unable to load employee details",
+                "error"
+            );
+        }
+    };
 
-        showNotification(
-            error.response?.data?.message ||
-            "Unable to load employee details",
-            "error"
-        );
-    }
-};
+    // Edit employee
+    const handleEditEmployee = async (emp) => {
+        try {
+            const response = await getEmployeeById(emp.id);
 
-    // =========================================================
-    // EMPLOYEE EDIT
-    // =========================================================
-const handleEditEmployee = async (emp) => {
-    try {
-        const response = await getEmployeeById(emp.id);
+            setSelectedEmployee(response.data);
+            setEmployeeModalMode("edit");
+            setShowEmployeeModal(true);
+        } catch (error) {
+            console.error("Unable to load employee details:", error);
 
-        setSelectedEmployee(response.data);
-        setEmployeeModalMode("edit");
-        setShowEmployeeModal(true);
+            showNotification(
+                error.response?.data?.message ||
+                "Unable to load employee details",
+                "error"
+            );
+        }
+    };
 
-    } catch (error) {
-        console.error("Unable to load employee details:", error);
-
-        showNotification(
-            error.response?.data?.message ||
-            "Unable to load employee details",
-            "error"
-        );
-    }
-};
-
-    // =========================================================
-    // CLOSE EMPLOYEE MODAL
-    // =========================================================
     const handleCloseEmployeeModal = () => {
         setShowEmployeeModal(false);
         setSelectedEmployee(null);
     };
 
-    // =========================================================
-    // SAVE EMPLOYEE
-    // =========================================================
-       const handleSaveOwnProfile = async (updatedDetails) => {
-    try {
-        // ================================
-        // ADMIN PROFILE
-        // ================================
-        if (role === "ADMIN") {
+    // Save own profile
+    const handleSaveOwnProfile = async (updatedDetails) => {
+        try {
+            if (role === "ADMIN") {
+                if (!adminProfile?.id) {
+                    throw new Error("Admin profile ID not available.");
+                }
 
-            if (!adminProfile?.id) {
-                throw new Error(
-                    "Admin profile ID not available."
+                await updateEmployee(
+                    adminProfile.id,
+                    {
+                        firstName: updatedDetails.firstName,
+                        lastName: updatedDetails.lastName,
+                        mobile: updatedDetails.mobile
+                    }
                 );
+
+                const response = await getAdminProfile(email);
+                const latestAdminProfile = response.data;
+
+                setAdminProfile(latestAdminProfile);
+
+                showNotification(
+                    "Changes applied successfully.",
+                    "success"
+                );
+
+                return latestAdminProfile;
             }
 
             await updateEmployee(
-                adminProfile.id,
+                employee.id,
                 {
                     firstName: updatedDetails.firstName,
                     lastName: updatedDetails.lastName,
@@ -269,14 +256,14 @@ const handleEditEmployee = async (emp) => {
                 }
             );
 
-            const response =
-                await getAdminProfile(email);
+            const response = await getEmployeeById(employee.id);
+            const latestEmployee = response.data;
 
-            const latestAdminProfile =
-                response.data;
+            setEmployee(latestEmployee);
 
-            setAdminProfile(
-                latestAdminProfile
+            localStorage.setItem(
+                "employee",
+                JSON.stringify(latestEmployee)
             );
 
             showNotification(
@@ -284,61 +271,23 @@ const handleEditEmployee = async (emp) => {
                 "success"
             );
 
-            return latestAdminProfile;
+            return latestEmployee;
+        } catch (error) {
+            console.error("Update own profile error:", error);
+
+            showNotification(
+                error.response?.data?.error ||
+                error.response?.data?.message ||
+                error.message ||
+                "Unable to update profile",
+                "error"
+            );
+
+            throw error;
         }
+    };
 
-        // ================================
-        // EMPLOYEE PROFILE
-        // ================================
-
-        await updateEmployee(
-            employee.id,
-            {
-                firstName: updatedDetails.firstName,
-                lastName: updatedDetails.lastName,
-                mobile: updatedDetails.mobile
-            }
-        );
-
-        const response =
-            await getEmployeeById(employee.id);
-
-        const latestEmployee =
-            response.data;
-
-        setEmployee(latestEmployee);
-
-        localStorage.setItem(
-            "employee",
-            JSON.stringify(latestEmployee)
-        );
-
-        showNotification(
-            "Changes applied successfully.",
-            "success"
-        );
-
-        return latestEmployee;
-
-    } catch (error) {
-
-        console.error(
-            "Update own profile error:",
-            error
-        );
-
-        showNotification(
-            error.response?.data?.error ||
-            error.response?.data?.message ||
-            error.message ||
-            "Unable to update profile",
-            "error"
-        );
-
-        throw error;
-    }
-};
-
+    // Save employee
     const handleSaveEmployee = async (updatedEmployee) => {
         try {
             if (!updatedEmployee?.id) {
@@ -356,7 +305,10 @@ const handleEditEmployee = async (emp) => {
 
             await handleGetAllEmployees();
 
-            const refreshedEmployee = await getEmployeeById(updatedEmployee.id);
+            const refreshedEmployee = await getEmployeeById(
+                updatedEmployee.id
+            );
+
             const latestEmployee = refreshedEmployee.data;
 
             if (selectedEmployee?.id === updatedEmployee.id) {
@@ -382,9 +334,8 @@ const handleEditEmployee = async (emp) => {
             throw error;
         }
     };
-    // =========================================================
-    // ACTIVATE EMPLOYEE
-    // =========================================================
+
+    // Activate employee
     const handleActivateEmployee = async (emp) => {
         const confirmed = window.confirm(
             `Are you sure you want to activate ${emp.firstName} ${emp.lastName}?`
@@ -420,9 +371,7 @@ const handleEditEmployee = async (emp) => {
         }
     };
 
-    // =========================================================
-    // REQUEST EMPLOYEE DOCUMENTS
-    // =========================================================
+    // Request employee documents
     const handleRequestDocuments = async (uuid) => {
         try {
             setRequestingDocuments(true);
@@ -446,142 +395,104 @@ const handleEditEmployee = async (emp) => {
         }
     };
 
-    // =========================================================
-    // ADMIN PROFILE
-    // =========================================================
+    // Load admin profile
     useEffect(() => {
         if (role === "ADMIN") {
             handleGetAdminProfile();
         }
     }, [email, role]);
 
-    // =========================================================
-    // EMPLOYEE DATA REFRESH
-    // =========================================================
+    // Refresh employee data periodically
     useEffect(() => {
-        if (
-            role !== "EMPLOYEE" ||
-            !employee?.id
-        ) {
+        if (role !== "EMPLOYEE" || !employee?.id) {
             return;
         }
 
         const refreshEmployee = async () => {
             try {
                 const response = await getEmployeeById(employee.id);
-
                 const latestEmployee = response.data;
 
-                // Update React state
                 setEmployee(latestEmployee);
 
-                // Update localStorage
                 localStorage.setItem(
                     "employee",
                     JSON.stringify(latestEmployee)
                 );
             } catch (error) {
-                console.error("Unable to refresh employee data:", error);
+                console.error(
+                    "Unable to refresh employee data:",
+                    error
+                );
             }
         };
 
-        // Fetch immediately
         refreshEmployee();
 
-        // Refresh every 60 seconds
-        const interval = setInterval(refreshEmployee, 60000);
+        const TWELVE_HOURS = 12 * 60 * 60 * 1000;
+
+        const interval = setInterval(refreshEmployee, TWELVE_HOURS);
 
         return () => clearInterval(interval);
     }, [role, employee?.id]);
 
-    // =========================================================
-    // NORMALIZED EMPLOYEE STATUS
-    // =========================================================
     const normalizedEmployeeStatus = employee?.status
         ?.replace(/[\s_]+/g, "_")
         .toUpperCase();
 
-    // =========================================================
-    // DASHBOARD
-    // =========================================================
+    const outletContext = {
+        role,
+        email,
+        employee,
+        employees,
+        filteredEmployees,
+        paginatedEmployees,
+        loadingEmployees,
+        employeeSearchTerm,
+        setEmployeeSearchTerm,
+        employeeCurrentPage,
+        employeeTotalPages,
+        setEmployeeCurrentPage,
+        admins,
+        loadingAdmins,
+        adminProfile,
+        loadingProfile,
+        requestingDocuments,
+        normalizedEmployeeStatus,
+        handleSaveOwnProfile,
+        refreshAdminProfile,
+        handleGetAllEmployees,
+        handleGetAllAdmins,
+        handleViewEmployee,
+        handleEditEmployee,
+        handleCloseEmployeeModal,
+        handleSaveEmployee,
+        handleActivateEmployee,
+        handleRequestDocuments,
+        showEmployeeModal,
+        selectedEmployee,
+        employeeModalMode,
+        showNotification,
+        toDisplayText
+    };
+
     return (
         <>
             <Navbar />
 
-            {/* =================================================
-                NOTIFICATION
-            ================================================= */}
             <Notification
                 message={notification.message}
                 type={notification.type}
                 onClose={closeNotification}
             />
 
-            {/* =================================================
-                ADMIN / EMPLOYEE DASHBOARD
-            ================================================= */}
-            {role === "ADMIN" ? (
-                <AdminDashboard
-                    role={role}
-                    employee={employee}
-                    activeMenu={activeMenu}
-                    setActiveMenu={setActiveMenu}
+            <div className="dashboard-wrapper">
+                <AdminSidebar role={role} />
 
-                    // Employee Data
-                    employees={employees}
-                    filteredEmployees={filteredEmployees}
-                    paginatedEmployees={paginatedEmployees}
-                    loadingEmployees={loadingEmployees}
-                    employeeSearchTerm={employeeSearchTerm}
-                    setEmployeeSearchTerm={setEmployeeSearchTerm}
-                    employeeCurrentPage={employeeCurrentPage}
-                    employeeTotalPages={employeeTotalPages}
-                    setEmployeeCurrentPage={setEmployeeCurrentPage}
-
-                    // Admin Data
-                    admins={admins}
-                    loadingAdmins={loadingAdmins}
-
-                    handleSaveOwnProfile={handleSaveOwnProfile}
-
-                    // Admin Profile
-                    adminProfile={adminProfile}
-                    loadingProfile={loadingProfile}
-                    refreshAdminProfile={refreshAdminProfile}
-
-                    // Add Admin Modal
-                    showAddAdminModal={showAddAdminModal}
-                    setShowAddAdminModal={setShowAddAdminModal}
-
-                    // Employee Modal
-                    showEmployeeModal={showEmployeeModal}
-                    selectedEmployee={selectedEmployee}
-                    employeeModalMode={employeeModalMode}
-
-                    // API Handlers
-                    handleGetAllEmployees={handleGetAllEmployees}
-                    handleGetAllAdmins={handleGetAllAdmins}
-                    handleViewEmployee={handleViewEmployee}
-                    handleEditEmployee={handleEditEmployee}
-                    handleCloseEmployeeModal={handleCloseEmployeeModal}
-                    handleSaveEmployee={handleSaveEmployee}
-                    handleActivateEmployee={handleActivateEmployee}
-                    handleRequestDocuments={handleRequestDocuments}
-
-                    // Utility
-                    toDisplayText={toDisplayText}
-
-                />
-            ) : (
-               <EmployeeDashboard
-                    role={role}
-                    employee={employee}
-                    activeMenu={activeMenu}
-                    setActiveMenu={setActiveMenu}
-                    normalizedEmployeeStatus={normalizedEmployeeStatus}
-                    handleSaveOwnProfile={handleSaveOwnProfile}
-                />
-            )}
+                <main className="dashboard-main">
+                    <Outlet context={outletContext} />
+                </main>
+            </div>
 
             <Footer />
         </>

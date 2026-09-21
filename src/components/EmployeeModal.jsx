@@ -53,8 +53,17 @@ useEffect(() => {
      */
     const normalizedStatus =
         employee.status
-            ?.replace(/[\s_]+/g, "_")
+            ?.replace(/[\s_-]+/g, "_")
             .toUpperCase();
+
+    const canActivateEmployee =
+        !!documents &&
+        (
+            normalizedStatus === "PENDING_VERIFICATION" ||
+            normalizedStatus === "DOCUMENTS_RECEIVED" ||
+            normalizedStatus === "VERIFICATION_PENDING" ||
+            normalizedStatus.includes("VERIFICATION")
+        );
 
     /*
      * Save Employee
@@ -582,21 +591,15 @@ useEffect(() => {
 
                         {/* ACTIVATE */}
 
-                        {!loading &&
-                            isEdit &&
-                            normalizedStatus ===
-                                "PENDING_VERIFICATION" &&
-                            documents && (
-
-                                <button
-                                    type="button"
-                                    className="activate-btn"
-                                    onClick={handleActivate}
-                                >
-                                    ACTIVATE
-                                </button>
-
-                            )}
+                        {!loading && isEdit && canActivateEmployee && (
+                            <button
+                                type="button"
+                                className="activate-btn"
+                                onClick={handleActivate}
+                            >
+                                ACTIVATE
+                            </button>
+                        )}
 
                     </div>
 
