@@ -9,7 +9,7 @@ function Navbar() {
 
     const logout = () => {
         localStorage.clear();
-        navigate("/");
+        navigate("/login");
     };
 
     return (

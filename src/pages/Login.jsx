@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { loginEmployee } from "../services/api";
 import { useNotification } from "../contexts/NotificationContext";
+import { FiEye, FiEyeOff } from "react-icons/fi";
+
 
 function Login() {
 
@@ -18,6 +20,8 @@ function Login() {
             [e.target.name]: e.target.value
         });
     };
+
+    const [showPassword, setShowPassword] = useState(false);
 
     //run when we are going to press login button 
     const handleLogin = async (e) => {
@@ -50,7 +54,7 @@ function Login() {
 
         showNotification("Login Successful", "success");
 
-        navigate("/dashboard");
+        navigate("/");
 
     } catch (error) {
 
@@ -74,13 +78,31 @@ function Login() {
                     onChange={handleChange}
                     required
                 />
-                <input
-                    type="password"
-                    name="password"
-                    placeholder="Enter Password"
-                    onChange={handleChange}
-                    required
-                />
+               <div style={{ position: "relative" }}>
+    <input
+        type={showPassword ? "text" : "password"}
+        name="password"
+        placeholder="Enter Password"
+        onChange={handleChange}
+        required
+        style={{ paddingRight: "40px" }}
+    />
+
+    <span
+        onClick={() => setShowPassword(!showPassword)}
+        style={{
+            position: "absolute",
+            right: "12px",
+            top: "35%",
+            transform: "translateY(-50%)",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center"
+        }}
+    >
+        {showPassword ? <FiEyeOff /> : <FiEye />}
+    </span>
+</div>
 
                 <button type="submit">
                     Login

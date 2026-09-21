@@ -1,3 +1,5 @@
+import { formatDate } from "../../utils/dateUtils";
+
 function AdminTable({ admins, loadingAdmins }) {
     if (loadingAdmins) {
         return null;
@@ -15,6 +17,7 @@ function AdminTable({ admins, loadingAdmins }) {
                     <th>Name</th>
                     <th>Email</th>
                     <th>Mobile</th>
+                    <th>Joining Date</th>
                     <th>Role</th>
                 </tr>
             </thead>
@@ -31,6 +34,8 @@ function AdminTable({ admins, loadingAdmins }) {
                         <td>{admin.email}</td>
 
                         <td>{admin.mobile}</td>
+
+                        <td>{formatDate(admin.createdOn)}</td>
 
                         <td>{admin.role}</td>
                     </tr>

@@ -1,6 +1,7 @@
 import Loader from "../Loader";
 import Pagination from "../Pagination";
 import { FiEdit2, FiEye } from "react-icons/fi";
+import { formatDate } from "../../utils/dateUtils";
 
 function EmployeeTable({
     employees,
@@ -55,6 +56,7 @@ function EmployeeTable({
                                 <th>Email</th>
                                 <th>Mobile</th>
                                 <th>Role</th>
+                                <th>Joining Date</th>
                                 <th>Status</th>
                                 <th>Action</th>
                             </tr>
@@ -83,6 +85,8 @@ function EmployeeTable({
                                     <td>{emp.mobile}</td>
 
                                     <td>{emp.role}</td>
+
+                                    <td>{formatDate(emp.createdOn)}</td>
 
                                     <td>
                                         <span

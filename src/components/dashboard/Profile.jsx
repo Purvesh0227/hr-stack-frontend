@@ -7,6 +7,8 @@ import EmployeeIdCard from "../../components/common/EmployeeIdCard";
 import { FiEdit2, FiEye } from "react-icons/fi";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
+import { formatDate } from "../../utils/dateUtils";
+
 
 function Profile({ role, employee, adminProfile, loadingProfile, handleSaveOwnProfile, refreshAdminProfile }) {
     const profile = role === "ADMIN" ? adminProfile : employee;
@@ -477,6 +479,11 @@ function Profile({ role, employee, adminProfile, loadingProfile, handleSaveOwnPr
                         <div className="profile-field">
                             <span>Role</span>
                             <strong>{profile.role || "-"}</strong>
+                        </div>
+
+                        <div className="profile-field">
+                            <span>Joining Date</span>
+                            <strong>{formatDate(profile.createdOn) || "-"}</strong>
                         </div>
                     </div>
                 </div>

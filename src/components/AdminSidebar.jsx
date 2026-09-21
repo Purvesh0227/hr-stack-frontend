@@ -1,5 +1,6 @@
 import { MdDashboard } from "react-icons/md";
 import { FaUserShield } from "react-icons/fa";
+import { FaUsers } from "react-icons/fa6";
 import { IoSettingsSharp } from "react-icons/io5";
 import { FaCalendarCheck } from "react-icons/fa6";
 import { MdAccountBalanceWallet } from "react-icons/md";
@@ -13,23 +14,27 @@ function AdminSidebar({ role }) {
     const getActiveMenu = () => {
         const path = location.pathname;
 
-        if (path === "/dashboard") {
+        if (path === "/") {
             return "dashboard";
         }
 
-        if (path.startsWith("/dashboard/admins")) {
+        if (path.startsWith("/employees")) {
+            return "employees";
+        }
+
+        if (path.startsWith("/admins")) {
             return "admins";
         }
 
-        if (path.startsWith("/dashboard/attendance")) {
+        if (path.startsWith("/attendance")) {
             return "attendance";
         }
 
-        if (path.startsWith("/dashboard/finance")) {
+        if (path.startsWith("/finance")) {
             return "finance";
         }
 
-        if (path.startsWith("/dashboard/settings")) {
+        if (path.startsWith("/settings")) {
             return "settings";
         }
 
@@ -50,35 +55,39 @@ function AdminSidebar({ role }) {
 
             <nav className="sidebar-menu">
                 <button
-                    className={
-                        activeMenu === "dashboard"
-                            ? "active"
-                            : ""
-                    }
-                    onClick={() => navigate("/dashboard")}
+                    className={activeMenu === "dashboard" ? "active" : ""}
+                    onClick={() => navigate("/")}
                 >
                     <MdDashboard className="icon" />
-                    <span>
-                        {role === "ADMIN"
-                            ? "Dashboard"
-                            : "Home"}
-                    </span>
+                    <span>Dashboard</span>
                 </button>
 
                 {role === "ADMIN" && (
-                    <button
-                        className={
-                            activeMenu === "admins"
-                                ? "active"
-                                : ""
-                        }
-                        onClick={() =>
-                            navigate("/dashboard/admins")
-                        }
-                    >
-                        <FaUserShield className="icon" />
-                        <span>Admins</span>
-                    </button>
+                    <>
+                        <button
+                            className={
+                                activeMenu === "employees"
+                                    ? "active"
+                                    : ""
+                            }
+                            onClick={() => navigate("/employees")}
+                        >
+                            <FaUsers className="icon" />
+                            <span>Employees</span>
+                        </button>
+
+                        <button
+                            className={
+                                activeMenu === "admins"
+                                    ? "active"
+                                    : ""
+                            }
+                            onClick={() => navigate("/admins")}
+                        >
+                            <FaUserShield className="icon" />
+                            <span>Admins</span>
+                        </button>
+                    </>
                 )}
 
                 <button
@@ -87,9 +96,7 @@ function AdminSidebar({ role }) {
                             ? "active"
                             : ""
                     }
-                    onClick={() =>
-                        navigate("/dashboard/attendance")
-                    }
+                    onClick={() => navigate("/attendance")}
                 >
                     <FaCalendarCheck className="icon" />
                     <span>Attendance</span>
@@ -101,9 +108,7 @@ function AdminSidebar({ role }) {
                             ? "active"
                             : ""
                     }
-                    onClick={() =>
-                        navigate("/dashboard/finance")
-                    }
+                    onClick={() => navigate("/finance")}
                 >
                     <MdAccountBalanceWallet className="icon" />
                     <span>Finance</span>
@@ -115,9 +120,7 @@ function AdminSidebar({ role }) {
                             ? "active"
                             : ""
                     }
-                    onClick={() =>
-                        navigate("/dashboard/settings")
-                    }
+                    onClick={() => navigate("/settings")}
                 >
                     <IoSettingsSharp className="icon" />
                     <span>Settings</span>

@@ -15,7 +15,7 @@ function Admins() {
     const [showAddAdminModal, setShowAddAdminModal] = useState(false);
 
     if (role !== "ADMIN") {
-        return <Navigate to="/dashboard" replace />;
+        return <Navigate to="/" replace />;
     }
 
     return (

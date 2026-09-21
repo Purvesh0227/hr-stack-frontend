@@ -6,6 +6,8 @@ import Loader from "./Loader";
 import PdfViewer from "./common/PdfViewer";
 import EmployeeIdCard from "./common/EmployeeIdCard";
 import { FiEye } from "react-icons/fi";
+import { formatDate, formatDateTime } from "../utils/dateUtils";
+
 
 function EmployeeModal({
     isOpen,
@@ -391,6 +393,25 @@ useEffect(() => {
                                 readOnly
                             />
 
+                        </div>
+
+                        {/* Created On */}
+                        <div className="modal-field">
+                            <label>Joining Date</label>
+                            <input
+                                type="text"
+                                value={formatDate(employee.createdOn)}
+                                readOnly
+                            />
+                        </div>
+
+                        <div className="modal-field">
+                            <label>Last Updated</label>
+                            <input
+                                type="text"
+                                value={formatDateTime(employee.updatedOn)}
+                                readOnly
+                            />
                         </div>
 
                     </div>

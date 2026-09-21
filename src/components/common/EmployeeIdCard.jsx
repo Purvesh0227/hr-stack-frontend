@@ -4,6 +4,8 @@ import {
     useRef,
     useState
 } from "react";
+import { formatDate } from "../../utils/dateUtils";
+
 
 const EmployeeIdCard = forwardRef(function EmployeeIdCard(
     { employee },
@@ -133,7 +135,7 @@ const EmployeeIdCard = forwardRef(function EmployeeIdCard(
         },
 
         footer: {
-            marginTop: "10px",
+            marginTop: "-5px",
             padding: "14px",
             background: "#f9fafb",
             textAlign: "center",
@@ -278,6 +280,14 @@ const EmployeeIdCard = forwardRef(function EmployeeIdCard(
                             {employee.email || "-"}
                         </span>
                     </div>
+                    <div style={styles.detailRow}>
+                        <span style={styles.detailLabel}>
+                            Joining Date
+                        </span>
+                        <span style={styles.detailValue}>
+                            {formatDate(employee.createdOn) || "-"}
+                        </span>
+                    </div>
 
                 </div>
 
@@ -365,7 +375,7 @@ const EmployeeIdCard = forwardRef(function EmployeeIdCard(
                         administration.
                     </p>
                     <br></br>
-
+                    <br></br>
                 </div>
 
             </div>

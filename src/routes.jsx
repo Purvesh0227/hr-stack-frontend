@@ -7,6 +7,7 @@ import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 import DashboardHome from "./pages/Dashboard/DashboardHome";
+import Employees from "./pages/Dashboard/Employees";
 import Admins from "./pages/Dashboard/Admins";
 import AttendancePage from "./pages/Dashboard/AttendancePage";
 import FinancePage from "./pages/Dashboard/FinancePage";
@@ -15,12 +16,11 @@ import SettingsPage from "./pages/Dashboard/SettingsPage";
 function AppRoutes() {
     return (
         <Routes>
-            <Route path="/" element={<Login />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
 
             <Route
-                path="/dashboard"
+                path="/"
                 element={
                     <ProtectedRoute>
                         <Dashboard />
@@ -28,6 +28,7 @@ function AppRoutes() {
                 }
             >
                 <Route index element={<DashboardHome />} />
+                <Route path="employees" element={<Employees />} />
                 <Route path="admins" element={<Admins />} />
                 <Route path="attendance" element={<AttendancePage />} />
                 <Route path="finance" element={<FinancePage />} />
