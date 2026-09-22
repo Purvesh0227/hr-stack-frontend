@@ -6,9 +6,7 @@ import "./index.css";
 import "./App.css";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-    <BrowserRouter>
+    <BrowserRouter basename="/hr-stack-frontend">
         <App />
     </BrowserRouter>
 );
-
-// we are going to create multiple pages wrapped in browserrouter
