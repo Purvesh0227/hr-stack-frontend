@@ -12,12 +12,23 @@ import Admins from "./pages/Dashboard/Admins";
 import AttendancePage from "./pages/Dashboard/AttendancePage";
 import FinancePage from "./pages/Dashboard/FinancePage";
 import SettingsPage from "./pages/Dashboard/SettingsPage";
+import AlreadyLoggedIn from "./pages/AlreadyLoggedIn";
+
+function AuthEntry({ children }) {
+    const employee = localStorage.getItem("employee");
+
+    if (employee) {
+        return <AlreadyLoggedIn />;
+    }
+
+    return children;
+}
 
 function AppRoutes() {
     return (
-        <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
+            <Routes>
+                <Route path="/login" element={ <AuthEntry> <Login /> </AuthEntry>} />
+                <Route path="/register" element={<AuthEntry> <Register /> </AuthEntry>} />
 
             <Route
                 path="/"
