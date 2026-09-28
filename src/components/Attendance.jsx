@@ -6,7 +6,7 @@ import { useNotification } from "../contexts/NotificationContext";
 import { filterBySearch } from "../utils/tableFilters";
 import { paginate } from "../utils/pagination";
 import Pagination from "../components/Pagination";
-import "../styles/attendance.css"
+import "../styles/Attendance.css"
 
 function Attendance({ role }) {
     const { showNotification } = useNotification();
