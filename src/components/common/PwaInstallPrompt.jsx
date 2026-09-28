@@ -137,14 +137,6 @@ function PwaInstallPrompt() {
 
                     <div className="pwa-benefit">
                         <span className="pwa-benefit-icon">
-                            <FiWifi />
-                        </span>
-
-                        <span>Works offline</span>
-                    </div>
-
-                    <div className="pwa-benefit">
-                        <span className="pwa-benefit-icon">
                             <FiSmartphone />
                         </span>
 
