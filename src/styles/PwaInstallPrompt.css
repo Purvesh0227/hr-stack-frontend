@@ -1,0 +1,335 @@
+.pwa-install-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+
+    background: rgba(15, 23, 42, 0.45);
+    backdrop-filter: blur(4px);
+}
+
+/* Modal */
+
+.pwa-install-modal {
+    position: relative;
+
+    width: 100%;
+    max-width: 440px;
+
+    padding: 32px;
+
+    background: #ffffff;
+
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+
+    box-shadow:
+        0 20px 45px rgba(15, 23, 42, 0.15);
+
+    text-align: center;
+
+    animation: pwaModalIn 0.2s ease-out;
+}
+
+@keyframes pwaModalIn {
+    from {
+        opacity: 0;
+        transform: translateY(12px) scale(0.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Close button */
+
+.pwa-install-close {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 34px;
+    height: 34px;
+
+    padding: 0;
+
+    border: none;
+    border-radius: 8px;
+
+    background: transparent;
+
+    color: #64748b;
+
+    font-size: 20px;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease;
+}
+
+.pwa-install-close:hover {
+    background: #f1f5f9;
+    color: #0f172a;
+}
+
+/* App icon */
+
+.pwa-install-icon {
+    display: flex;
+    justify-content: center;
+
+    margin-bottom: 18px;
+}
+
+.pwa-install-icon img {
+    width: 72px;
+    height: 72px;
+
+    object-fit: cover;
+
+    border-radius: 16px;
+
+    box-shadow:
+        0 6px 16px rgba(37, 99, 235, 0.18);
+}
+
+/* Heading */
+
+.pwa-install-modal h2 {
+    margin: 0 0 10px;
+
+    color: #0f172a;
+
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+/* Description */
+
+.pwa-install-description {
+    max-width: 360px;
+
+    margin: 0 auto 24px;
+
+    color: #64748b;
+
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+/* Benefits */
+
+.pwa-install-benefits {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    margin-bottom: 22px;
+
+    text-align: left;
+}
+
+.pwa-benefit {
+    display: flex;
+    align-items: center;
+
+    gap: 12px;
+
+    padding: 10px 12px;
+
+    border-radius: 10px;
+
+    background: #f8fafc;
+
+    color: #334155;
+
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.pwa-benefit-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    width: 32px;
+    height: 32px;
+
+    border-radius: 8px;
+
+    background: #eff6ff;
+
+    color: #2563eb;
+
+    font-size: 16px;
+}
+
+/* Don't remind checkbox */
+
+.pwa-dont-remind {
+    display: flex;
+    align-items: center;
+
+    gap: 9px;
+
+    margin-bottom: 22px;
+
+    color: #475569;
+
+    font-size: 14px;
+
+    cursor: pointer;
+    user-select: none;
+}
+
+.pwa-dont-remind input {
+    width: 16px;
+    height: 16px;
+
+    margin: 0;
+
+    accent-color: #2563eb;
+
+    cursor: pointer;
+}
+
+/* Buttons */
+
+.pwa-install-actions {
+    display: flex;
+
+    gap: 10px;
+}
+
+.pwa-not-now,
+.pwa-install-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 8px;
+
+    flex: 1;
+
+    min-height: 44px;
+
+    padding: 0 18px;
+
+    border-radius: 9px;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        color 0.2s ease,
+        transform 0.1s ease;
+}
+
+/* Not Now */
+
+.pwa-not-now {
+    border: 1px solid #cbd5e1;
+
+    background: #ffffff;
+
+    color: #334155;
+}
+
+.pwa-not-now:hover {
+    background: #f8fafc;
+
+    border-color: #94a3b8;
+}
+
+/* Install */
+
+.pwa-install-button {
+    border: 1px solid #2563eb;
+
+    background: #2563eb;
+
+    color: #ffffff;
+}
+
+.pwa-install-button:hover {
+    background: #1d4ed8;
+
+    border-color: #1d4ed8;
+}
+
+.pwa-install-button:active,
+.pwa-not-now:active {
+    transform: scale(0.98);
+}
+
+/* Mobile */
+
+@media (max-width: 480px) {
+    .pwa-install-overlay {
+        align-items: flex-end;
+
+        padding: 12px;
+    }
+
+    .pwa-install-modal {
+        max-width: none;
+
+        padding: 28px 20px 20px;
+
+        border-radius: 16px;
+    }
+
+    .pwa-install-icon img {
+        width: 64px;
+        height: 64px;
+
+        border-radius: 14px;
+    }
+
+    .pwa-install-modal h2 {
+        font-size: 21px;
+    }
+
+    .pwa-install-description {
+        font-size: 14px;
+    }
+
+    .pwa-install-benefits {
+        gap: 8px;
+    }
+
+    .pwa-benefit {
+        padding: 9px 10px;
+
+        font-size: 13px;
+    }
+
+    .pwa-install-actions {
+        flex-direction: column;
+    }
+
+    .pwa-not-now,
+    .pwa-install-button {
+        width: 100%;
+    }
+}

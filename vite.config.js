@@ -21,6 +21,7 @@ export default defineConfig({
             ],
 
             manifest: {
+                id: "/hr-stack-frontend/",
                 name: "HR-Stack",
                 short_name: "HR-Stack",
                 description:
