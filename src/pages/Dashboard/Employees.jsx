@@ -33,14 +33,35 @@ function Employees() {
 
     return (
         <>
-            <div className="dashboard-header">
-                <div>
-                    <h1>Employees</h1>
-                    <p>Manage employees and employee information.</p>
-                </div>
-            </div>
+            <div className="employees-page">
 
-            <div className="content-card">
+                {/* Page Header */}
+                <div className="employees-page-header">
+                    <div>
+                        <p className="dashboard-eyebrow">
+                            Admin Dashboard
+                        </p>
+
+                        <h1>Employees</h1>
+
+                        <p className="employees-page-subtitle">
+                            Manage employees and employee information.
+                        </p>
+                    </div>
+
+                    {/* Employee Count */}
+                    <div className="employee-summary">
+                        <span className="employee-summary-label">
+                            Total Employees
+                        </span>
+
+                        <strong>
+                            {employees?.length || 0}
+                        </strong>
+                    </div>
+                </div>
+
+                {/* Employee Table */}
                 <EmployeeTable
                     employees={employees}
                     filteredEmployees={filteredEmployees}
@@ -58,6 +79,7 @@ function Employees() {
                 />
             </div>
 
+            {/* Employee Modal */}
             <EmployeeModal
                 isOpen={showEmployeeModal}
                 employee={selectedEmployee}

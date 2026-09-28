@@ -1,0 +1,567 @@
+/* =========================================================
+   EMPLOYEE MODAL
+   ========================================================= */
+
+.employee-modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    box-sizing: border-box;
+    background: rgba(0, 0, 0, 0.55);
+}
+
+.employee-modal-container {
+    width: 850px;
+    max-width: 90vw;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-sizing: border-box;
+    padding: 30px;
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    background: var(--bg-card);
+    color: var(--text-primary);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.22);
+    scrollbar-width: thin;
+}
+
+.employee-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+.employee-modal-header h2 {
+    margin: 0;
+    color: var(--text-primary);
+    font-size: 22px;
+    font-weight: 700;
+}
+
+.employee-modal-close {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 26px;
+    line-height: 1;
+    cursor: pointer;
+    border-radius: 7px;
+    transition:
+        background-color 0.18s ease,
+        color 0.18s ease;
+}
+
+.employee-modal-close:hover:not(:disabled) {
+    background: var(--bg-hover-row);
+    color: var(--text-primary);
+}
+
+.employee-modal-close:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* =========================================================
+   EMPLOYEE DETAILS
+   ========================================================= */
+
+.employee-modal-details-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px 25px;
+    width: 100%;
+}
+
+/* =========================================================
+   PROFILE PREVIEW
+   ========================================================= */
+
+.employee-modal-profile {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 16px;
+    margin-bottom: 10px;
+    box-sizing: border-box;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    background: var(--bg-hover-row);
+}
+
+.employee-modal-profile-photo {
+    width: 90px;
+    height: 90px;
+    flex-shrink: 0;
+    overflow: hidden;
+    border: 3px solid var(--border-color);
+    border-radius: 50%;
+    background: var(--bg-input);
+}
+
+.employee-modal-profile-photo img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+}
+
+.employee-modal-photo-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    font-size: 12px;
+}
+
+.employee-modal-profile-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.employee-modal-profile-name {
+    color: var(--text-primary);
+    font-size: 18px;
+    font-weight: 650;
+}
+
+/* =========================================================
+   FIELDS
+   ========================================================= */
+
+.employee-modal-field {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    min-width: 0;
+}
+
+.employee-modal-field label {
+    width: 85px;
+    flex-shrink: 0;
+    color: var(--text-secondary);
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.employee-modal-field input {
+    flex: 1;
+    min-width: 0;
+    width: auto;
+    box-sizing: border-box;
+    padding: 10px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 7px;
+    outline: none;
+    background: var(--bg-input);
+    color: var(--text-primary);
+    font-family: var(--font-family);
+    font-size: 14px;
+    transition:
+        border-color 0.18s ease,
+        box-shadow 0.18s ease,
+        background-color 0.18s ease;
+}
+
+.employee-modal-field input::placeholder {
+    color: var(--text-muted);
+}
+
+.employee-modal-field input:hover:not([readonly]) {
+    border-color: var(--border-strong);
+}
+
+.employee-modal-field input:not([readonly]):focus {
+    border-color: var(--border-strong);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.08);
+}
+
+[data-theme="dark"] .employee-modal-field input:not([readonly]):focus {
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+}
+
+.employee-modal-field input[readonly] {
+    background: var(--bg-hover-row);
+    color: var(--text-secondary);
+    cursor: not-allowed;
+}
+
+/* =========================================================
+   DOCUMENTS
+   ========================================================= */
+
+.employee-modal-documents {
+    width: 100%;
+    margin-top: 30px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border-color);
+}
+
+.employee-modal-documents > h3 {
+    margin: 0 0 18px;
+    color: var(--text-primary);
+    font-size: 18px;
+    font-weight: 650;
+}
+
+.employee-modal-document-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 16px;
+    margin-bottom: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    background: var(--bg-hover-row);
+    transition:
+        background-color 0.18s ease,
+        border-color 0.18s ease;
+}
+
+.employee-modal-document-section:hover {
+    border-color: var(--border-strong);
+}
+
+.employee-modal-document-info {
+    min-width: 0;
+    flex: 1;
+}
+
+.employee-modal-document-info h4 {
+    margin: 0 0 10px;
+    color: var(--text-primary);
+    font-size: 14px;
+    font-weight: 650;
+}
+
+.employee-modal-document-info > div {
+    display: flex;
+    gap: 8px;
+    margin-top: 5px;
+    color: var(--text-secondary);
+    font-size: 12px;
+}
+
+.employee-modal-document-info strong {
+    min-width: 52px;
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+.employee-modal-document-info span {
+    color: var(--text-primary);
+    word-break: break-word;
+}
+
+/*
+   Keep the application's shared .document-view-btn.
+   These rules only control its placement inside this modal.
+*/
+
+.employee-modal-document-section .document-view-btn {
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+.employee-modal-profile-actions .document-view-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+}
+
+/* =========================================================
+   ACTIONS
+   ========================================================= */
+
+.employee-modal-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
+}
+
+.employee-modal-actions .secondary-btn,
+.employee-modal-actions .primary-btn,
+.employee-modal-actions .activate-btn {
+    flex-shrink: 0;
+}
+
+/* =========================================================
+   DOCUMENT VIEWER
+   ========================================================= */
+
+.employee-document-viewer-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    box-sizing: border-box;
+    background: rgba(0, 0, 0, 0.72);
+}
+
+.employee-document-viewer {
+    width: 900px;
+    max-width: 95vw;
+    height: 90vh;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-sizing: border-box;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    background: var(--bg-card);
+    box-shadow: 0 20px 70px rgba(0, 0, 0, 0.35);
+}
+
+.employee-document-viewer-header {
+    min-height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 0 18px;
+    box-sizing: border-box;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--bg-card);
+}
+
+.employee-document-viewer-header h3 {
+    margin: 0;
+    color: var(--text-primary);
+    font-size: 15px;
+    font-weight: 650;
+}
+
+.employee-document-viewer-close {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: none;
+    border-radius: 7px;
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.employee-document-viewer-close:hover {
+    background: var(--bg-hover-row);
+    color: var(--text-primary);
+}
+
+.employee-document-viewer-content {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+    background: var(--bg-page);
+}
+
+/* =========================================================
+   ID CARD MODAL
+   ========================================================= */
+
+.employee-id-card-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1150;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    box-sizing: border-box;
+    background: rgba(0, 0, 0, 0.65);
+}
+
+.employee-id-card-container {
+    width: 650px;
+    max-width: 95vw;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-sizing: border-box;
+    padding: 24px;
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    background: var(--bg-card);
+    color: var(--text-primary);
+    box-shadow: 0 20px 70px rgba(0, 0, 0, 0.35);
+}
+
+.employee-id-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.employee-id-card-header h2 {
+    margin: 0;
+    color: var(--text-primary);
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.employee-id-card-close {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: none;
+    border-radius: 7px;
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 25px;
+    cursor: pointer;
+}
+
+.employee-id-card-close:hover {
+    background: var(--bg-hover-row);
+    color: var(--text-primary);
+}
+
+.employee-id-card-content {
+    width: 100%;
+    overflow-x: auto;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 768px) {
+
+    .employee-modal-overlay,
+    .employee-document-viewer-overlay,
+    .employee-id-card-overlay {
+        align-items: flex-start;
+        padding: 12px;
+    }
+
+    .employee-modal-container {
+        width: 100%;
+        max-width: 100%;
+        max-height: calc(100vh - 24px);
+        padding: 22px;
+    }
+
+    .employee-modal-details-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .employee-modal-profile {
+        gap: 14px;
+    }
+
+    .employee-modal-profile-photo {
+        width: 72px;
+        height: 72px;
+    }
+
+    .employee-modal-field {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .employee-modal-field label {
+        width: auto;
+    }
+
+    .employee-modal-field input {
+        width: 100%;
+    }
+
+    .employee-modal-document-section {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .employee-modal-document-section .document-view-btn {
+        width: 100%;
+    }
+
+    .employee-document-viewer {
+        width: 100%;
+        max-width: 100%;
+        height: calc(100vh - 24px);
+        max-height: calc(100vh - 24px);
+    }
+
+    .employee-id-card-container {
+        width: 100%;
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+
+    .employee-modal-container {
+        padding: 18px;
+        border-radius: 12px;
+    }
+
+    .employee-modal-header h2 {
+        font-size: 19px;
+    }
+
+    .employee-modal-profile {
+        align-items: flex-start;
+    }
+
+    .employee-modal-profile-photo {
+        width: 64px;
+        height: 64px;
+    }
+
+    .employee-modal-profile-name {
+        font-size: 16px;
+    }
+
+    .employee-modal-actions {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .employee-modal-actions .secondary-btn,
+    .employee-modal-actions .primary-btn,
+    .employee-modal-actions .activate-btn {
+        width: 100%;
+    }
+
+    .employee-id-card-container {
+        padding: 18px;
+    }
+}

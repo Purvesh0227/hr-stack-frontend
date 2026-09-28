@@ -7,6 +7,7 @@ import {
 } from "../utils/validators";
 import { useNotification } from "../contexts/NotificationContext";
 
+
 function AddAdminModal({ isOpen, onClose, refreshAdmins }) {
     const { showNotification } = useNotification();
     const [adminData, setAdminData] = useState({

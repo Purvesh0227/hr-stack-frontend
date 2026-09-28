@@ -1,11 +1,12 @@
 import { useNavigate } from "react-router-dom";
 import "../styles/global.css";
+import { Link } from "react-router-dom";
+import ThemeToggle from "./ThemeToggle";
 
 function Navbar() {
-
     const navigate = useNavigate();
 
-    const employee = JSON.parse(localStorage.getItem("employee"));
+    const employee = JSON.parse(localStorage.getItem("employee") || "null");
 
     const logout = () => {
         localStorage.clear();
@@ -14,32 +15,26 @@ function Navbar() {
 
     return (
         <header className="navbar">
+            <button
+                className="navbar-logo"
+                onClick={() => navigate("/")}
+            >
+                HRStack
+            </button>
 
-            <div className="navbar-logo">
-                <h2>HRStack</h2>
+            <div className="navbar-actions">
+                <ThemeToggle />
             </div>
 
             <div className="navbar-right">
-
-                {/* <div className="employee-details">
-                    <span className="welcome-text">
-                        Welcome, {employee.firstName}
-                    </span>
-
-                    <span className="role-badge">
-                        {employee.role}
-                    </span>
-                </div> */}
-
                 <button
                     className="logout-btn"
                     onClick={logout}
+                    type="button"
                 >
                     Logout
                 </button>
-
             </div>
-
         </header>
     );
 }
