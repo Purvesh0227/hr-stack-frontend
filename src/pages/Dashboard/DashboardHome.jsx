@@ -8,12 +8,25 @@ function DashboardHome() {
         normalizedEmployeeStatus
     } = useOutletContext();
 
+    const isPendingVerification =
+        role !== "ADMIN" &&
+        normalizedEmployeeStatus === "PENDING_VERIFICATION";
+
     return (
-        <>
+        <div className="home-page">
+
+            {/* Page header */}
             <div className="dashboard-header">
                 <div>
-                    <h1>Welcome, {employee?.firstName}</h1>
-                    <p>
+                    <p className="dashboard-eyebrow">
+                        {role === "ADMIN" ? "Admin Dashboard" : "Employee Dashboard"}
+                    </p>
+
+                    <h1>
+                        Welcome, {employee?.firstName || "User"}
+                    </h1>
+
+                    <p className="dashboard-subtitle">
                         {role === "ADMIN"
                             ? "Welcome to your admin dashboard."
                             : "Welcome to your employee dashboard."}
@@ -21,21 +34,27 @@ function DashboardHome() {
                 </div>
             </div>
 
-            {role !== "ADMIN" &&
-                normalizedEmployeeStatus === "PENDING_VERIFICATION" && (
-                    <>
-                        <div className="document-verification-banner">
+            {/* Verification section */}
+            {isPendingVerification && (
+                <section className="document-verification-section">
+
+                    <div className="document-verification-banner">
+                        <div>
                             <strong>Please Upload Required Documents</strong>
+
                             <p>
                                 Your account is pending document verification.
                                 Please upload your ID proof and Address proof.
                             </p>
                         </div>
+                    </div>
 
-                        <EmployeeDocumentUpload employee={employee} />
-                    </>
-                )}
-        </>
+                    <EmployeeDocumentUpload employee={employee} />
+
+                </section>
+            )}
+
+        </div>
     );
 }
 

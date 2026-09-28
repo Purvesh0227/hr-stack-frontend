@@ -1,174 +1,374 @@
-/* Attendance page */
+/* =========================================
+   ATTENDANCE PAGE
+   ========================================= */
+
 .attendance-page {
     width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
     box-sizing: border-box;
 }
 
-.attendance-page .content-card {
-    width: 100%;
-    box-sizing: border-box;
-    background: #ffffff;
-    border-radius: 16px;
-    padding: 28px;
-    margin-top: 20px;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.07);
-}
+/* =========================================
+   PAGE HEADER
+   ========================================= */
 
-/* Header */
-.attendance-page .card-header {
+.attendance-page-header {
     display: flex;
-    align-items: center;
+    align-items: flex-end;
     justify-content: space-between;
-    margin-bottom: 22px;
+    gap: 24px;
+    margin-bottom: 28px;
 }
-.attendance-page .card-header h2 {
+
+.attendance-page-header h1 {
     margin: 0;
-    color: #172554;
-    font-size: 25px;
+    color: var(--text-primary);
+    font-size: 30px;
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.03em;
 }
 
-/* Buttons */
-.attendance-page .primary-btn {
-    border: none;
-    background: #2563eb;
-    color: #ffffff;
-    padding: 10px 18px;
-    border-radius: 8px;
+.attendance-page-subtitle {
+    margin: 8px 0 0;
+    color: var(--text-secondary);
     font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: 0.2s ease;
-}
-.attendance-page .primary-btn:hover {
-    background: #1d4ed8;
-}
-.attendance-page .primary-btn:disabled {
-    background: #93c5fd;
-    cursor: not-allowed;
-}
-.attendance-page .cancel-btn {
-    border: none;
-    background: #6b7280;
-    color: #ffffff;
-    padding: 10px 18px;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-}
-.attendance-page .cancel-btn:hover {
-    background: #4b5563;
+    line-height: 1.5;
 }
 
-/* Attendance actions */
-.attendance-page .attendance-actions {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 25px;
-    flex-wrap: wrap;
-}
-.attendance-page .attendance-actions button {
+.attendance-mark-top-btn {
     min-width: 145px;
 }
 
-/* Table */
-.attendance-page .attendance-table-container {
+/* =========================================
+   MAIN ATTENDANCE CARD
+   ========================================= */
+
+.attendance-card {
     width: 100%;
-    margin-top: 20px;
-    overflow-x: auto;
-}
-.attendance-table-header h3 {
-    margin: 0 0 15px 0;
-    color: #172554;
-    font-size: 19px;
-}
-.attendance-page .employee-table {
-    width: 100%;
-    border-collapse: collapse;
-    background: #ffffff;
-}
-.attendance-page .employee-table thead {
-    background: #2563eb;
-}
-.attendance-page .employee-table th {
-    padding: 14px;
-    color: #ffffff;
-    text-align: left;
-    font-size: 14px;
-    font-weight: 600;
-}
-.attendance-page .employee-table td {
-    padding: 14px;
-    color: #111827;
-    font-size: 14px;
-    border-bottom: 1px solid #e5e7eb;
-}
-.attendance-page .employee-table tbody tr:hover {
-    background: #f8fafc;
-}
-.status-present {
-    font-weight: 600;
-    color: #15803d;
-}
-.no-attendance {
-    color: #64748b;
-    padding: 15px 0;
+    overflow: hidden;
+    box-sizing: border-box;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-card);
+    transition:
+        background-color 0.2s ease,
+        border-color 0.2s ease;
 }
 
-/* Modal overlay */
+/* =========================================
+   CARD HEADER
+   ========================================= */
+
+.attendance-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 20px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.attendance-card-header h2 {
+    margin: 0;
+    color: var(--text-primary);
+    font-size: 17px;
+    font-weight: 650;
+}
+
+.attendance-card-header p {
+    margin: 5px 0 0;
+    color: var(--text-secondary);
+    font-size: 12px;
+}
+
+.attendance-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.attendance-actions button {
+    min-width: 130px;
+}
+
+/* =========================================
+   SECONDARY BUTTON
+   ========================================= */
+
+.attendance-card .secondary-btn {
+    min-width: 130px;
+}
+
+/* =========================================
+   TABLE SECTION
+   ========================================= */
+
+.attendance-table-container {
+    width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.attendance-table-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 20px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.attendance-table-header h3 {
+    margin: 0;
+    color: var(--text-primary);
+    font-size: 15px;
+    font-weight: 650;
+}
+
+.attendance-table-header p {
+    margin: 5px 0 0;
+    color: var(--text-secondary);
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+/* =========================================
+   FILTERS
+   ========================================= */
+
+.attendance-filters {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.attendance-search-wrapper {
+    position: relative;
+}
+
+.attendance-search-input,
+.attendance-month-filter {
+    height: 40px;
+    box-sizing: border-box;
+    border: 1px solid var(--border-color);
+    border-radius: 9px;
+    outline: none;
+    background: var(--bg-input);
+    color: var(--text-primary);
+    font-family: var(--font-family);
+    font-size: 13px;
+    transition:
+        border-color 0.18s ease,
+        box-shadow 0.18s ease,
+        background-color 0.18s ease;
+}
+
+.attendance-search-input {
+    width: 230px;
+    padding: 0 12px;
+}
+
+.attendance-month-filter {
+    width: 150px;
+    padding: 0 10px;
+    cursor: pointer;
+}
+
+.attendance-search-input::placeholder {
+    color: var(--text-muted);
+}
+
+.attendance-search-input:focus,
+.attendance-month-filter:focus {
+    border-color: var(--border-strong);
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="dark"] .attendance-search-input:focus,
+[data-theme="dark"] .attendance-month-filter:focus {
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+}
+
+/* =========================================
+   ATTENDANCE TABLE
+   ========================================= */
+
+.attendance-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.attendance-page .employee-table {
+    width: 100%;
+    min-width: 600px;
+}
+
+.attendance-page .employee-table th {
+    height: 44px;
+}
+
+.attendance-page .employee-table td {
+    height: 58px;
+}
+
+.attendance-page .employee-table td strong {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+/* =========================================
+   PRESENT STATUS
+   ========================================= */
+
+.status-present {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: rgba(16, 185, 129, 0.10);
+    color: var(--status-active-text);
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.status-present::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+/* =========================================
+   TABLE FOOTER
+   ========================================= */
+
+.attendance-table-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 14px 20px;
+    border-top: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    font-size: 12px;
+}
+
+.attendance-table-footer strong {
+    color: var(--text-primary);
+}
+
+/* =========================================
+   EMPTY STATE
+   ========================================= */
+
+.attendance-page .no-attendance {
+    margin: 0;
+    padding: 45px 20px;
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 13px;
+}
+
+/* =========================================
+   INITIATE / OTP MODAL OVERLAY
+   ========================================= */
+
 .attendance-modal-overlay {
     position: fixed;
     inset: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(15, 23, 42, 0.62);
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 20px;
-    box-sizing: border-box;
-    z-index: 99999;
+    background: rgba(15, 15, 18, 0.62);
+    backdrop-filter: blur(3px);
     overflow-y: auto;
+    z-index: 1200;
 }
 
-/* Common modal */
+/* =========================================
+   COMMON MODAL
+   ========================================= */
+
 .attendance-initiate-modal,
 .attendance-mark-modal {
     position: relative;
-    background: #ffffff;
-    border-radius: 16px;
     box-sizing: border-box;
-    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.30);
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.25);
     animation: attendanceModalOpen 0.2s ease-out;
 }
+
 @keyframes attendanceModalOpen {
     from {
         opacity: 0;
         transform: translateY(-10px) scale(0.98);
     }
+
     to {
         opacity: 1;
         transform: translateY(0) scale(1);
     }
 }
 
-/* Initiate modal */
+/* =========================================
+   INITIATE MODAL
+   ========================================= */
+
 .attendance-initiate-modal {
     width: 520px;
     max-width: calc(100vw - 40px);
     padding: 30px;
 }
 
-/* Modal title */
-.attendance-initiate-modal .modal-title,
-.attendance-mark-modal .modal-title {
-    margin: 0 0 25px 0;
-    font-size: 24px;
-    font-weight: 700;
-    color: #111827;
+/* =========================================
+   MARK ATTENDANCE MODAL
+   ========================================= */
+
+.attendance-mark-modal {
+    width: 430px;
+    max-width: calc(100vw - 40px);
+    padding: 30px;
 }
 
-/* Form row */
+/* =========================================
+   MODAL TITLE
+   ========================================= */
+
+.attendance-initiate-modal .modal-title,
+.attendance-mark-modal .modal-title {
+    margin: 0;
+    color: var(--text-primary);
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1.25;
+}
+
+.attendance-modal-subtitle {
+    margin: 8px 0 24px;
+    color: var(--text-secondary);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+/* =========================================
+   FORM
+   ========================================= */
+
 .attendance-form-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -177,278 +377,103 @@
     margin-bottom: 20px;
 }
 
-/* Form group */
 .attendance-form-group {
     width: 100%;
     display: flex;
     flex-direction: column;
 }
+
 .attendance-form-group label {
-    display: block;
     margin-bottom: 8px;
-    font-size: 14px;
+    color: var(--text-primary);
+    font-size: 13px;
     font-weight: 600;
-    color: #374151;
 }
 
-/* Inputs */
 .attendance-form-group input,
 .attendance-form-group select {
     width: 100%;
     height: 44px;
     box-sizing: border-box;
-    padding: 10px 12px;
-    border: 1px solid #d1d5db;
+    padding: 0 12px;
+    border: 1px solid var(--border-color);
     border-radius: 8px;
-    background: #ffffff;
-    color: #111827;
-    font-size: 14px;
     outline: none;
-    transition: 0.2s ease;
+    background: var(--bg-input);
+    color: var(--text-primary);
+    font-family: var(--font-family);
+    font-size: 13px;
+    transition:
+        border-color 0.18s ease,
+        box-shadow 0.18s ease;
 }
+
 .attendance-form-group input:focus,
 .attendance-form-group select:focus {
-    border-color: #2563eb;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    border-color: var(--border-strong);
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.04);
 }
-.attendance-form-group input[type="date"] {
-    cursor: pointer;
+
+[data-theme="dark"] .attendance-form-group input:focus,
+[data-theme="dark"] .attendance-form-group select:focus {
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
 }
+
+.attendance-form-group input[type="date"],
 .attendance-form-group select {
     cursor: pointer;
 }
 
-/* Generate OTP button */
+/* =========================================
+   GENERATE OTP
+   ========================================= */
+
 .attendance-generate-btn {
     width: 100%;
-    height: 46px;
-    border: none;
-    border-radius: 8px;
-    background: #2563eb;
-    color: #ffffff;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: 0.2s ease;
-    margin-top: 2px;
-}
-.attendance-generate-btn:hover {
-    background: #1d4ed8;
-}
-
-/* OTP box */
-.attendance-otp-box {
-    width: 100%;
-    box-sizing: border-box;
-    margin-top: 20px;
-    padding: 20px;
-    text-align: center;
-    background: #eff6ff;
-    border: 1px solid #bfdbfe;
-    border-radius: 10px;
-}
-
-/* OTP heading */
-.otp-label {
-    font-size: 15px;
-    font-weight: 600;
-    color: #1e3a8a;
-    margin-bottom: 4px;
-}
-
-/* OTP number */
-.attendance-otp-value {
-    display: block;
-    font-size: 32px;
-    font-weight: 700;
-    letter-spacing: 6px;
-    color: #1d4ed8;
-    margin: 5px 0 15px;
-}
-
-/* OTP divider */
-.otp-divider {
-    width: 100%;
-    height: 1px;
-    background: #bfdbfe;
-    margin: 10px 0 15px;
-}
-
-/* OTP time */
-.otp-time-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-}
-.otp-time-row div {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-}
-.otp-time-row span {
-    font-size: 12px;
-    color: #64748b;
-    font-weight: 500;
-}
-.otp-time-row strong {
-    font-size: 13px;
-    color: #1e293b;
-    font-weight: 600;
-}
-
-/* Countdown */
-.otp-countdown-label {
-    margin-top: 18px;
-    font-size: 12px;
-    color: #64748b;
-}
-.attendance-otp-countdown {
-    margin-top: 4px;
-    font-size: 20px;
-    font-weight: 700;
-    color: #dc2626;
-}
-
-/* Expired OTP */
-.attendance-otp-box.expired {
-    background: #fef2f2;
-    border-color: #fecaca;
-}
-.attendance-otp-box.expired .otp-label {
-    color: #b91c1c;
-}
-.attendance-otp-box.expired p {
-    margin: 8px 0 15px;
-    font-size: 13px;
-    color: #64748b;
-}
-
-/* Modal footer */
-.attendance-modal-footer {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 25px;
-}
-.attendance-modal-footer .cancel-btn {
-    min-width: 80px;
-}
-
-/* Mark attendance modal */
-.attendance-mark-modal {
-    width: 430px;
-    max-width: calc(100vw - 40px);
-    padding: 30px;
-}
-
-/* Description */
-.attendance-mark-description {
-    margin: 0 0 20px;
-    font-size: 14px;
-    color: #4b5563;
-    line-height: 1.6;
-}
-
-/* OTP input */
-.attendance-otp-input-group {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 22px;
-}
-.attendance-otp-input-group label {
-    margin-bottom: 8px;
-    font-size: 14px;
-    font-weight: 600;
-    color: #374151;
-}
-.attendance-otp-input {
-    width: 100%;
-    height: 46px;
-    box-sizing: border-box;
-    padding: 10px 12px;
-    border: 1px solid #d1d5db;
-    border-radius: 8px;
-    font-size: 16px;
-    letter-spacing: 3px;
-    outline: none;
-    color: #111827;
-}
-.attendance-otp-input:focus {
-    border-color: #2563eb;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
-}
-
-/* Mark buttons */
-.attendance-mark-buttons {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    gap: 10px;
-}
-.attendance-mark-buttons button {
-    min-width: 110px;
-}
-
-/* Responsive */
-@media (max-width: 600px) {
-    .attendance-page .content-card {
-        padding: 20px;
-    }
-    .attendance-page .card-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 15px;
-    }
-    .attendance-page .attendance-actions {
-        flex-direction: column;
-    }
-    .attendance-page .attendance-actions button {
-        width: 100%;
-    }
-    .attendance-initiate-modal,
-    .attendance-mark-modal {
-        width: 100%;
-        max-width: calc(100vw - 30px);
-        padding: 24px;
-    }
-    .attendance-form-row {
-        grid-template-columns: 1fr;
-        gap: 15px;
-    }
-    .otp-time-row {
-        grid-template-columns: 1fr;
-    }
-    .attendance-mark-buttons {
-        flex-direction: column-reverse;
-        width: 100%;
-    }
-    .attendance-mark-buttons button {
-        width: 100%;
-    }
-    .attendance-modal-footer {
-        width: 100%;
-    }
-    .attendance-modal-footer button {
-        width: 100%;
-    }
-}
-
-.generating-otp-btn {
-    opacity: 0.7;
-    cursor: not-allowed;
+    min-height: 46px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
+    border: none;
+    border-radius: 9px;
+    background: var(--bg-primary-btn);
+    color: var(--text-on-active);
+    font-family: var(--font-family);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+        background-color 0.18s ease,
+        transform 0.18s ease;
 }
+
+.attendance-generate-btn:hover:not(:disabled) {
+    background: var(--bg-primary-btn-hover);
+    transform: translateY(-1px);
+}
+
+.attendance-generate-btn:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.attendance-generate-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* =========================================
+   OTP SPINNER
+   ========================================= */
 
 .otp-spinner {
     width: 15px;
     height: 15px;
-    border: 2px solid currentColor;
-    border-top-color: transparent;
+    flex-shrink: 0;
+    border: 2px solid rgba(255, 255, 255, 0.35);
+    border-top-color: currentColor;
     border-radius: 50%;
-    display: inline-block;
     animation: otp-spin 0.7s linear infinite;
 }
 
@@ -458,86 +483,377 @@
     }
 }
 
-.attendance-generate-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
+/* =========================================
+   OTP BOX
+   ========================================= */
+
+.attendance-otp-box {
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: 20px;
+    padding: 20px;
+    text-align: center;
+    background: var(--bg-hover-row);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
 }
 
-
-/* Search Input */
-.attendance-table-header {
-    display: flex;
-    align-items: center;
-    justify-content:  space-between;
-    gap: 20px;
+.otp-label {
+    color: var(--text-primary);
+    font-size: 14px;
+    font-weight: 650;
 }
 
-.attendance-filters {
+.otp-sent-description {
+    margin: 6px 0 0;
+    color: var(--text-secondary);
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+/*
+ * Kept for compatibility with older markup.
+ * The current Attendance.jsx does not display
+ * the actual OTP value.
+ */
+.attendance-otp-value {
+    display: block;
+    margin: 5px 0 15px;
+    color: var(--text-primary);
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: 6px;
+}
+
+.otp-divider {
+    width: 100%;
+    height: 1px;
+    margin: 14px 0;
+    background: var(--border-color);
+}
+
+.otp-countdown-label {
+    margin-top: 14px;
+    color: var(--text-secondary);
+    font-size: 11px;
+}
+
+.attendance-otp-countdown {
+    margin-top: 4px;
+    color: var(--danger);
+    font-size: 20px;
+    font-weight: 700;
+}
+
+/* =========================================
+   OTP TIME INFORMATION
+   ========================================= */
+
+.otp-time-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-top: 18px;
+}
+
+.otp-time-row div {
     display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.otp-time-row span {
+    color: var(--text-secondary);
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.otp-time-row strong {
+    color: var(--text-primary);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* =========================================
+   EXPIRED OTP
+   ========================================= */
+
+.attendance-otp-box.expired {
+    background: rgba(220, 38, 38, 0.06);
+    border-color: rgba(220, 38, 38, 0.20);
+}
+
+.attendance-otp-box.expired .otp-label {
+    color: var(--danger);
+}
+
+.attendance-otp-box.expired p {
+    margin: 8px 0 15px;
+    color: var(--text-secondary);
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+/* =========================================
+   MODAL FOOTER
+   ========================================= */
+
+.attendance-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 24px;
+}
+
+.attendance-modal-footer .cancel-btn {
+    min-width: 80px;
+}
+
+/* =========================================
+   CANCEL BUTTON
+   ========================================= */
+
+.attendance-page .cancel-btn {
+    min-height: 40px;
+    padding: 0 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 9px;
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    font-family: var(--font-family);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+        background-color 0.18s ease,
+        color 0.18s ease,
+        border-color 0.18s ease;
+}
+
+.attendance-page .cancel-btn:hover {
+    background: var(--bg-hover-row);
+    color: var(--text-primary);
+    border-color: var(--border-strong);
+}
+
+/* =========================================
+   MARK ATTENDANCE DESCRIPTION
+   ========================================= */
+
+.attendance-mark-description {
+    margin: 10px 0 22px;
+    color: var(--text-secondary);
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+/* =========================================
+   OTP INPUT
+   ========================================= */
+
+.attendance-otp-input-group {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 22px;
+}
+
+.attendance-otp-input-group label {
+    margin-bottom: 8px;
+    color: var(--text-primary);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.attendance-otp-input {
+    width: 100%;
+    height: 46px;
+    box-sizing: border-box;
+    padding: 0 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    outline: none;
+    background: var(--bg-input);
+    color: var(--text-primary);
+    font-family: var(--font-family);
+    font-size: 16px;
+    letter-spacing: 3px;
+    transition:
+        border-color 0.18s ease,
+        box-shadow 0.18s ease;
+}
+
+.attendance-otp-input::placeholder {
+    color: var(--text-muted);
+    letter-spacing: normal;
+}
+
+.attendance-otp-input:focus {
+    border-color: var(--border-strong);
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="dark"] .attendance-otp-input:focus {
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+}
+
+/* =========================================
+   MARK ATTENDANCE BUTTONS
+   ========================================= */
+
+.attendance-mark-buttons {
+    display: flex;
+    justify-content: flex-end;
     align-items: center;
     gap: 10px;
 }
 
-.attendance-search-input,
-.attendance-month-filter {
-    height: 38px;
-    padding: 8px 12px;
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
-    font-size: 14px;
-    outline: none;
-    box-sizing: border-box;
+.attendance-mark-buttons button {
+    min-width: 110px;
 }
 
-.attendance-search-input {
-    width: 220px;
-}
+/* =========================================
+   OLD LOADING CLASS SUPPORT
+   ========================================= */
 
-.attendance-month-filter {
-    width: 160px;
-}
-
-.attendance-search-input:focus,
-.attendance-month-filter:focus {
-    border-color: #2563eb;
-}
-
-
-/* Pagination */
-.pagination {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 12px;
-    margin-top: 15px;
-    padding: 10px 0;
-}
-
-.pagination button {
-    padding: 8px 14px;
-    border: none;
-    border-radius: 6px;
-    background: #2563eb;
-    color: white;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-}
-
-.pagination button:hover:not(:disabled) {
-    background: #1d4ed8;
-}
-
-.pagination button:disabled {
-    background: #d1d5db;
-    color: #6b7280;
+.generating-otp-btn {
+    opacity: 0.7;
     cursor: not-allowed;
 }
 
-.pagination span {
-    font-size: 14px;
-    font-weight: 500;
-    color: #374151;
+/* =========================================
+   RESPONSIVE - TABLET
+   ========================================= */
+
+@media (max-width: 900px) {
+    .attendance-page-header {
+        align-items: flex-start;
+    }
+
+    .attendance-card-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .attendance-actions {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .attendance-table-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .attendance-filters {
+        width: 100%;
+    }
+
+    .attendance-search-wrapper {
+        flex: 1;
+    }
+
+    .attendance-search-input {
+        width: 100%;
+    }
+
+    .attendance-month-filter {
+        width: 160px;
+    }
+}
+
+/* =========================================
+   RESPONSIVE - MOBILE
+   ========================================= */
+
+@media (max-width: 600px) {
+    .attendance-page-header {
+        flex-direction: column;
+        gap: 16px;
+        margin-bottom: 20px;
+    }
+
+    .attendance-page-header h1 {
+        font-size: 25px;
+    }
+
+    .attendance-page-subtitle {
+        font-size: 13px;
+    }
+
+    .attendance-mark-top-btn {
+        width: 100%;
+    }
+
+    .attendance-card-header {
+        padding: 16px;
+    }
+
+    .attendance-actions {
+        flex-direction: column;
+        align-items: stretch;
+        width: 100%;
+    }
+
+    .attendance-actions button {
+        width: 100%;
+    }
+
+    .attendance-table-header {
+        padding: 16px;
+    }
+
+    .attendance-filters {
+        flex-direction: column;
+        align-items: stretch;
+        width: 100%;
+    }
+
+    .attendance-search-wrapper {
+        width: 100%;
+    }
+
+    .attendance-search-input,
+    .attendance-month-filter {
+        width: 100%;
+    }
+
+    .attendance-table-footer {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 14px 16px;
+    }
+
+    .attendance-initiate-modal,
+    .attendance-mark-modal {
+        width: 100%;
+        max-width: calc(100vw - 30px);
+        padding: 24px;
+    }
+
+    .attendance-form-row {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .otp-time-row {
+        grid-template-columns: 1fr;
+    }
+
+    .attendance-mark-buttons {
+        flex-direction: column-reverse;
+        width: 100%;
+    }
+
+    .attendance-mark-buttons button {
+        width: 100%;
+    }
+
+    .attendance-modal-footer {
+        width: 100%;
+    }
+
+    .attendance-modal-footer button {
+        width: 100%;
+    }
 }

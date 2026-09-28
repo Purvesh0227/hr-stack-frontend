@@ -326,14 +326,14 @@ function Profile({ role, employee, adminProfile, loadingProfile, handleSaveOwnPr
 
                 {showIdCard && (
                     <div
-                        style={{ position: "fixed", inset: 0, background: "rgba(0, 0, 0, 0.55)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 9999, overflowY: "auto", padding: "30px" }}
+                        className="id-card-overlay"
                         onClick={() => setShowIdCard(false)}
                     >
-                        <div onClick={(event) => event.stopPropagation()} style={{ position: "relative" }}>
+                        <div onClick={(event) => event.stopPropagation()} className="id-card-panel">
                             <button
                                 type="button"
                                 onClick={() => setShowIdCard(false)}
-                                style={{ position: "absolute", top: "-5px", right: "-5px", width: "36px", height: "36px", borderRadius: "50%", border: "none", background: "#ffffff", color: "#333333", fontSize: "22px", fontWeight: "600", cursor: "pointer", boxShadow: "0 3px 10px rgba(0,0,0,0.25)", zIndex: 10 }}
+                                className="id-card-close-btn"
                                 title="Close"
                                 aria-label="Close ID Card"
                             >×</button>
@@ -345,20 +345,7 @@ function Profile({ role, employee, adminProfile, loadingProfile, handleSaveOwnPr
                                 type="button"
                                 onClick={handleDownloadIdCard}
                                 disabled={downloadingIdCard}
-                                style={{
-                                    display: "block",
-                                    margin: "10px auto 20px",
-                                    padding: "11px 22px",
-                                    border: "none",
-                                    borderRadius: "8px",
-                                    background: "#1f2937",
-                                    color: "#ffffff",
-                                    fontSize: "14px",
-                                    fontWeight: "600",
-                                    cursor: downloadingIdCard ? "not-allowed" : "pointer",
-                                    opacity: downloadingIdCard ? 0.7 : 1,
-                                    transition: "all 0.2s ease",
-                                }}
+                                className="id-card-download-btn"
                             >
                                 {downloadingIdCard ? "Generating PDF..." : "Download ID Card"}
                             </button>
@@ -427,7 +414,7 @@ function Profile({ role, employee, adminProfile, loadingProfile, handleSaveOwnPr
                         <button
                             type="button"
                             onClick={() => setShowIdCard(true)}
-                            style={{ padding: "10px 18px", border: "1px solid #1f2937", borderRadius: "8px", background: "#ffffff", color: "#1f2937", fontSize: "14px", fontWeight: "600", cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "8px", transition: "all 0.2s ease" }}
+                            className="view-id-card-btn"
                         >View ID Card</button>
                     </div>
                 </div>
@@ -488,7 +475,7 @@ function Profile({ role, employee, adminProfile, loadingProfile, handleSaveOwnPr
                     </div>
                 </div>
 
-                <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "20px", marginBottom: "20px" }}>
+                <div className="profile-save-row">
                     <button type="button" className="profile-save-btn" onClick={handleSaveChanges} disabled={savingDetails || updatingProfilePhoto}>
                         {savingDetails || updatingProfilePhoto ? "Saving..." : "Save Changes"}
                     </button>

@@ -8,7 +8,11 @@ import {
     getTempUploadUrl,
     uploadFileDirectlyToMinio
 } from "../services/api";
-import { getMonthName, formatCurrency, sortSlipsNewestFirst } from "../utils/salaryUtils";
+import {
+    getMonthName,
+    formatCurrency,
+    sortSlipsNewestFirst
+} from "../utils/salaryUtils";
 import { useNotification } from "../contexts/NotificationContext";
 import "../styles/finance.css";
 
@@ -38,23 +42,36 @@ function Finance({ role }) {
     const [replacingId, setReplacingId] = useState(null);
 
     const [showStructureModal, setShowStructureModal] = useState(false);
-    const [structureForm, setStructureForm] = useState(EMPTY_STRUCTURE_FORM);
+    const [structureForm, setStructureForm] = useState(
+        EMPTY_STRUCTURE_FORM
+    );
     const [savingStructure, setSavingStructure] = useState(false);
 
     const [showGenerateModal, setShowGenerateModal] = useState(false);
-    const [generateForm, setGenerateForm] = useState(EMPTY_GENERATE_FORM);
+    const [generateForm, setGenerateForm] = useState(
+        EMPTY_GENERATE_FORM
+    );
     const [generating, setGenerating] = useState(false);
 
-    // Load salary slips for a given scope ("MY" or "ALL")
+    /* =========================================
+       LOAD SALARY SLIPS
+       ========================================= */
+
     const loadSalarySlips = async (scope) => {
         try {
             setLoading(true);
+
             const response = await viewSalarySlips(scope);
-            setSalarySlips(sortSlipsNewestFirst(response.data));
+
+            setSalarySlips(
+                sortSlipsNewestFirst(response.data)
+            );
+
             setShowMySalary(scope === "MY");
         } catch (error) {
             showNotification(
-                error.response?.data?.error || "Unable to fetch salary slips",
+                error.response?.data?.error ||
+                    "Unable to fetch salary slips",
                 "error"
             );
         } finally {
@@ -62,7 +79,6 @@ function Finance({ role }) {
         }
     };
 
-    // Initial load — Admin sees all slips by default, Employee sees their own
     useEffect(() => {
         if (role === "ADMIN") {
             loadSalarySlips("ALL");
@@ -70,6 +86,10 @@ function Finance({ role }) {
             loadSalarySlips("MY");
         }
     }, [role]);
+
+    /* =========================================
+       SALARY VIEW ACTIONS
+       ========================================= */
 
     const handleViewAllSalarySlips = () => {
         loadSalarySlips("ALL");
@@ -79,7 +99,10 @@ function Finance({ role }) {
         loadSalarySlips("MY");
     };
 
-    // View slip details in modal
+    /* =========================================
+       VIEW SALARY SLIP
+       ========================================= */
+
     const handleView = (slip) => {
         setSelectedSlip(slip);
     };
@@ -88,7 +111,10 @@ function Finance({ role }) {
         setSelectedSlip(null);
     };
 
-    // Download slip PDF as a blob
+    /* =========================================
+       DOWNLOAD SALARY SLIP
+       ========================================= */
+
     const handleDownload = async (slip) => {
         try {
             setDownloadingId(slip.id);
@@ -100,24 +126,31 @@ function Finance({ role }) {
             );
 
             const blobUrl = window.URL.createObjectURL(
-                new Blob([response.data], { type: "application/pdf" })
+                new Blob([response.data], {
+                    type: "application/pdf"
+                })
             );
 
             const link = document.createElement("a");
+
             link.href = blobUrl;
+
             link.setAttribute(
                 "download",
                 `salary-slip-${slip.empId}-${slip.month}-${slip.year}.pdf`
             );
 
             document.body.appendChild(link);
+
             link.click();
+
             link.remove();
 
             window.URL.revokeObjectURL(blobUrl);
         } catch (error) {
             showNotification(
-                error.response?.data?.error || "Unable to download salary slip",
+                error.response?.data?.error ||
+                    "Unable to download salary slip",
                 "error"
             );
         } finally {
@@ -125,77 +158,92 @@ function Finance({ role }) {
         }
     };
 
-    // Replace salary slip PDF (Admin only)
-const handleReplace = async (slip) => {
-    const fileInput = document.createElement("input");
+    /* =========================================
+       REPLACE SALARY SLIP
+       ========================================= */
 
-    fileInput.type = "file";
-    fileInput.accept = "application/pdf";
+    const handleReplace = async (slip) => {
+        const fileInput = document.createElement("input");
 
-    fileInput.onchange = async (event) => {
-        const file = event.target.files?.[0];
+        fileInput.type = "file";
+        fileInput.accept = "application/pdf";
 
-        if (!file) return;
+        fileInput.onchange = async (event) => {
+            const file = event.target.files?.[0];
 
-        if (file.type !== "application/pdf") {
-            showNotification("Please select a PDF file", "error");
-            return;
-        }
+            if (!file) {
+                return;
+            }
 
-        try {
-            setReplacingId(slip.id);
+            if (file.type !== "application/pdf") {
+                showNotification(
+                    "Please select a PDF file",
+                    "error"
+                );
+                return;
+            }
 
-            // 1. Get presigned upload URL from backend
-            const response = await getTempUploadUrl(
-                slip.empId,
-                slip.month,
-                slip.year
-            );
+            try {
+                setReplacingId(slip.id);
 
-            const uploadUrl = response.data;
+                /* 1. Get temporary upload URL */
+                const response = await getTempUploadUrl(
+                    slip.empId,
+                    slip.month,
+                    slip.year
+                );
 
-            // 2. Upload PDF directly to MinIO
-            await uploadFileDirectlyToMinio(
-                uploadUrl,
-                file
-            );
+                const uploadUrl = response.data;
 
-            // 3. Create the object key
-            const tempObjectKey =
-                `salary-slips/${slip.year}/${slip.month}/${slip.empId}.pdf`;
+                /* 2. Upload directly to MinIO */
+                await uploadFileDirectlyToMinio(
+                    uploadUrl,
+                    file
+                );
 
-            // 4. Tell backend which MinIO object to replace
-            await replaceSalarySlip(
-                slip.empId,
-                slip.month,
-                slip.year,
-                tempObjectKey
-            );
+                /* 3. Temporary object key */
+                const tempObjectKey =
+                    `salary-slips/${slip.year}/${slip.month}/${slip.empId}.pdf`;
 
-            showNotification("Salary slip replaced successfully", "success");
+                /* 4. Replace existing salary slip */
+                await replaceSalarySlip(
+                    slip.empId,
+                    slip.month,
+                    slip.year,
+                    tempObjectKey
+                );
 
-            await loadSalarySlips(
-                showMySalary ? "MY" : "ALL"
-            );
+                showNotification(
+                    "Salary slip replaced successfully",
+                    "success"
+                );
 
-        } catch (error) {
-            console.error("Replace salary slip error:", error);
+                await loadSalarySlips(
+                    showMySalary ? "MY" : "ALL"
+                );
+            } catch (error) {
+                console.error(
+                    "Replace salary slip error:",
+                    error
+                );
 
-            showNotification(
-                error.response?.data?.error ||
-                error.response?.data?.message ||
-                "Unable to replace salary slip",
-                "error"
-            );
-        } finally {
-            setReplacingId(null);
-        }
+                showNotification(
+                    error.response?.data?.error ||
+                        error.response?.data?.message ||
+                        "Unable to replace salary slip",
+                    "error"
+                );
+            } finally {
+                setReplacingId(null);
+            }
+        };
+
+        fileInput.click();
     };
 
-    fileInput.click();
-};
-
-    // ---------------- Create Salary Structure (Admin) ----------------
+    /* =========================================
+       SALARY STRUCTURE
+       ========================================= */
 
     const handleOpenStructureModal = () => {
         setStructureForm(EMPTY_STRUCTURE_FORM);
@@ -207,11 +255,20 @@ const handleReplace = async (slip) => {
         setStructureForm(EMPTY_STRUCTURE_FORM);
     };
 
-    const handleStructureChange = (e) => {
-        const { name, value, type, checked } = e.target;
+    const handleStructureChange = (event) => {
+        const {
+            name,
+            value,
+            type,
+            checked
+        } = event.target;
+
         setStructureForm({
             ...structureForm,
-            [name]: type === "checkbox" ? checked : value
+            [name]:
+                type === "checkbox"
+                    ? checked
+                    : value
         });
     };
 
@@ -221,8 +278,8 @@ const handleReplace = async (slip) => {
         Number(structureForm.hra) >= 0 &&
         Number(structureForm.allowances) >= 0;
 
-    const handleSubmitStructure = async (e) => {
-        e.preventDefault();
+    const handleSubmitStructure = async (event) => {
+        event.preventDefault();
 
         if (!isStructureFormValid) {
             return;
@@ -239,11 +296,17 @@ const handleReplace = async (slip) => {
                 pfApplicable: structureForm.pfApplicable
             });
 
-            showNotification("Salary structure saved successfully", "success");
+            showNotification(
+                "Salary structure saved successfully",
+                "success"
+            );
+
             handleCloseStructureModal();
         } catch (error) {
             showNotification(
-                error.response?.data?.error || error.response?.data?.message || "Unable to save salary structure",
+                error.response?.data?.error ||
+                    error.response?.data?.message ||
+                    "Unable to save salary structure",
                 "error"
             );
         } finally {
@@ -251,7 +314,9 @@ const handleReplace = async (slip) => {
         }
     };
 
-    // ---------------- Generate Salary Slip (Admin) ----------------
+    /* =========================================
+       GENERATE SALARY SLIP
+       ========================================= */
 
     const handleOpenGenerateModal = () => {
         setGenerateForm(EMPTY_GENERATE_FORM);
@@ -263,8 +328,12 @@ const handleReplace = async (slip) => {
         setGenerateForm(EMPTY_GENERATE_FORM);
     };
 
-    const handleGenerateChange = (e) => {
-        const { name, value } = e.target;
+    const handleGenerateChange = (event) => {
+        const {
+            name,
+            value
+        } = event.target;
+
         setGenerateForm({
             ...generateForm,
             [name]: value
@@ -277,8 +346,8 @@ const handleReplace = async (slip) => {
         Number(generateForm.month) <= 12 &&
         Number(generateForm.year) > 2000;
 
-    const handleSubmitGenerate = async (e) => {
-        e.preventDefault();
+    const handleSubmitGenerate = async (event) => {
+        event.preventDefault();
 
         if (!isGenerateFormValid) {
             return;
@@ -293,14 +362,21 @@ const handleReplace = async (slip) => {
                 Number(generateForm.year)
             );
 
-            showNotification("Salary slip generated successfully", "success");
+            showNotification(
+                "Salary slip generated successfully",
+                "success"
+            );
+
             handleCloseGenerateModal();
 
-            // Refresh whichever view is currently active
-            loadSalarySlips(showMySalary ? "MY" : "ALL");
+            await loadSalarySlips(
+                showMySalary ? "MY" : "ALL"
+            );
         } catch (error) {
             showNotification(
-                error.response?.data?.error || error.response?.data?.message || "Unable to generate salary slip",
+                error.response?.data?.error ||
+                    error.response?.data?.message ||
+                    "Unable to generate salary slip",
                 "error"
             );
         } finally {
@@ -308,288 +384,664 @@ const handleReplace = async (slip) => {
         }
     };
 
+    /* =========================================
+       PAGE
+       ========================================= */
+
     return (
         <div className="finance-page">
-            <div className="content-card">
 
-                {/* Header */}
-                <div className="card-header">
-                    <h2>Finance</h2>
+            {/* =====================================
+                PAGE HEADER
+                ===================================== */}
 
-                    {role === "ADMIN" && (
-                        <div className="finance-header-actions">
-                            <button className="secondary-btn" onClick={handleOpenGenerateModal}>
-                                Generate Salary Slip
-                            </button>
-                            <button className="primary-btn" onClick={handleOpenStructureModal}>
-                                Create Salary Structure
-                            </button>
-                        </div>
-                    )}
+            <div className="finance-page-header">
+                <div>
+                    <p className="dashboard-eyebrow">
+                        {role === "ADMIN"
+                            ? "Admin Dashboard"
+                            : "Employee Dashboard"}
+                    </p>
+
+                    <h1>Finance</h1>
+
+                    <p className="finance-page-subtitle">
+                        Manage salary slips, salary structures,
+                        and employee payroll information.
+                    </p>
                 </div>
 
-                {/* Action buttons */}
-                <div className="finance-actions">
-                    {role === "ADMIN" && (
-                        <button className="primary-btn" onClick={handleViewAllSalarySlips}>
-                            All Salary Slips
+                {role === "ADMIN" && (
+                    <div className="finance-header-actions">
+                        <button
+                            className="secondary-btn"
+                            onClick={handleOpenGenerateModal}
+                        >
+                            Generate Salary Slip
                         </button>
-                    )}
 
-                    <button className="primary-btn" onClick={handleMySalarySlip}>
-                        My Salary Slip
-                    </button>
-                </div>
+                        <button
+                            className="primary-btn"
+                            onClick={handleOpenStructureModal}
+                        >
+                            Create Salary Structure
+                        </button>
+                    </div>
+                )}
+            </div>
 
-                {/* Salary slip table */}
-                <div className="finance-table-container">
-                    <div className="finance-table-header">
-                        <h3>
+            {/* =====================================
+                MAIN FINANCE CARD
+                ===================================== */}
+
+            <div className="finance-card">
+
+                <div className="finance-card-header">
+                    <div>
+                        <h2>
                             {showMySalary
                                 ? "My Salary Slip"
                                 : role === "ADMIN"
                                     ? "All Salary Slips"
                                     : "My Salary Slip"}
-                        </h3>
+                        </h2>
+
+                        <p>
+                            {salarySlips.length} salary{" "}
+                            {salarySlips.length === 1
+                                ? "slip"
+                                : "slips"}
+                        </p>
+                    </div>
+
+                    <div className="finance-view-actions">
+                        {role === "ADMIN" && (
+                            <button
+                                className="secondary-btn"
+                                onClick={handleViewAllSalarySlips}
+                                disabled={loading}
+                            >
+                                All Salary Slips
+                            </button>
+                        )}
+
+                        <button
+                            className="primary-btn"
+                            onClick={handleMySalarySlip}
+                            disabled={loading}
+                        >
+                            My Salary Slip
+                        </button>
+                    </div>
+                </div>
+
+                {/* =================================
+                    SALARY TABLE
+                    ================================= */}
+
+                <div className="finance-table-container">
+
+                    <div className="finance-table-header">
+                        <div>
+                            <h3>
+                                {showMySalary
+                                    ? "My Salary Slip"
+                                    : role === "ADMIN"
+                                        ? "All Salary Slips"
+                                        : "My Salary Slip"}
+                            </h3>
+
+                            <p>
+                                Review salary information and
+                                download available salary slips.
+                            </p>
+                        </div>
                     </div>
 
                     {loading ? (
-                        <p className="no-salary-slips">Loading salary slips...</p>
+                        <div className="finance-empty-state">
+                            <span className="finance-loading-spinner" />
+                            <p>Loading salary slips...</p>
+                        </div>
                     ) : salarySlips.length === 0 ? (
-                        <p className="no-salary-slips">No salary slips found.</p>
+                        <div className="finance-empty-state">
+                            <p>No salary slips found.</p>
+                        </div>
                     ) : (
-                        <table className="employee-table">
-                            <thead>
-                                <tr>
-                                    <th>Employee ID</th>
-                                    <th>Month</th>
-                                    <th>Year</th>
-                                    <th>Net Salary</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {salarySlips.map((slip) => (
-                                    <tr key={slip.id}>
-                                        <td>{slip.empId}</td>
-                                        <td>{getMonthName(slip.month)}</td>
-                                        <td>{slip.year}</td>
-                                        <td>{formatCurrency(slip.netSalary)}</td>
-                                        <td className="finance-actions-cell">
-                                            <button
-                                                className="secondary-btn"
-                                                onClick={() => handleView(slip)}
-                                            >
-                                                View
-                                            </button>
-                                            <button
-                                                className="primary-btn"
-                                                onClick={() => handleDownload(slip)}
-                                                disabled={downloadingId === slip.id}
-                                            >
-                                                {downloadingId === slip.id ? "Downloading..." : "Download"}
-                                            </button>
-                                            {slip.replaceAllowed && (
-                                                    <button
-                                                    className="replace-btn"
-                                                        onClick={() => handleReplace(slip)}
-                                                        disabled={replacingId === slip.id}
-                                                    >
-                                                        {replacingId === slip.id ? "Replacing..." : "Replace"}
-                                                    </button>
-                                                )}
-                                        </td>
+                        <div className="finance-table-wrapper">
+                            <table className="employee-table">
+                                <thead>
+                                    <tr>
+                                        <th>Employee ID</th>
+                                        <th>Month</th>
+                                        <th>Year</th>
+                                        <th>Net Salary</th>
+                                        <th>Actions</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                </thead>
+
+                                <tbody>
+                                    {salarySlips.map((slip) => (
+                                        <tr key={slip.id}>
+                                            <td>
+                                                <strong>
+                                                    {slip.empId}
+                                                </strong>
+                                            </td>
+
+                                            <td>
+                                                {getMonthName(
+                                                    slip.month
+                                                )}
+                                            </td>
+
+                                            <td>
+                                                {slip.year}
+                                            </td>
+
+                                            <td>
+                                                <strong className="finance-net-value">
+                                                    {formatCurrency(
+                                                        slip.netSalary
+                                                    )}
+                                                </strong>
+                                            </td>
+
+                                            <td>
+                                                <div className="finance-actions-cell">
+
+                                                    <button
+                                                        className="secondary-btn finance-table-btn"
+                                                        onClick={() =>
+                                                            handleView(
+                                                                slip
+                                                            )
+                                                        }
+                                                    >
+                                                        View
+                                                    </button>
+
+                                                    <button
+                                                        className="primary-btn finance-table-btn"
+                                                        onClick={() =>
+                                                            handleDownload(
+                                                                slip
+                                                            )
+                                                        }
+                                                        disabled={
+                                                            downloadingId ===
+                                                            slip.id
+                                                        }
+                                                    >
+                                                        {downloadingId ===
+                                                        slip.id
+                                                            ? "Downloading..."
+                                                            : "Download"}
+                                                    </button>
+
+                                                    {slip.replaceAllowed && (
+                                                        <button
+                                                            className="replace-btn finance-table-btn"
+                                                            onClick={() =>
+                                                                handleReplace(
+                                                                    slip
+                                                                )
+                                                            }
+                                                            disabled={
+                                                                replacingId ===
+                                                                slip.id
+                                                            }
+                                                        >
+                                                            {replacingId ===
+                                                            slip.id
+                                                                ? "Replacing..."
+                                                                : "Replace"}
+                                                        </button>
+                                                    )}
+
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     )}
                 </div>
             </div>
 
-            {/* Salary slip view modal */}
+            {/* =====================================
+                VIEW SALARY SLIP MODAL
+                ===================================== */}
+
             {selectedSlip && (
                 <div className="finance-modal-overlay">
                     <div className="finance-slip-modal">
+
                         <div className="finance-slip-modal-header">
-                            <h2 className="modal-title">Salary Slip</h2>
-                            <button className="finance-modal-close" onClick={handleCloseView}>
+                            <div>
+                                <p className="finance-modal-eyebrow">
+                                    Salary Details
+                                </p>
+
+                                <h2 className="modal-title">
+                                    Salary Slip
+                                </h2>
+                            </div>
+
+                            <button
+                                className="finance-modal-close"
+                                onClick={handleCloseView}
+                                aria-label="Close salary slip"
+                            >
                                 &times;
                             </button>
                         </div>
 
                         <div className="finance-slip-details">
-                            <p><strong>Employee ID:</strong> {selectedSlip.empId}</p>
-                            <p><strong>Month:</strong> {getMonthName(selectedSlip.month)} {selectedSlip.year}</p>
-                            <p><strong>Working Days:</strong> {selectedSlip.workingDays}</p>
-                            <p><strong>Present Days:</strong> {selectedSlip.presentDays}</p>
-                            <p><strong>Absent Days:</strong> {selectedSlip.absentDays}</p>
-                            <p><strong>Gross Salary:</strong> {formatCurrency(selectedSlip.grossSalary)}</p>
-                            <p><strong>Deductions:</strong> {formatCurrency(selectedSlip.deduction)}</p>
-                            <p className="finance-net-salary"><strong>Net Salary:</strong> {formatCurrency(selectedSlip.netSalary)}</p>
+
+                            <div className="finance-detail-row">
+                                <span>Employee ID</span>
+                                <strong>
+                                    {selectedSlip.empId}
+                                </strong>
+                            </div>
+
+                            <div className="finance-detail-row">
+                                <span>Salary Period</span>
+                                <strong>
+                                    {getMonthName(
+                                        selectedSlip.month
+                                    )}{" "}
+                                    {selectedSlip.year}
+                                </strong>
+                            </div>
+
+                            <div className="finance-detail-row">
+                                <span>Working Days</span>
+                                <strong>
+                                    {selectedSlip.workingDays}
+                                </strong>
+                            </div>
+
+                            <div className="finance-detail-row">
+                                <span>Present Days</span>
+                                <strong>
+                                    {selectedSlip.presentDays}
+                                </strong>
+                            </div>
+
+                            <div className="finance-detail-row">
+                                <span>Absent Days</span>
+                                <strong>
+                                    {selectedSlip.absentDays}
+                                </strong>
+                            </div>
+
+                            <div className="finance-detail-row">
+                                <span>Gross Salary</span>
+                                <strong>
+                                    {formatCurrency(
+                                        selectedSlip.grossSalary
+                                    )}
+                                </strong>
+                            </div>
+
+                            <div className="finance-detail-row">
+                                <span>Deductions</span>
+                                <strong>
+                                    {formatCurrency(
+                                        selectedSlip.deduction
+                                    )}
+                                </strong>
+                            </div>
+
+                            <div className="finance-detail-row finance-detail-net">
+                                <span>Net Salary</span>
+                                <strong>
+                                    {formatCurrency(
+                                        selectedSlip.netSalary
+                                    )}
+                                </strong>
+                            </div>
+
                         </div>
 
                         <div className="finance-modal-footer">
                             <button
                                 className="primary-btn"
-                                onClick={() => handleDownload(selectedSlip)}
-                                disabled={downloadingId === selectedSlip.id}
+                                onClick={() =>
+                                    handleDownload(
+                                        selectedSlip
+                                    )
+                                }
+                                disabled={
+                                    downloadingId ===
+                                    selectedSlip.id
+                                }
                             >
-                                {downloadingId === selectedSlip.id ? "Downloading..." : "Download"}
+                                {downloadingId ===
+                                selectedSlip.id
+                                    ? "Downloading..."
+                                    : "Download"}
                             </button>
-                            <button className="cancel-btn" onClick={handleCloseView}>
+
+                            <button
+                                className="cancel-btn"
+                                onClick={handleCloseView}
+                            >
                                 Close
                             </button>
                         </div>
+
                     </div>
                 </div>
             )}
 
-            {/* Generate Salary Slip modal (Admin only) */}
+            {/* =====================================
+                GENERATE SALARY SLIP MODAL
+                ===================================== */}
+
             {role === "ADMIN" && showGenerateModal && (
                 <div className="finance-modal-overlay">
-                    <div className="modal">
-                        <h2>Generate Salary Slip</h2>
+                    <div className="finance-form-modal">
 
-                        <form onSubmit={handleSubmitGenerate}>
-                            <input
-                                type="text"
-                                name="empId"
-                                placeholder="Employee ID"
-                                value={generateForm.empId}
-                                onChange={handleGenerateChange}
-                                required
-                            />
+                        <div className="finance-form-modal-header">
+                            <div>
+                                <p className="finance-modal-eyebrow">
+                                    Admin Action
+                                </p>
 
-                            <select
-                                name="month"
-                                value={generateForm.month}
-                                onChange={handleGenerateChange}
-                                required
+                                <h2>
+                                    Generate Salary Slip
+                                </h2>
+                            </div>
+
+                            <button
+                                type="button"
+                                className="finance-modal-close"
+                                onClick={
+                                    handleCloseGenerateModal
+                                }
+                                aria-label="Close generate salary modal"
                             >
-                                <option value="" disabled>Select Month</option>
-                                {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
-                                    <option key={m} value={m}>{getMonthName(m)}</option>
-                                ))}
-                            </select>
+                                &times;
+                            </button>
+                        </div>
 
-                            <input
-                                type="number"
-                                name="year"
-                                placeholder="Year"
-                                value={generateForm.year}
-                                onChange={handleGenerateChange}
-                                min="2000"
-                                max="2100"
-                                required
-                            />
+                        <form
+                            onSubmit={handleSubmitGenerate}
+                            className="finance-form"
+                        >
+                            <div className="finance-form-group">
+                                <label htmlFor="generate-emp-id">
+                                    Employee ID
+                                </label>
+
+                                <input
+                                    id="generate-emp-id"
+                                    type="text"
+                                    name="empId"
+                                    placeholder="Enter Employee ID"
+                                    value={generateForm.empId}
+                                    onChange={
+                                        handleGenerateChange
+                                    }
+                                    required
+                                />
+                            </div>
+
+                            <div className="finance-form-group">
+                                <label htmlFor="generate-month">
+                                    Month
+                                </label>
+
+                                <select
+                                    id="generate-month"
+                                    name="month"
+                                    value={generateForm.month}
+                                    onChange={
+                                        handleGenerateChange
+                                    }
+                                    required
+                                >
+                                    <option
+                                        value=""
+                                        disabled
+                                    >
+                                        Select Month
+                                    </option>
+
+                                    {Array.from(
+                                        { length: 12 },
+                                        (_, index) => index + 1
+                                    ).map((month) => (
+                                        <option
+                                            key={month}
+                                            value={month}
+                                        >
+                                            {getMonthName(month)}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div className="finance-form-group">
+                                <label htmlFor="generate-year">
+                                    Year
+                                </label>
+
+                                <input
+                                    id="generate-year"
+                                    type="number"
+                                    name="year"
+                                    placeholder="Enter Year"
+                                    value={generateForm.year}
+                                    onChange={
+                                        handleGenerateChange
+                                    }
+                                    min="2000"
+                                    max="2100"
+                                    required
+                                />
+                            </div>
 
                             <p className="finance-generate-hint">
-                                Salary can only be generated for a completed month, and the employee must already have a salary structure.
+                                Salary can only be generated for a
+                                completed month, and the employee
+                                must already have a salary structure.
                             </p>
 
-                            <div className="modal-buttons">
+                            <div className="finance-modal-actions">
                                 <button
                                     type="button"
                                     className="cancel-btn"
-                                    onClick={handleCloseGenerateModal}
+                                    onClick={
+                                        handleCloseGenerateModal
+                                    }
                                 >
                                     Cancel
                                 </button>
 
                                 <button
                                     type="submit"
-                                    className="save-btn"
-                                    disabled={!isGenerateFormValid || generating}
+                                    className="primary-btn"
+                                    disabled={
+                                        !isGenerateFormValid ||
+                                        generating
+                                    }
                                 >
-                                    {generating ? "Generating..." : "Generate"}
+                                    {generating
+                                        ? "Generating..."
+                                        : "Generate"}
                                 </button>
                             </div>
                         </form>
+
                     </div>
                 </div>
             )}
 
-            {/* Create Salary Structure modal (Admin only) */}
+            {/* =====================================
+                CREATE SALARY STRUCTURE MODAL
+                ===================================== */}
+
             {role === "ADMIN" && showStructureModal && (
                 <div className="finance-modal-overlay">
-                    <div className="modal">
-                        <h2>Create Salary Structure</h2>
+                    <div className="finance-form-modal">
 
-                        <form onSubmit={handleSubmitStructure}>
-                            <input
-                                type="text"
-                                name="empId"
-                                placeholder="Employee ID"
-                                value={structureForm.empId}
-                                onChange={handleStructureChange}
-                                required
-                            />
+                        <div className="finance-form-modal-header">
+                            <div>
+                                <p className="finance-modal-eyebrow">
+                                    Admin Action
+                                </p>
 
-                            <input
-                                type="number"
-                                name="basic"
-                                placeholder="Basic Salary"
-                                value={structureForm.basic}
-                                onChange={handleStructureChange}
-                                min="0"
-                                step="0.01"
-                                required
-                            />
+                                <h2>
+                                    Create Salary Structure
+                                </h2>
+                            </div>
 
-                            <input
-                                type="number"
-                                name="hra"
-                                placeholder="HRA"
-                                value={structureForm.hra}
-                                onChange={handleStructureChange}
-                                min="0"
-                                step="0.01"
-                                required
-                            />
+                            <button
+                                type="button"
+                                className="finance-modal-close"
+                                onClick={
+                                    handleCloseStructureModal
+                                }
+                                aria-label="Close salary structure modal"
+                            >
+                                &times;
+                            </button>
+                        </div>
 
-                            <input
-                                type="number"
-                                name="allowances"
-                                placeholder="Allowances"
-                                value={structureForm.allowances}
-                                onChange={handleStructureChange}
-                                min="0"
-                                step="0.01"
-                                required
-                            />
+                        <form
+                            onSubmit={handleSubmitStructure}
+                            className="finance-form"
+                        >
+                            <div className="finance-form-group">
+                                <label htmlFor="structure-emp-id">
+                                    Employee ID
+                                </label>
+
+                                <input
+                                    id="structure-emp-id"
+                                    type="text"
+                                    name="empId"
+                                    placeholder="Enter Employee ID"
+                                    value={structureForm.empId}
+                                    onChange={
+                                        handleStructureChange
+                                    }
+                                    required
+                                />
+                            </div>
+
+                            <div className="finance-form-group">
+                                <label htmlFor="structure-basic">
+                                    Basic Salary
+                                </label>
+
+                                <input
+                                    id="structure-basic"
+                                    type="number"
+                                    name="basic"
+                                    placeholder="Enter Basic Salary"
+                                    value={structureForm.basic}
+                                    onChange={
+                                        handleStructureChange
+                                    }
+                                    min="0"
+                                    step="0.01"
+                                    required
+                                />
+                            </div>
+
+                            <div className="finance-form-group">
+                                <label htmlFor="structure-hra">
+                                    HRA
+                                </label>
+
+                                <input
+                                    id="structure-hra"
+                                    type="number"
+                                    name="hra"
+                                    placeholder="Enter HRA"
+                                    value={structureForm.hra}
+                                    onChange={
+                                        handleStructureChange
+                                    }
+                                    min="0"
+                                    step="0.01"
+                                    required
+                                />
+                            </div>
+
+                            <div className="finance-form-group">
+                                <label htmlFor="structure-allowances">
+                                    Allowances
+                                </label>
+
+                                <input
+                                    id="structure-allowances"
+                                    type="number"
+                                    name="allowances"
+                                    placeholder="Enter Allowances"
+                                    value={structureForm.allowances}
+                                    onChange={
+                                        handleStructureChange
+                                    }
+                                    min="0"
+                                    step="0.01"
+                                    required
+                                />
+                            </div>
 
                             <label className="finance-checkbox-label">
                                 <input
                                     type="checkbox"
                                     name="pfApplicable"
-                                    checked={structureForm.pfApplicable}
-                                    onChange={handleStructureChange}
+                                    checked={
+                                        structureForm.pfApplicable
+                                    }
+                                    onChange={
+                                        handleStructureChange
+                                    }
                                 />
-                                PF Applicable
+
+                                <span>
+                                    PF Applicable
+                                </span>
                             </label>
 
-                            <div className="modal-buttons">
+                            <div className="finance-modal-actions">
                                 <button
                                     type="button"
                                     className="cancel-btn"
-                                    onClick={handleCloseStructureModal}
+                                    onClick={
+                                        handleCloseStructureModal
+                                    }
                                 >
                                     Cancel
                                 </button>
 
                                 <button
                                     type="submit"
-                                    className="save-btn"
-                                    disabled={!isStructureFormValid || savingStructure}
+                                    className="primary-btn"
+                                    disabled={
+                                        !isStructureFormValid ||
+                                        savingStructure
+                                    }
                                 >
-                                    {savingStructure ? "Saving..." : "Save"}
+                                    {savingStructure
+                                        ? "Saving..."
+                                        : "Save"}
                                 </button>
                             </div>
                         </form>
+
                     </div>
                 </div>
             )}
+
         </div>
     );
 }
