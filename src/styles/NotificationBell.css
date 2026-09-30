@@ -1,0 +1,424 @@
+/* =========================================================
+   NOTIFICATION BELL
+========================================================= */
+
+.notification-bell-wrapper {
+    position: relative;
+}
+
+.notification-bell-button {
+    position: relative;
+
+    width: 40px;
+    height: 40px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: none;
+    border-radius: 10px;
+
+    background: transparent;
+    color: var(--text-primary);
+
+    cursor: pointer;
+
+    transition:
+        background-color 0.2s ease,
+        color 0.2s ease;
+}
+
+.notification-bell-button:hover {
+    background: var(--bg-page);
+}
+
+.notification-bell-button svg {
+    width: 20px;
+    height: 20px;
+}
+
+
+/* =========================================================
+   UNREAD BADGE
+========================================================= */
+
+.notification-badge {
+    position: absolute;
+
+    top: 2px;
+    right: 1px;
+
+    min-width: 17px;
+    height: 17px;
+
+    padding: 0 4px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 999px;
+
+    background: #dc2626;
+    color: #ffffff;
+
+    font-size: 10px;
+    font-weight: 700;
+
+    line-height: 1;
+}
+
+
+/* =========================================================
+   DROPDOWN
+========================================================= */
+
+.notification-dropdown {
+    position: absolute;
+
+    top: calc(100% + 10px);
+    right: 0;
+
+    width: 390px;
+    max-width: calc(100vw - 24px);
+
+    background: var(--bg-card);
+
+    border: 1px solid var(--border-color);
+
+    border-radius: 14px;
+
+    box-shadow: var(--shadow-card);
+
+    overflow: hidden;
+
+    z-index: 1000;
+}
+
+
+/* =========================================================
+   DROPDOWN HEADER
+========================================================= */
+
+.notification-dropdown-header {
+    padding: 16px;
+
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    gap: 12px;
+
+    background: var(--bg-card);
+
+    border-bottom: 1px solid var(--border-color);
+}
+
+.notification-dropdown-header h3 {
+    margin: 0;
+
+    color: var(--text-primary);
+
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.notification-dropdown-header span {
+    display: block;
+
+    margin-top: 3px;
+
+    color: var(--text-secondary);
+
+    font-size: 12px;
+}
+
+
+/* =========================================================
+   MARK ALL
+========================================================= */
+
+.mark-all-button {
+    display: flex;
+    align-items: center;
+
+    gap: 5px;
+
+    padding: 6px 8px;
+
+    border: none;
+    border-radius: 7px;
+
+    background: transparent;
+
+    color: var(--text-secondary);
+
+    font-size: 12px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        background-color 0.2s ease,
+        color 0.2s ease;
+}
+
+.mark-all-button:hover {
+    background: var(--bg-page);
+    color: var(--text-primary);
+}
+
+.mark-all-button svg {
+    width: 14px;
+    height: 14px;
+}
+
+
+/* =========================================================
+   NOTIFICATION LIST
+========================================================= */
+
+.notification-list {
+    max-height: 420px;
+
+    overflow-y: auto;
+}
+
+
+/* =========================================================
+   NOTIFICATION ITEM
+========================================================= */
+
+.notification-item {
+    width: 100%;
+
+    display: flex;
+    align-items: flex-start;
+
+    gap: 12px;
+
+    padding: 14px 16px;
+
+    border: none;
+    border-bottom: 1px solid var(--border-color);
+
+    background: var(--bg-card);
+
+    color: var(--text-primary);
+
+    text-align: left;
+
+    cursor: pointer;
+
+    transition: background-color 0.2s ease;
+}
+
+.notification-item:last-child {
+    border-bottom: none;
+}
+
+.notification-item:hover {
+    background: var(--bg-page);
+}
+
+
+/* =========================================================
+   READ / UNREAD
+========================================================= */
+
+.notification-unread {
+    background: var(--notification-unread-bg);
+}
+
+.notification-read {
+    background: var(--bg-card);
+}
+
+
+/* =========================================================
+   ICON
+========================================================= */
+
+.notification-item-icon {
+    flex-shrink: 0;
+
+    width: 34px;
+    height: 34px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 9px;
+
+    background: var(--notification-icon-bg);
+
+    color: var(--notification-icon-color);
+}
+
+.notification-item-icon svg {
+    width: 17px;
+    height: 17px;
+}
+
+
+/* =========================================================
+   CONTENT
+========================================================= */
+
+.notification-item-content {
+    min-width: 0;
+
+    flex: 1;
+}
+
+.notification-item-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 8px;
+}
+
+.notification-item-top strong {
+    color: var(--text-primary);
+
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.notification-item-top small {
+    flex-shrink: 0;
+
+    color: var(--text-secondary);
+
+    font-size: 10px;
+}
+
+.notification-item-message {
+    display: block;
+
+    margin-top: 5px;
+
+    color: var(--text-secondary);
+
+    font-size: 13px;
+    line-height: 1.45;
+}
+
+
+/* =========================================================
+   UNREAD LABEL
+========================================================= */
+
+.notification-unread-label {
+    display: flex;
+    align-items: center;
+
+    gap: 4px;
+
+    margin-top: 7px;
+
+    color: var(--primary-color);
+
+    font-size: 10px;
+    font-weight: 600;
+}
+
+.notification-unread-label svg {
+    width: 12px;
+    height: 12px;
+}
+
+
+/* =========================================================
+   EMPTY STATE
+========================================================= */
+
+.notification-empty {
+    min-height: 180px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    gap: 6px;
+
+    padding: 24px;
+
+    color: var(--text-secondary);
+
+    text-align: center;
+}
+
+.notification-empty svg {
+    width: 28px;
+    height: 28px;
+
+    margin-bottom: 4px;
+
+    color: #16a34a;
+}
+
+.notification-empty strong {
+    color: var(--text-primary);
+
+    font-size: 14px;
+}
+
+.notification-empty span {
+    color: var(--text-secondary);
+
+    font-size: 12px;
+}
+
+
+/* =========================================================
+   SCROLLBAR
+========================================================= */
+
+.notification-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.notification-list::-webkit-scrollbar-track {
+    background: var(--bg-card);
+}
+
+.notification-list::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 10px;
+}
+
+.notification-list::-webkit-scrollbar-thumb:hover {
+    background: var(--text-secondary);
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 600px) {
+
+    .notification-dropdown {
+        position: fixed;
+
+        top: 64px;
+        right: 12px;
+        left: 12px;
+
+        width: auto;
+        max-width: none;
+    }
+
+    .notification-dropdown-header {
+        padding: 14px;
+    }
+
+    .notification-item {
+        padding: 13px 14px;
+    }
+}

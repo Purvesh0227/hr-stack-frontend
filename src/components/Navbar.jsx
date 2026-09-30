@@ -1,12 +1,10 @@
 import { useNavigate } from "react-router-dom";
 import "../styles/global.css";
-import { Link } from "react-router-dom";
 import ThemeToggle from "./ThemeToggle";
+import NotificationBell from "./common/NotificationBell";
 
 function Navbar() {
     const navigate = useNavigate();
-
-    const employee = JSON.parse(localStorage.getItem("employee") || "null");
 
     const logout = () => {
         localStorage.clear();
@@ -18,12 +16,14 @@ function Navbar() {
             <button
                 className="navbar-logo"
                 onClick={() => navigate("/")}
+                type="button"
             >
                 HRStack
             </button>
 
             <div className="navbar-actions">
                 <ThemeToggle />
+                <NotificationBell />
             </div>
 
             <div className="navbar-right">

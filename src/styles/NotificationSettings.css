@@ -126,8 +126,17 @@
 
 .notification-error {
     margin: 14px 0 0;
-    color: var(--danger-color);
+    padding: 8px 10px;
+    border-radius: 6px;
+    background: rgba(220, 38, 38, 0.08);
+    color: #dc2626;
     font-size: 13px;
+    line-height: 1.4;
+}
+
+[data-theme="dark"] .notification-error {
+    background: rgba(248, 113, 113, 0.10);
+    color: #f87171;
 }
 
 

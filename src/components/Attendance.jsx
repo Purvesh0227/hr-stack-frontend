@@ -5,7 +5,7 @@ import { DEPARTMENTS } from "../constants/departmentConstants";
 import { useNotification } from "../contexts/NotificationContext";
 import { filterBySearch } from "../utils/tableFilters";
 import { paginate } from "../utils/pagination";
-import Pagination from "../components/Pagination";
+import Pagination from "./Pagination";
 import "../styles/Attendance.css"
 
 function Attendance({ role }) {
