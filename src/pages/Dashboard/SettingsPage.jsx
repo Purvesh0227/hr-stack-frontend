@@ -1,5 +1,6 @@
 import { useOutletContext } from "react-router-dom";
 import Profile from "../../components/dashboard/Profile";
+import NotificationSettings from "../../components/common/NotificationSettings";
 
 function SettingsPage() {
     const {
@@ -12,14 +13,20 @@ function SettingsPage() {
     } = useOutletContext();
 
     return (
-        <Profile
-            role={role}
-            employee={employee}
-            adminProfile={role === "ADMIN" ? adminProfile : null}
-            loadingProfile={loadingProfile}
-            handleSaveOwnProfile={handleSaveOwnProfile}
-            refreshAdminProfile={refreshAdminProfile}
-        />
+        <div className="settings-page">
+
+            <NotificationSettings />
+
+            <Profile
+                role={role}
+                employee={employee}
+                adminProfile={role === "ADMIN" ? adminProfile : null}
+                loadingProfile={loadingProfile}
+                handleSaveOwnProfile={handleSaveOwnProfile}
+                refreshAdminProfile={refreshAdminProfile}
+            />
+
+        </div>
     );
 }
 
