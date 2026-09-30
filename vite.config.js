@@ -11,6 +11,8 @@ export default defineConfig({
         VitePWA({
             registerType: "autoUpdate",
 
+            injectRegister: "auto",
+
             devOptions: {
                 enabled: true,
             },
@@ -29,12 +31,10 @@ export default defineConfig({
 
                 start_url: "/hr-stack-frontend/",
                 scope: "/hr-stack-frontend/",
-
                 display: "standalone",
 
                 theme_color: "#0f172a",
                 background_color: "#ffffff",
-
                 orientation: "any",
 
                 icons: [
@@ -58,7 +58,8 @@ export default defineConfig({
             },
 
             workbox: {
-                navigateFallback: "/hr-stack-frontend/offline.html",
+                navigateFallback:
+                    "/hr-stack-frontend/offline.html",
 
                 globPatterns: [
                     "**/*.{js,css,html,ico,png,svg,webp,woff,woff2}",

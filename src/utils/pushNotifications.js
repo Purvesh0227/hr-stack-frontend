@@ -6,6 +6,16 @@ import {
 const VAPID_PUBLIC_KEY =
     import.meta.env.VITE_VAPID_PUBLIC_KEY;
 
+console.log(
+    "VITE ENV:",
+    import.meta.env
+);
+
+console.log(
+    "VAPID KEY LOADED:",
+    Boolean(VAPID_PUBLIC_KEY)
+);
+
 const urlBase64ToUint8Array = (base64String) => {
     const padding = "=".repeat(
         (4 - (base64String.length % 4)) % 4
