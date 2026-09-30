@@ -6,7 +6,11 @@ import {
     useState
 } from "react";
 
-import API from "../services/api";
+import {
+    getNotifications,
+    markNotificationAsRead,
+    markAllNotificationsAsRead
+} from "../services/notificationService";
 
 const NotificationCenterContext = createContext(null);
 
@@ -15,6 +19,9 @@ export function NotificationCenterProvider({ children }) {
     const [notifications, setNotifications] = useState([]);
     const [unreadCount, setUnreadCount] = useState(0);
     const [loading, setLoading] = useState(false);
+
+    const [notificationStatus, setNotificationStatus] =
+        useState("UNREAD");
 
     const employee = localStorage.getItem("employee");
 
@@ -29,10 +36,8 @@ export function NotificationCenterProvider({ children }) {
         try {
             setLoading(true);
 
-            const response =
-                await API.get("/notifications");
-
-            const data = response.data;
+            const data =
+                await getNotifications(notificationStatus);
 
             setNotifications(
                 data.notifications || []
@@ -53,34 +58,32 @@ export function NotificationCenterProvider({ children }) {
             setLoading(false);
         }
 
-    }, [employee]);
+    }, [employee, notificationStatus]);
 
     const refreshNotifications = useCallback(async () => {
         await fetchNotifications();
     }, [fetchNotifications]);
 
+    const changeNotificationStatus = useCallback(
+        (status) => {
+            setNotificationStatus(status);
+        },
+        []
+    );
+
     const markAsRead = async (notificationId) => {
 
         try {
 
-            await API.patch(
-                `/notifications/${notificationId}/read`
+            await markNotificationAsRead(
+                notificationId
             );
 
             /*
-             * The notification is now read,
-             * so remove it from the bell immediately.
+             * Re-fetch from backend so the currently
+             * selected filter stays correct.
              */
-            setNotifications((current) =>
-                current.filter(
-                    (notification) =>
-                        notification.id !== notificationId
-                )
-            );
-
-            setUnreadCount((current) =>
-                Math.max(current - 1, 0)
-            );
+            await fetchNotifications();
 
         } catch (error) {
 
@@ -96,18 +99,13 @@ export function NotificationCenterProvider({ children }) {
 
         try {
 
-            await API.patch(
-                "/notifications/read-all"
-            );
+            await markAllNotificationsAsRead();
 
             /*
-             * All notifications are now read,
-             * therefore nothing should remain
-             * inside the notification bell.
+             * Re-fetch from backend instead of
+             * filtering notifications locally.
              */
-            setNotifications([]);
-
-            setUnreadCount(0);
+            await fetchNotifications();
 
         } catch (error) {
 
@@ -129,6 +127,10 @@ export function NotificationCenterProvider({ children }) {
                 notifications,
                 unreadCount,
                 loading,
+
+                notificationStatus,
+                changeNotificationStatus,
+
                 refreshNotifications,
                 markAsRead,
                 markAllAsRead
