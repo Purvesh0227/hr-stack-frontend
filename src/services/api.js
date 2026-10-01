@@ -44,6 +44,9 @@ FILE_API.interceptors.request.use(
     }
 );
 
+// Lets callers detect aborted requests without importing axios
+export const isRequestCancelled = axios.isCancel;
+
 // Login
 export const loginEmployee = (loginData) => API.post("/login", loginData);
 
@@ -66,9 +69,22 @@ export const getAllAdmins = (email) => API.get("/allAdmins", { params: { email }
 export const getAdminProfile = (email) =>
     API.get("/adminProfile", { params: { email } });
 
-// Get All Employees
-export const getAllEmployees = (email) =>
-    API.get("/allEmployees", { params: { email } });
+// Get All Employees (server-side search + pagination)
+// page is 0-based. Pass an AbortController signal to cancel stale requests.
+export const getAllEmployees = ({
+    search = "",
+    page = 0,
+    size = 10,
+    signal
+} = {}) =>
+    API.get("/allEmployees", {
+        params: {
+            search,
+            page,
+            size
+        },
+        signal
+    });
 
 // Get Employee by UUID
 export const getEmployeeById = (uuid) =>
@@ -109,9 +125,29 @@ export const updateEmployeeProfilePhoto = (
 export const markAttendance = (otp) =>
     API.post("/attendance", { otp });
 
-// Get attendance
-export const getAttendance = (scope) =>
-    API.get("/attendance/view", { params: { scope } });
+// Get attendance (server-side search + date range + pagination)
+// scope: "MY" or "ALL". from/to: epoch millis (optional). page is 0-based.
+// Undefined params are omitted from the query string by axios.
+export const searchAttendance = ({
+    scope = "MY",
+    search = "",
+    from,
+    to,
+    page = 0,
+    size = 7,
+    signal
+} = {}) =>
+    API.get("/attendance/view", {
+        params: {
+            scope,
+            search,
+            from,
+            to,
+            page,
+            size
+        },
+        signal
+    });
 
 // Create OTP
 // Create OTP

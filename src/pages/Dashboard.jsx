@@ -7,10 +7,10 @@ import {
     updateEmployee,
     activateEmployee,
     requestEmployeeDocuments,
-    getEmployeeById
+    getEmployeeById,
+    isRequestCancelled
 } from "../services/api";
-import { paginate } from "../utils/pagination";
-import { filterBySearch } from "../utils/tableFilters";
+import useDebounce from "../hooks/useDebounce";
 import { toDisplayText } from "../utils/stringUtil";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
@@ -36,6 +36,12 @@ function Dashboard() {
     // Employee search
     const [employeeSearchTerm, setEmployeeSearchTerm] = useState("");
 
+    // Trimmed, so "abc" and "abc " don't cause two requests
+    const debouncedEmployeeSearchTerm = useDebounce(
+        employeeSearchTerm.trim(),
+        400
+    );
+
     // Loading states
     const [loadingEmployees, setLoadingEmployees] = useState(false);
     const [loadingAdmins, setLoadingAdmins] = useState(false);
@@ -44,6 +50,22 @@ function Dashboard() {
 
     // Employee pagination
     const [employeeCurrentPage, setEmployeeCurrentPage] = useState(1);
+    const [employeeTotalPages, setEmployeeTotalPages] = useState(0);
+    const [employeeTotalElements, setEmployeeTotalElements] = useState(0); // matches for current search
+    const [totalEmployees, setTotalEmployees] = useState(0);               // unfiltered total (page header)
+    const [employeeRefreshKey, setEmployeeRefreshKey] = useState(0);
+
+    // Reset to page 1 when the search changes.
+    // Done during render (not in a second effect) so no wasted
+    // request is fired for the old page number.
+    const [lastEmployeeSearch, setLastEmployeeSearch] = useState(
+        debouncedEmployeeSearchTerm
+    );
+
+    if (lastEmployeeSearch !== debouncedEmployeeSearchTerm) {
+        setLastEmployeeSearch(debouncedEmployeeSearchTerm);
+        setEmployeeCurrentPage(1);
+    }
 
     // Notification
     const [notification, setNotification] = useState({
@@ -77,27 +99,80 @@ function Dashboard() {
         return () => clearTimeout(timer);
     }, [notification.message]);
 
-    // Admin employee list
-    const handleGetAllEmployees = async () => {
-        try {
-            setLoadingEmployees(true);
-
-            const response = await getAllEmployees(email);
-
-            setEmployees(response.data);
-        } catch (error) {
-            console.error("Fetch employees error:", error);
-
-            showNotification(
-                error.response?.data?.message ||
-                error.response?.data ||
-                "Unable to fetch employees",
-                "error"
-            );
-        } finally {
-            setLoadingEmployees(false);
-        }
+    // Refresh the employee list (used after save / activate).
+    // It only re-runs the fetch effect below.
+    const handleGetAllEmployees = () => {
+        setEmployeeRefreshKey((key) => key + 1);
     };
+
+    // Admin employee list: debounced search + pagination
+    useEffect(() => {
+        if (role !== "ADMIN") {
+            return;
+        }
+
+        const controller = new AbortController();
+
+        const loadEmployees = async () => {
+            try {
+                setLoadingEmployees(true);
+
+                const { data } = await getAllEmployees({
+                    search: debouncedEmployeeSearchTerm,
+                    page: employeeCurrentPage - 1,
+                    size: 10,
+                    signal: controller.signal
+                });
+
+                // Current page no longer exists (e.g. last row removed)
+                if (
+                    data.totalPages > 0 &&
+                    employeeCurrentPage > data.totalPages
+                ) {
+                    setEmployeeCurrentPage(data.totalPages);
+                    return;
+                }
+
+                setEmployees(data.content);
+                setEmployeeTotalElements(data.totalElements);
+                setEmployeeTotalPages(data.totalPages);
+
+                // Unfiltered total is only known when nothing is searched
+                if (!debouncedEmployeeSearchTerm) {
+                    setTotalEmployees(data.totalElements);
+                }
+            } catch (error) {
+                // Request was superseded by a newer one
+                if (isRequestCancelled(error)) {
+                    return;
+                }
+
+                console.error("Fetch employees error:", error);
+
+                showNotification(
+                    error.response?.data?.message ||
+                    error.response?.data ||
+                    "Unable to fetch employees",
+                    "error"
+                );
+            } finally {
+                if (!controller.signal.aborted) {
+                    setLoadingEmployees(false);
+                }
+            }
+        };
+
+        loadEmployees();
+
+        // Cancels the stale request on every change / unmount
+        return () => controller.abort();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [
+        role,
+        debouncedEmployeeSearchTerm,
+        employeeCurrentPage,
+        employeeRefreshKey
+    ]);
 
     // Admin list
     const handleGetAllAdmins = async () => {
@@ -156,23 +231,6 @@ function Dashboard() {
         }
     };
 
-    // Employee search and pagination
-    const filteredEmployees = filterBySearch(
-        employees,
-        employeeSearchTerm,
-        "empId"
-    );
-
-    const employeeRecordsPerPage = 10;
-
-    const {
-        currentItems: paginatedEmployees,
-        totalPages: employeeTotalPages
-    } = paginate(
-        filteredEmployees,
-        employeeCurrentPage,
-        employeeRecordsPerPage
-    );
 
     // View employee
     const handleViewEmployee = async (emp) => {
@@ -445,8 +503,9 @@ function Dashboard() {
         email,
         employee,
         employees,
-        filteredEmployees,
-        paginatedEmployees,
+        employeeTotalElements,
+        totalEmployees,
+        debouncedEmployeeSearchTerm,
         loadingEmployees,
         employeeSearchTerm,
         setEmployeeSearchTerm,
