@@ -6,7 +6,6 @@ clientsClaim();
 
 precacheAndRoute(self.__WB_MANIFEST);
 
-
 /* =========================================================
    PUSH NOTIFICATION
    ========================================================= */
@@ -22,29 +21,37 @@ self.addEventListener("push", (event) => {
         data = event.data.json();
     } catch {
         data = {
-            title: "HR-Stack",
-            body: event.data.text(),
+            message: event.data.text(),
         };
     }
 
-    const title = data.title || "HR-Stack";
+    const title = "HR-Stack";
 
     const options = {
-        body: data.body || "You have a new notification.",
+        body:
+            data.message ||
+            "You have a new notification.",
         icon: "/hr-stack-frontend/icons/icon-192.png",
         badge: "/hr-stack-frontend/icons/icon-192.png",
         data: {
-            url: data.url || "/hr-stack-frontend/",
+            eventType: data.eventType || "",
+            url:
+                data.url ||
+                "/hr-stack-frontend/",
         },
-        tag: data.tag || "hr-stack-notification",
+        tag:
+            data.eventType ||
+            "hr-stack-notification",
         renotify: true,
     };
 
     event.waitUntil(
-        self.registration.showNotification(title, options)
+        self.registration.showNotification(
+            title,
+            options
+        )
     );
 });
-
 
 /* =========================================================
    NOTIFICATION CLICK
@@ -71,7 +78,9 @@ self.addEventListener("notificationclick", (event) => {
             }
 
             if (clients.openWindow) {
-                return clients.openWindow(notificationUrl);
+                return clients.openWindow(
+                    notificationUrl
+                );
             }
 
             return undefined;
