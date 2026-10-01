@@ -81,7 +81,7 @@ define(['./workbox-7e5eb42b'], (function (workbox) { 'use strict';
     "revision": "a8186eba28d0441726b54bfec3cf8356"
   }, {
     "url": "/hr-stack-frontend/offline.html",
-    "revision": "0.tikp232oil"
+    "revision": "0.lne9hh6pkfg"
   }], {});
   workbox.cleanupOutdatedCaches();
   workbox.registerRoute(new workbox.NavigationRoute(workbox.createHandlerBoundToURL("/hr-stack-frontend/offline.html"), {

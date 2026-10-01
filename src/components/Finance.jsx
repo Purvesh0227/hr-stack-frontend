@@ -579,7 +579,7 @@ function Finance({ role }) {
                                                             : "Download"}
                                                     </button>
 
-                                                    {slip.replaceAllowed && (
+                                                    {role === "ADMIN" && slip.replaceAllowed && (
                                                         <button
                                                             className="replace-btn finance-table-btn"
                                                             onClick={() =>

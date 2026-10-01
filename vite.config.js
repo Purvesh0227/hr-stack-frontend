@@ -58,9 +58,7 @@ export default defineConfig({
             },
 
             workbox: {
-                navigateFallback:
-                    "/hr-stack-frontend/offline.html",
-
+                
                 globPatterns: [
                     "**/*.{js,css,html,ico,png,svg,webp,woff,woff2}",
                 ],

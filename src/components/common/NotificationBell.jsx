@@ -72,14 +72,18 @@ function NotificationBell() {
                     </div>
 
                     <div className="notification-filter">
-                        {["UNREAD", "ALL"].map((status) => (
+                        {["UNREAD", "ALL", "READ"].map((status) => (
                             <button
                                 key={status}
                                 type="button"
                                 className={notificationStatus === status ? "notification-filter-active" : ""}
                                 onClick={() => handleStatusChange(status)}
                             >
-                                {status === "UNREAD" ? "Unread" : "All"}
+                                {status === "UNREAD"
+                                    ? "Unread"
+                                    : status === "READ"
+                                        ? "Read"
+                                        : "All"}
                             </button>
                         ))}
                     </div>
