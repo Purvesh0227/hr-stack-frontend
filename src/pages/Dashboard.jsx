@@ -12,18 +12,17 @@ import {
 } from "../services/api";
 import useDebounce from "../hooks/useDebounce";
 import { toDisplayText } from "../utils/stringUtil";
+import { readStorageItem, readStorageJson } from "../utils/storage";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import Notification from "../components/Notification";
 import AdminSidebar from "../components/AdminSidebar";
 
 function Dashboard() {
-    const role = localStorage.getItem("role");
-    const email = localStorage.getItem("email");
+    const role = readStorageItem("role");
+    const email = readStorageItem("email");
 
-    const [employee, setEmployee] = useState(
-        JSON.parse(localStorage.getItem("employee"))
-    );
+    const [employee, setEmployee] = useState(() => readStorageJson("employee"));
     const [employees, setEmployees] = useState([]);
     const [admins, setAdmins] = useState([]);
     const [adminProfile, setAdminProfile] = useState(null);

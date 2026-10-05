@@ -2854,16 +2854,104 @@ body {
 .document-form-group select {
     width: 100%;
     padding: 10px 12px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
+}
+
+.document-upload-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px;
+    margin-top: 20px;
+}
+
+.document-card {
+    padding: 20px;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    background: var(--bg-page);
+    color: var(--text-primary);
+}
+
+.document-card h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: var(--text-primary);
+}
+
+.document-form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 18px;
+}
+
+.document-form-group label {
+    margin-bottom: 7px;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.document-form-group input,
+.document-form-group select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border-strong);
+    border-radius: 8px;
+    background: var(--bg-input);
+    color: var(--text-primary);
     font-size: 14px;
     box-sizing: border-box;
+}
+
+.document-form-group input::placeholder {
+    color: var(--text-muted);
+}
+
+.document-form-group input:focus,
+.document-form-group select:focus {
+    outline: none;
+    border-color: var(--accent-blue);
+}
+
+.document-form-group input:disabled,
+.document-form-group select:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+/* file picker button */
+.document-form-group input[type="file"]::file-selector-button {
+    margin-right: 12px;
+    padding: 6px 12px;
+    border: 1px solid var(--border-strong);
+    border-radius: 6px;
+    background: var(--bg-card);
+    color: var(--text-primary);
+    cursor: pointer;
 }
 
 .document-submit-btn {
     margin-top: 20px;
 }
 
+/* "Documents Uploaded" box */
+.document-upload-status {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 16px 20px;
+    border: 1px solid var(--status-active-text);
+    border-radius: 12px;
+    background: var(--bg-card);
+    color: var(--text-primary);
+}
+
+.document-upload-status strong {
+    color: var(--status-active-text);
+}
+
+.document-upload-status span {
+    color: var(--text-secondary);
+    font-size: 14px;
+}
 
 
 /* ============================================================
@@ -5304,3 +5392,16 @@ body {
     cursor: pointer;
     font-size: 14px;
 }
+
+.login-forgot-link {
+    font-size: 13px;
+    font-weight: 500;
+    color: #2563eb;
+    text-decoration: none;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+}
+.login-forgot-link:hover { text-decoration: underline; }
+.login-forgot-link:disabled { color: #94a3b8; cursor: not-allowed; text-decoration: none; }

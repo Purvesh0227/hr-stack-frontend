@@ -44,6 +44,27 @@ FILE_API.interceptors.request.use(
     }
 );
 
+// If token expired/invalid, clear login data and go to login page
+const handleUnauthorized = (error) => {
+    if (error.response?.status === 401) {
+        ["token", "employee", "email", "role"].forEach((key) =>
+            localStorage.removeItem(key)
+        );
+
+        const loginPath = `${import.meta.env.BASE_URL}login`;
+
+        // avoid redirect loop if already on login
+        if (!window.location.pathname.endsWith("/login")) {
+            window.location.replace(loginPath);
+        }
+    }
+    return Promise.reject(error);
+};
+
+API.interceptors.response.use((response) => response, handleUnauthorized);
+FILE_API.interceptors.response.use((response) => response, handleUnauthorized);
+
+
 // Lets callers detect aborted requests without importing axios
 export const isRequestCancelled = axios.isCancel;
 
@@ -243,7 +264,11 @@ export const uploadDocumentDirectlyToMinio = (uploadUrl, file) =>
     documentType) =>
     API.get(`/${uuid}/documents/view-url`, { params: { documentType }});
 
+    // forgot password 
 
+    export const forgotPassword = (data) => API.post("/forgot-password", data);
+    export const verifyResetOtp = (data) => API.post("/verify-reset-otp", data);
+    export const resetPassword = (data) => API.post("/reset-password",data);
 
 
 export default API;

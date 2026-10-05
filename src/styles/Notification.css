@@ -38,3 +38,27 @@
     cursor: pointer;
     color: inherit;
 }
+
+/* ===== DARK MODE ===== */
+[data-theme="dark"] .notification {
+    border: 1px solid var(--border-strong);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+}
+
+[data-theme="dark"] .notification-success {
+    background: #052e1c;
+    color: #6ee7b7;
+    border-color: #059669;
+}
+
+[data-theme="dark"] .notification-error {
+    background: #3b0d0d;
+    color: #fca5a5;
+    border-color: #dc2626;
+}
+
+[data-theme="dark"] .notification-warning {
+    background: #3a2705;
+    color: #fcd34d;
+    border-color: #d97706;
+}

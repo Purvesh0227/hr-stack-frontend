@@ -6,6 +6,7 @@ import {
     getPasswordChecks
 } from "../utils/validators";
 import { useNotification } from "../contexts/NotificationContext";
+import useSubmitLock from "../hooks/useSubmitLock";
 
 
 function AddAdminModal({ isOpen, onClose, refreshAdmins }) {
@@ -53,11 +54,14 @@ function AddAdminModal({ isOpen, onClose, refreshAdmins }) {
         emailValid &&
         phoneValid &&
         passwordValid;
+
+    const [loading, run] = useSubmitLock();
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!formValid) {
             return;
         }
+        run(async () => {
         try {
             await API.post("/createAdmin", adminData);
             showNotification(
@@ -85,6 +89,7 @@ function AddAdminModal({ isOpen, onClose, refreshAdmins }) {
                 alert("Failed to create admin");
             }
         }
+    });
     };
     if (!isOpen) {
         return null;
@@ -248,9 +253,9 @@ function AddAdminModal({ isOpen, onClose, refreshAdmins }) {
                         <button
                             type="submit"
                             className="save-btn"
-                            disabled={!formValid}
+                            disabled={!formValid || loading}
                         >
-                            Save
+                            {loading ? "Adding..." : "Add Admin"}
                         </button>
                     </div>
                 </form>

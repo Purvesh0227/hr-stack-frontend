@@ -11,6 +11,7 @@ import { useNotification } from "../contexts/NotificationContext";
 import useDebounce from "../hooks/useDebounce";
 import Pagination from "./Pagination";
 import "../styles/Attendance.css"
+import useSubmitLock from "../hooks/useSubmitLock";
 
 const RECORDS_PER_PAGE = 7;
 
@@ -274,9 +275,10 @@ function Attendance({ role }) {
        ========================================= */
 
     const handleGenerateOtp = async () => {
-        if (otpCooldown > 0) {
+        if (otpCooldown > 0 || generatingOtp) {
             return;
         }
+    
 
         try {
             setGeneratingOtp(true);

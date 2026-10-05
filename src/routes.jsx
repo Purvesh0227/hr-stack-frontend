@@ -13,9 +13,11 @@ import AttendancePage from "./pages/Dashboard/AttendancePage";
 import FinancePage from "./pages/Dashboard/FinancePage";
 import SettingsPage from "./pages/Dashboard/SettingsPage";
 import AlreadyLoggedIn from "./pages/AlreadyLoggedIn";
+import ForgotPassword from "./pages/ForgotPassword";
+import { readStorageJson } from "./utils/storage";
 
 function AuthEntry({ children }) {
-    const employee = localStorage.getItem("employee");
+    const employee = readStorageJson("employee");
 
     if (employee) {
         return <AlreadyLoggedIn />;
@@ -29,6 +31,8 @@ function AppRoutes() {
             <Routes>
                 <Route path="/login" element={ <AuthEntry> <Login /> </AuthEntry>} />
                 <Route path="/register" element={<AuthEntry> <Register /> </AuthEntry>} />
+
+                <Route path="/forgot-password" element={<AuthEntry><ForgotPassword /></AuthEntry>} />
 
             <Route
                 path="/"
