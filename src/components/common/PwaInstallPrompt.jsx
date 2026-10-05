@@ -2,11 +2,11 @@ import { useEffect, useState } from "react";
 import {
     FiX,
     FiZap,
-    FiWifi,
     FiSmartphone,
     FiDownload
 } from "react-icons/fi";
 import "../../styles/PwaInstallPrompt.css";
+import { readStorageItem, writeStorageValue } from "../../utils/storage";
 
 const DISMISS_KEY = "hrstack_pwa_install_dismissed";
 
@@ -24,7 +24,7 @@ function PwaInstallPrompt() {
             return;
         }
 
-        const dismissed = localStorage.getItem(DISMISS_KEY);
+        const dismissed = readStorageItem(DISMISS_KEY);
 
         if (dismissed === "true") {
             return;
@@ -67,7 +67,7 @@ function PwaInstallPrompt() {
 
     const saveDontRemindPreference = () => {
         if (dontRemind) {
-            localStorage.setItem(DISMISS_KEY, "true");
+            writeStorageValue(DISMISS_KEY, "true");
         }
     };
 

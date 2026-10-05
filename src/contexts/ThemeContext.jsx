@@ -1,13 +1,14 @@
 // src/contexts/ThemeContext.jsx
 import { createContext, useContext, useEffect, useState } from "react";
+import { readStorageItem, writeStorageValue } from "../utils/storage";
 
 const ThemeContext = createContext(null);
 const STORAGE_KEY = "hrstack-theme";
 
 function getInitialTheme() {
-    const stored = localStorage.getItem(STORAGE_KEY);
+    const stored = readStorageItem(STORAGE_KEY);
     if (stored === "light" || stored === "dark") return stored;
-    return "light"; // default to light on first visit, ignore OS preference
+    return "light";
 }
 
 export function ThemeProvider({ children }) {
@@ -15,7 +16,7 @@ export function ThemeProvider({ children }) {
 
     useEffect(() => {
         document.documentElement.setAttribute("data-theme", theme);
-        localStorage.setItem(STORAGE_KEY, theme);
+        writeStorageValue(STORAGE_KEY, theme);
     }, [theme]);
 
     const toggleTheme = () => {

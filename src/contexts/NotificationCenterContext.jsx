@@ -3,6 +3,7 @@ import {
     useCallback,
     useContext,
     useEffect,
+    useRef,
     useState
 } from "react";
 
@@ -11,115 +12,100 @@ import {
     markNotificationAsRead,
     markAllNotificationsAsRead
 } from "../services/notificationService";
+import { readStorageJson } from "../utils/storage";
 
 const NotificationCenterContext = createContext(null);
+
+// After a failed fetch, wait before trying again
+const FAILURE_COOLDOWN_MS = 10_000;
 
 export function NotificationCenterProvider({ children }) {
 
     const [notifications, setNotifications] = useState([]);
     const [unreadCount, setUnreadCount] = useState(0);
     const [loading, setLoading] = useState(false);
+    const [notificationStatus, setNotificationStatus] = useState("UNREAD");
 
-    const [notificationStatus, setNotificationStatus] =
-        useState("UNREAD");
+    // Boolean = stable value. Object from readStorageJson = new every render (caused the loop)
+    const isLoggedIn = Boolean(
+        readStorageJson("employee") && localStorage.getItem("token")
+    );
 
-    const employee = localStorage.getItem("employee");
+    const statusRef = useRef(notificationStatus);
+    const failedAt = useRef(0);
+    const latestRequest = useRef(0);
 
-    const fetchNotifications = useCallback(async () => {
+    useEffect(() => {
+        statusRef.current = notificationStatus;
+    }, [notificationStatus]);
 
-        if (!employee) {
+    const fetchNotifications = useCallback(async (force = false) => {
+
+        if (!isLoggedIn) {
             setNotifications([]);
             setUnreadCount(0);
             return;
         }
 
+        // recent failure -> do not retry (safety net against request storms)
+        if (!force && Date.now() - failedAt.current < FAILURE_COOLDOWN_MS) {
+            return;
+        }
+
+        const requestId = ++latestRequest.current;
+
         try {
             setLoading(true);
 
-            const data =
-                await getNotifications(notificationStatus);
+            const data = await getNotifications(statusRef.current);
 
-            setNotifications(
-                data.notifications || []
-            );
+            // ignore an old response that finished after a newer request
+            if (requestId !== latestRequest.current) return;
 
-            setUnreadCount(
-                data.unreadCount || 0
-            );
+            setNotifications(data.notifications || []);
+            setUnreadCount(data.unreadCount || 0);
 
         } catch (error) {
-
-            console.error(
-                "Unable to fetch notifications:",
-                error
-            );
-
+            failedAt.current = Date.now();
         } finally {
-            setLoading(false);
+            if (requestId === latestRequest.current) {
+                setLoading(false);
+            }
         }
 
-    }, [employee, notificationStatus]);
+    }, [isLoggedIn]);
 
-    const refreshNotifications = useCallback(async () => {
-        await fetchNotifications();
-    }, [fetchNotifications]);
-
-    const changeNotificationStatus = useCallback(
-        (status) => {
-            setNotificationStatus(status);
-        },
-        []
+    const refreshNotifications = useCallback(
+        () => fetchNotifications(true),
+        [fetchNotifications]
     );
 
+    const changeNotificationStatus = useCallback((status) => {
+        setNotificationStatus(status);
+    }, []);
+
     const markAsRead = async (notificationId) => {
-
         try {
-
-            await markNotificationAsRead(
-                notificationId
-            );
-
-            /*
-             * Re-fetch from backend so the currently
-             * selected filter stays correct.
-             */
-            await fetchNotifications();
-
+            await markNotificationAsRead(notificationId);
+            await fetchNotifications(true);
         } catch (error) {
-
-            console.error(
-                "Unable to mark notification as read:",
-                error
-            );
-
+            // keep current list
         }
     };
 
     const markAllAsRead = async () => {
-
         try {
-
             await markAllNotificationsAsRead();
-
-            /*
-             * Re-fetch from backend instead of
-             * filtering notifications locally.
-             */
-            await fetchNotifications();
-
+            await fetchNotifications(true);
         } catch (error) {
-
-            console.error(
-                "Unable to mark all notifications as read:",
-                error
-            );
-
+            // keep current list
         }
     };
 
+    // Runs on login/logout and when the filter (UNREAD / READ / ALL) changes
     useEffect(() => {
-        refreshNotifications();
-    }, [refreshNotifications]);
+        fetchNotifications(true);
+    }, [fetchNotifications, notificationStatus]);
 
     return (
         <NotificationCenterContext.Provider
@@ -143,9 +129,7 @@ export function NotificationCenterProvider({ children }) {
 
 export function useNotificationCenter() {
 
-    const context = useContext(
-        NotificationCenterContext
-    );
+    const context = useContext(NotificationCenterContext);
 
     if (!context) {
         throw new Error(

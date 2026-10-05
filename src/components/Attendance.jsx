@@ -1,23 +1,54 @@
 import { useEffect, useState } from "react";
-import { markAttendance, getAttendance, createOtp } from "../services/api";
+import {
+    markAttendance,
+    searchAttendance,
+    createOtp,
+    isRequestCancelled
+} from "../services/api";
 import { formatDateTime, dateToMillis } from "../utils/dateUtils";
 import { DEPARTMENTS } from "../constants/departmentConstants";
 import { useNotification } from "../contexts/NotificationContext";
-import { filterBySearch } from "../utils/tableFilters";
-import { paginate } from "../utils/pagination";
+import useDebounce from "../hooks/useDebounce";
 import Pagination from "./Pagination";
 import "../styles/Attendance.css"
+import useSubmitLock from "../hooks/useSubmitLock";
+
+const RECORDS_PER_PAGE = 7;
+
+// Start/end (epoch millis) of the chosen month in the current year,
+// using the browser's local time. No month selected = no date limit.
+const getMonthRange = (month) => {
+    if (!month) {
+        return {};
+    }
+
+    const year = new Date().getFullYear();
+    const monthIndex = Number(month) - 1;
+
+    return {
+        from: new Date(year, monthIndex, 1).getTime(),
+        to: new Date(year, monthIndex + 1, 1).getTime() - 1
+    };
+};
 
 function Attendance({ role }) {
     const { showNotification } = useNotification();
 
-    const [attendance, setAttendance] = useState([]);
+    const [attendance, setAttendance] = useState([]); // current page only
+    const [attendanceTotalElements, setAttendanceTotalElements] = useState(0);
+    const [attendanceTotalPages, setAttendanceTotalPages] = useState(0);
+    const [loadingAttendance, setLoadingAttendance] = useState(false);
+    const [attendanceRefreshKey, setAttendanceRefreshKey] = useState(0);
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedMonth, setSelectedMonth] = useState("");
 
+    // Input stays instant; filtering uses the debounced value
+    const debouncedSearchTerm = useDebounce(searchTerm.trim(), 400);
+
     const [showInitiate, setShowInitiate] = useState(false);
     const [showOtpModal, setShowOtpModal] = useState(false);
-    const [showMyAttendance, setShowMyAttendance] = useState(false);
+    const [scope, setScope] = useState(role === "ADMIN" ? "ALL" : "MY");
+    const showMyAttendance = scope === "MY";
 
     const [department, setDepartment] = useState("IT");
     const [selectedDate, setSelectedDate] = useState(
@@ -35,36 +66,87 @@ function Attendance({ role }) {
 
     const [currentPage, setCurrentPage] = useState(1);
 
+    // Reset to page 1 when scope, search or month changes.
+    // Done during render (not in a second effect) so no wasted
+    // request is fired for the old page number.
+    const attendanceFilterKey = `${scope}|${debouncedSearchTerm}|${selectedMonth}`;
+    const [lastAttendanceFilterKey, setLastAttendanceFilterKey] = useState(
+        attendanceFilterKey
+    );
+
+    if (lastAttendanceFilterKey !== attendanceFilterKey) {
+        setLastAttendanceFilterKey(attendanceFilterKey);
+        setCurrentPage(1);
+    }
+
     /* =========================================
-       LOAD ATTENDANCE
+       LOAD ATTENDANCE (server-side search + pagination)
        ========================================= */
 
-    const loadAttendance = async (scope) => {
-        try {
-            const response = await getAttendance(scope);
-
-            setAttendance(response.data);
-            setShowMyAttendance(scope === "MY");
-        } catch (error) {
-            showNotification(
-                error.response?.data?.error ||
-                    "Unable to fetch attendance",
-                "error"
-            );
-        }
+    // Re-runs the fetch effect below (after marking attendance, button clicks)
+    const handleRefreshAttendance = () => {
+        setAttendanceRefreshKey((key) => key + 1);
     };
 
-    /* =========================================
-       INITIAL LOAD
-       ========================================= */
-
     useEffect(() => {
-        if (role === "ADMIN") {
-            loadAttendance("ALL");
-        } else {
-            loadAttendance("MY");
-        }
-    }, [role]);
+        const controller = new AbortController();
+
+        const loadAttendance = async () => {
+            try {
+                setLoadingAttendance(true);
+
+                const { data } = await searchAttendance({
+                    scope,
+                    // Search is only meaningful for the admin "ALL" view
+                    search: scope === "ALL" ? debouncedSearchTerm : "",
+                    ...getMonthRange(selectedMonth),
+                    page: currentPage - 1,
+                    size: RECORDS_PER_PAGE,
+                    signal: controller.signal
+                });
+
+                // Current page no longer exists -> go back
+                if (
+                    data.totalPages > 0 &&
+                    currentPage > data.totalPages
+                ) {
+                    setCurrentPage(data.totalPages);
+                    return;
+                }
+
+                setAttendance(data.content);
+                setAttendanceTotalElements(data.totalElements);
+                setAttendanceTotalPages(data.totalPages);
+            } catch (error) {
+                // Request was superseded by a newer one
+                if (isRequestCancelled(error)) {
+                    return;
+                }
+
+                showNotification(
+                    error.response?.data?.error ||
+                        "Unable to fetch attendance",
+                    "error"
+                );
+            } finally {
+                if (!controller.signal.aborted) {
+                    setLoadingAttendance(false);
+                }
+            }
+        };
+
+        loadAttendance();
+
+        // Cancels the stale request on every change / unmount
+        return () => controller.abort();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [
+        scope,
+        debouncedSearchTerm,
+        selectedMonth,
+        currentPage,
+        attendanceRefreshKey
+    ]);
 
     /* =========================================
        OTP EXPIRY COUNTDOWN
@@ -116,14 +198,6 @@ function Attendance({ role }) {
 
         return () => clearInterval(timer);
     }, [otpCooldown]);
-
-    /* =========================================
-       RESET PAGINATION WHEN FILTER CHANGES
-       ========================================= */
-
-    useEffect(() => {
-        setCurrentPage(1);
-    }, [searchTerm, selectedMonth]);
 
     /* =========================================
        FORMATTERS
@@ -184,13 +258,7 @@ function Attendance({ role }) {
             setShowOtpModal(false);
             setEnteredOtp("");
 
-            if (showMyAttendance) {
-                await loadAttendance("MY");
-            } else if (role === "ADMIN") {
-                await loadAttendance("ALL");
-            } else {
-                await loadAttendance("MY");
-            }
+            handleRefreshAttendance();
         } catch (error) {
             showNotification(
                 error.response?.data?.error ||
@@ -207,9 +275,10 @@ function Attendance({ role }) {
        ========================================= */
 
     const handleGenerateOtp = async () => {
-        if (otpCooldown > 0) {
+        if (otpCooldown > 0 || generatingOtp) {
             return;
         }
+    
 
         try {
             setGeneratingOtp(true);
@@ -265,47 +334,14 @@ function Attendance({ role }) {
        ========================================= */
 
     const handleViewAttendance = () => {
-        loadAttendance("ALL");
+        setScope("ALL");
+        handleRefreshAttendance();
     };
 
     const handleMyAttendance = () => {
-        loadAttendance("MY");
+        setScope("MY");
+        handleRefreshAttendance();
     };
-
-    /* =========================================
-       SEARCH + MONTH FILTER
-       ========================================= */
-
-    const searchFilteredAttendance = filterBySearch(
-        attendance,
-        searchTerm,
-        "empId"
-    );
-
-    const filteredAttendance = searchFilteredAttendance.filter(
-        (record) => {
-            return (
-                selectedMonth === "" ||
-                new Date(record.markedOn).getMonth() + 1 ===
-                    Number(selectedMonth)
-            );
-        }
-    );
-
-    /* =========================================
-       PAGINATION
-       ========================================= */
-
-    const recordsPerPage = 7;
-
-    const {
-        currentItems: paginatedAttendance,
-        totalPages
-    } = paginate(
-        filteredAttendance,
-        currentPage,
-        recordsPerPage
-    );
 
     /* =========================================
        RENDER
@@ -354,8 +390,8 @@ function Attendance({ role }) {
                         </h2>
 
                         <p>
-                            {filteredAttendance.length} attendance
-                            {filteredAttendance.length !== 1
+                            {attendanceTotalElements} attendance
+                            {attendanceTotalElements !== 1
                                 ? " records"
                                 : " record"}
                         </p>
@@ -703,13 +739,21 @@ function Attendance({ role }) {
                     </div>
 
                     {/* Empty State */}
-                    {filteredAttendance.length === 0 ? (
-                        <p className="no-attendance">
-                            No attendance records found.
-                        </p>
+                    {attendance.length === 0 ? (
+                        !loadingAttendance && (
+                            <p className="no-attendance">
+                                No attendance records found.
+                            </p>
+                        )
                     ) : (
                         <>
-                            <div className="attendance-table-wrapper">
+                            <div
+                                className="attendance-table-wrapper"
+                                style={{
+                                    opacity: loadingAttendance ? 0.6 : 1,
+                                    transition: "opacity .15s"
+                                }}
+                            >
                                 <table className="employee-table">
                                     <thead>
                                         <tr>
@@ -720,7 +764,7 @@ function Attendance({ role }) {
                                     </thead>
 
                                     <tbody>
-                                        {paginatedAttendance.map(
+                                        {attendance.map(
                                             (record) => (
                                                 <tr
                                                     key={record.uuid}
@@ -754,13 +798,13 @@ function Attendance({ role }) {
                                     Showing{" "}
                                     <strong>
                                         {
-                                            paginatedAttendance.length
+                                            attendance.length
                                         }
                                     </strong>{" "}
                                     of{" "}
                                     <strong>
                                         {
-                                            filteredAttendance.length
+                                            attendanceTotalElements
                                         }
                                     </strong>{" "}
                                     records
@@ -768,7 +812,7 @@ function Attendance({ role }) {
 
                                 <Pagination
                                     currentPage={currentPage}
-                                    totalPages={totalPages}
+                                    totalPages={attendanceTotalPages}
                                     onPageChange={setCurrentPage}
                                 />
                             </div>

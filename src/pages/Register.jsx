@@ -10,6 +10,7 @@ import {
     doPasswordsMatch
 } from "../utils/validators";
 import "../styles/global.css";
+import useSubmitLock from "../hooks/useSubmitLock";
 
 function Register() {
     const navigate = useNavigate();
@@ -98,7 +99,7 @@ function Register() {
     /* =========================================
        REGISTER
        ========================================= */
-
+    const [loading, run] = useSubmitLock();
     const handleRegister = async (e) => {
         e.preventDefault();
 
@@ -139,7 +140,7 @@ function Register() {
             );
             return;
         }
-
+        run(async () => {
         try {
             const formData = new FormData();
 
@@ -214,6 +215,7 @@ function Register() {
                 );
             }
         }
+    });
     };
 
     return (
@@ -693,6 +695,7 @@ function Register() {
                         type="submit"
                         className="register-submit-btn"
                         disabled={
+                            loading ||
                             !passwordsMatch ||
                             !emailValid ||
                             !phoneValid ||
@@ -703,7 +706,7 @@ function Register() {
                             !hasSpecial
                         }
                     >
-                        Create account
+                        {loading ? "Creating account..." : "Create account"}
                     </button>
 
 

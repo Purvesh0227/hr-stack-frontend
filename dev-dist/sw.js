@@ -80,11 +80,11 @@ define(['./workbox-7e5eb42b'], (function (workbox) { 'use strict';
     "url": "registerSW.js",
     "revision": "a8186eba28d0441726b54bfec3cf8356"
   }, {
-    "url": "/hr-stack-frontend/offline.html",
-    "revision": "0.lne9hh6pkfg"
+    "url": "index.html",
+    "revision": "0.ppuvskkafc"
   }], {});
   workbox.cleanupOutdatedCaches();
-  workbox.registerRoute(new workbox.NavigationRoute(workbox.createHandlerBoundToURL("/hr-stack-frontend/offline.html"), {
+  workbox.registerRoute(new workbox.NavigationRoute(workbox.createHandlerBoundToURL("index.html"), {
     allowlist: [/^\/$/]
   }));
 

@@ -10,7 +10,7 @@ export const getPasswordChecks = (password) => ({
     hasUpperCase: /[A-Z]/.test(password),
     hasLowerCase: /[a-z]/.test(password),
     hasNumber: /\d/.test(password),
-    hasSpecial: /[@$!%*?&]/.test(password),
+    hasSpecial: /[@#$%^&+=!.*_-]/.test(password),
 });
 
 export const doPasswordsMatch = (password, confirmPassword) =>

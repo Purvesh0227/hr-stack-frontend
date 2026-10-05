@@ -1,12 +1,13 @@
 import { useNavigate } from "react-router-dom";
+import { clearStorage, readStorageJson } from "../utils/storage";
 
 function AlreadyLoggedIn() {
     const navigate = useNavigate();
-    const employee = JSON.parse(localStorage.getItem("employee"));
+    const employee = readStorageJson("employee");
 
     const handleLogout = () => {
-        localStorage.clear();
-        navigate("/login");
+        clearStorage();
+        navigate("/login", { replace: true });
     };
 
     const handleContinue = () => {

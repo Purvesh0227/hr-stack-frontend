@@ -6,8 +6,9 @@ function Employees() {
     const {
         role,
         employees,
-        filteredEmployees,
-        paginatedEmployees,
+        employeeTotalElements,
+        totalEmployees,
+        debouncedEmployeeSearchTerm,
         loadingEmployees,
         employeeSearchTerm,
         setEmployeeSearchTerm,
@@ -56,7 +57,7 @@ function Employees() {
                         </span>
 
                         <strong>
-                            {employees?.length || 0}
+                            {totalEmployees}
                         </strong>
                     </div>
                 </div>
@@ -64,8 +65,8 @@ function Employees() {
                 {/* Employee Table */}
                 <EmployeeTable
                     employees={employees}
-                    filteredEmployees={filteredEmployees}
-                    paginatedEmployees={paginatedEmployees}
+                    employeeTotalElements={employeeTotalElements}
+                    activeSearch={debouncedEmployeeSearchTerm}
                     loadingEmployees={loadingEmployees}
                     employeeSearchTerm={employeeSearchTerm}
                     setEmployeeSearchTerm={setEmployeeSearchTerm}

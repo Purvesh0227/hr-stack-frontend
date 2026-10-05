@@ -4,6 +4,7 @@ import { loginEmployee } from "../services/api";
 import { useNotification } from "../contexts/NotificationContext";
 import { FiEye, FiEyeOff, FiArrowRight } from "react-icons/fi";
 import "../styles/global.css";
+import useSubmitLock from "../hooks/useSubmitLock";
 
 function Login() {
     const navigate = useNavigate();
@@ -23,9 +24,11 @@ function Login() {
         });
     };
 
+    const [loading, run] = useSubmitLock();
+
     const handleLogin = async (e) => {
         e.preventDefault();
-
+         run(async () => {
         try {
             const response = await loginEmployee(loginData);
 
@@ -61,6 +64,7 @@ function Login() {
                 "error"
             );
         }
+     });
     };
 
     return (
@@ -157,9 +161,8 @@ function Login() {
 
                             <div className="login-label-row">
 
-                                <label htmlFor="login-password">
-                                    Password
-                                </label>
+                                <label htmlFor="login-password">Password</label>
+                                <Link to="/forgot-password" className="login-forgot-link">Forgot Password?</Link>
 
                             </div>
 
@@ -208,15 +211,9 @@ function Login() {
 
                         {/* LOGIN BUTTON */}
 
-                        <button
-                            type="submit"
-                            className="login-submit-btn"
-                        >
-                            <span>Sign in</span>
-
-                            <FiArrowRight
-                                size={17}
-                            />
+                        <button type="submit" className="login-submit-btn" disabled={loading}>
+                            <span>{loading ? "Signing in..." : "Sign in"}</span>
+                            <FiArrowRight size={17} />
                         </button>
 
                     </form>

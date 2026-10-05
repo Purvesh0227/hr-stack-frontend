@@ -5,8 +5,8 @@ import { formatDate } from "../../utils/dateUtils";
 
 function EmployeeTable({
     employees,
-    filteredEmployees,
-    paginatedEmployees,
+    employeeTotalElements,
+    activeSearch,
     loadingEmployees,
     employeeSearchTerm,
     setEmployeeSearchTerm,
@@ -39,9 +39,10 @@ function EmployeeTable({
                 <div className="card-title-group">
                     <div>
                         <h2>Employee Directory</h2>
+
                         <p className="table-count">
-                            {filteredEmployees.length} employee
-                            {filteredEmployees.length !== 1 ? "s" : ""}
+                            {employeeTotalElements} employee
+                            {employeeTotalElements !== 1 ? "s" : ""}
                         </p>
                     </div>
                 </div>
@@ -66,7 +67,7 @@ function EmployeeTable({
                     </div>
 
                     {/* View Employees */}
-                    <button
+                    {/* <button
                         className="primary-btn table-action-btn"
                         onClick={handleGetAllEmployees}
                         disabled={loadingEmployees}
@@ -79,17 +80,23 @@ function EmployeeTable({
                         ) : (
                             "View Employees"
                         )}
-                    </button>
+                    </button> */}
                 </div>
             </div>
 
-            {/* Loading */}
-            {loadingEmployees && <Loader />}
+            {/* Loading (first load only, so the table doesn't vanish on every search) */}
+            {loadingEmployees && employees.length === 0 && <Loader />}
 
-            {/* Table */}
-            {!loadingEmployees && filteredEmployees.length > 0 && (
+            {/* Employee Table */}
+            {employees.length > 0 && (
                 <>
-                    <div className="employee-table-wrapper">
+                    <div
+                        className="employee-table-wrapper"
+                        style={{
+                            opacity: loadingEmployees ? 0.6 : 1,
+                            transition: "opacity .15s"
+                        }}
+                    >
                         <table className="employee-table">
                             <thead>
                                 <tr>
@@ -105,7 +112,7 @@ function EmployeeTable({
                             </thead>
 
                             <tbody>
-                                {paginatedEmployees.map((emp) => (
+                                {employees.map((emp) => (
                                     <tr key={emp.id}>
 
                                         {/* ID */}
@@ -205,11 +212,11 @@ function EmployeeTable({
                         <span>
                             Showing{" "}
                             <strong>
-                                {paginatedEmployees.length}
+                                {employees.length}
                             </strong>{" "}
                             of{" "}
                             <strong>
-                                {filteredEmployees.length}
+                                {employeeTotalElements}
                             </strong>{" "}
                             employees
                         </span>
@@ -223,29 +230,14 @@ function EmployeeTable({
                 </>
             )}
 
-            {/* Pagination when no table is displayed */}
-            {!loadingEmployees &&
-                filteredEmployees.length === 0 &&
-                employees.length === 0 && (
-                    <div className="employee-table-footer">
-                        <span>No employees available.</span>
-
-                        <Pagination
-                            currentPage={employeeCurrentPage}
-                            totalPages={employeeTotalPages}
-                            onPageChange={setEmployeeCurrentPage}
-                        />
-                    </div>
-                )}
-
-            {/* Search returned no results */}
-            {!loadingEmployees &&
-                employees.length > 0 &&
-                filteredEmployees.length === 0 && (
-                    <p className="no-attendance">
-                        No employees found.
-                    </p>
-                )}
+            {/* No Employees / No Search Results */}
+            {!loadingEmployees && employees.length === 0 && (
+                <p className="no-attendance">
+                    {activeSearch
+                        ? `No employees found for "${activeSearch}".`
+                        : "No employees available."}
+                </p>
+            )}
 
         </div>
     );

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import useSubmitLock from "../hooks/useSubmitLock";
 import {
     getEmployeeDocumentUploadUrl,
     uploadDocumentDirectlyToMinio,
@@ -6,8 +7,65 @@ import {
 } from "../services/api";
 import { useNotification } from "../contexts/NotificationContext";
 
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
+const ALLOWED_FILE_TYPES = ["application/pdf", "image/jpeg", "image/png"];
+
+const getDocumentNumberConfig = (type) => {
+    switch (type) {
+        case "AADHAAR":
+            return {
+                maxLength: 12,
+                placeholder: "Enter 12-digit Aadhaar number",
+                inputMode: "numeric"
+            };
+        case "PAN":
+            return {
+                maxLength: 10,
+                placeholder: "Enter PAN (ABCDE1234F)",
+                inputMode: "text"
+            };
+        case "LIGHT_BILL":
+            return {
+                maxLength: 15,
+                placeholder: "Enter light bill number",
+                inputMode: "numeric"
+            };
+        default:
+            return {
+                maxLength: 50,
+                placeholder: "Select proof type first",
+                inputMode: "text"
+            };
+    }
+};
+
+const validateDocumentNumber = (type, number) => {
+    switch (type) {
+        case "AADHAAR":
+            return /^\d{12}$/.test(number);
+        case "PAN":
+            return /^[A-Z]{5}[0-9]{4}[A-Z]$/.test(number);
+        case "LIGHT_BILL":
+            return /^\d{6,15}$/.test(number);
+        default:
+            return false;
+    }
+};
+
+// Returns an error message, or null if the file is fine
+const validateFile = (file) => {
+    if (!ALLOWED_FILE_TYPES.includes(file.type)) {
+        return "Only PDF, JPG or PNG files are allowed";
+    }
+    if (file.size > MAX_FILE_SIZE) {
+        return "File size must be 5 MB or less";
+    }
+    return null;
+};
+
 function EmployeeDocumentUpload({ employee, onUploadComplete }) {
     const { showNotification } = useNotification();
+    const [loading, run] = useSubmitLock();
 
     const [idProofType, setIdProofType] = useState("");
     const [idProofNumber, setIdProofNumber] = useState("");
@@ -19,94 +77,55 @@ function EmployeeDocumentUpload({ employee, onUploadComplete }) {
 
     const [documentsSubmitted, setDocumentsSubmitted] = useState(false);
 
+    // Check file right when selected, reject bad ones early
+    const handleFileChange = (e, setFile) => {
+        const file = e.target.files[0];
 
-    const getDocumentNumberConfig = (type) => {
-    switch (type) {
-        case "AADHAAR":
-            return {
-                maxLength: 12,
-                placeholder: "Enter 12-digit Aadhaar number",
-                inputMode: "numeric",
-            };
+        if (!file) {
+            setFile(null);
+            return;
+        }
 
-        case "PAN":
-            return {
-                maxLength: 10,
-                placeholder: "Enter PAN (ABCDE1234F)",
-                inputMode: "text",
-            };
+        const error = validateFile(file);
+        if (error) {
+            showNotification(error, "error");
+            e.target.value = "";
+            setFile(null);
+            return;
+        }
 
-        case "LIGHT_BILL":
-            return {
-                maxLength: 15,
-                placeholder: "Enter light bill number",
-                inputMode: "numeric",
-            };
+        setFile(file);
+    };
 
-        default:
-            return {
-                maxLength: 50,
-                placeholder: "Select proof type first",
-                inputMode: "text",
-            };
-    }
-};
-
-const validateDocumentNumber = (type, number) => {
-    switch (type) {
-        case "AADHAAR":
-            return /^\d{12}$/.test(number);
-
-        case "PAN":
-            return /^[A-Z]{5}[0-9]{4}[A-Z]$/.test(number);
-
-        case "LIGHT_BILL":
-            return /^\d{6,15}$/.test(number);
-
-        default:
-            return false;
-    }
-};
-    const handleSubmit = async (e) => {
+    const handleSubmit = (e) => {
         e.preventDefault();
 
         if (!idProofFile || !addressProofFile) {
-            showNotification(
-                "Please select both documents",
-                "error"
-            );
+            showNotification("Please select both documents", "error");
             return;
         }
 
         if (!idProofType || !idProofNumber) {
-            showNotification(
-                "Please enter ID proof details",
-                "error"
-            );
+            showNotification("Please enter ID proof details", "error");
             return;
         }
 
         if (!validateDocumentNumber(idProofType, idProofNumber)) {
-                showNotification(
-                    idProofType === "AADHAAR"
-                        ? "Aadhaar number must contain exactly 12 digits"
-                        : "PAN must be in format ABCDE1234F",
-                    "error"
-                );
-                return;
-            }
-
-        if (!addressProofType || !addressProofNumber) {
             showNotification(
-                "Please enter address proof details",
+                idProofType === "AADHAAR"
+                    ? "Aadhaar number must contain exactly 12 digits"
+                    : "PAN must be in format ABCDE1234F",
                 "error"
             );
             return;
         }
-        if (!validateDocumentNumber(
-            addressProofType,
-            addressProofNumber
-        )) {
+
+        if (!addressProofType || !addressProofNumber) {
+            showNotification("Please enter address proof details", "error");
+            return;
+        }
+
+        if (!validateDocumentNumber(addressProofType, addressProofNumber)) {
             showNotification(
                 addressProofType === "AADHAAR"
                     ? "Aadhaar number must contain exactly 12 digits"
@@ -116,92 +135,68 @@ const validateDocumentNumber = (type, number) => {
             return;
         }
 
-
-        try {
-            // ================= ID PROOF =================
-
-            const idResponse =
-                await getEmployeeDocumentUploadUrl(
+        run(async () => {
+            try {
+                // ================= ID PROOF =================
+                const idResponse = await getEmployeeDocumentUploadUrl(
                     employee.id,
                     "ID_PROOF"
                 );
 
-            const idUploadUrl =
-                idResponse.data.uploadUrl;
+                await uploadDocumentDirectlyToMinio(
+                    idResponse.data.uploadUrl,
+                    idProofFile
+                );
 
-            const idObjectKey =
-                idResponse.data.objectKey;
-
-            await uploadDocumentDirectlyToMinio(
-                idUploadUrl,
-                idProofFile
-            );
-
-            // ================= ADDRESS PROOF =================
-
-            const addressResponse =
-                await getEmployeeDocumentUploadUrl(
+                // ================= ADDRESS PROOF =================
+                const addressResponse = await getEmployeeDocumentUploadUrl(
                     employee.id,
                     "ADDRESS_PROOF"
                 );
 
-            const addressUploadUrl =
-                addressResponse.data.uploadUrl;
+                await uploadDocumentDirectlyToMinio(
+                    addressResponse.data.uploadUrl,
+                    addressProofFile
+                );
 
-            const addressObjectKey =
-                addressResponse.data.objectKey;
-
-            await uploadDocumentDirectlyToMinio(
-                addressUploadUrl,
-                addressProofFile
-            );
-
-            // ================= SAVE DOCUMENT DETAILS =================
-
-            await saveEmployeeDocuments(
-                employee.id,
-                {
+                // ================= SAVE DOCUMENT DETAILS =================
+                await saveEmployeeDocuments(employee.id, {
                     idProofType,
                     idProofNumber,
-                    idProofObjectKey: idObjectKey,
+                    idProofObjectKey: idResponse.data.objectKey,
 
                     addressProofType,
                     addressProofNumber,
-                    addressProofObjectKey: addressObjectKey
+                    addressProofObjectKey: addressResponse.data.objectKey
+                });
+
+                // ================= SUCCESS =================
+                showNotification(
+                    "Documents uploaded successfully. Waiting for verification.",
+                    "success"
+                );
+
+                setDocumentsSubmitted(true);
+
+                // Tell Dashboard that upload is completed
+                if (onUploadComplete) {
+                    onUploadComplete();
                 }
-            );
+            } catch (error) {
+                const data = error.response?.data;
 
-            // ================= SUCCESS =================
-
-            showNotification(
-                "Documents uploaded successfully. Waiting for verification.",
-                "success"
-            );
-
-            setDocumentsSubmitted(true);
-
-            // Tell Dashboard that upload is completed
-            if (onUploadComplete) {
-                onUploadComplete();
+                showNotification(
+                    data?.error ||
+                    data?.message ||
+                    (typeof data === "string" ? data : null) ||
+                    "Unable to submit documents",
+                    "error"
+                );
             }
-
-        } catch (error) {
-            console.error(
-                "Document submission error:",
-                error
-            );
-
-            showNotification(
-                error.response?.data?.message ||
-                error.response?.data ||
-                "Unable to submit documents",
-                "error"
-            );
-        }
+        });
     };
 
     // ================= DOCUMENTS SUBMITTED =================
-
     if (documentsSubmitted) {
         return (
             <div className="document-upload-status">
@@ -211,21 +206,27 @@ const validateDocumentNumber = (type, number) => {
         );
     }
 
-    // ================= UPLOAD FORM =================
+    const idConfig = getDocumentNumberConfig(idProofType);
+    const addressConfig = getDocumentNumberConfig(addressProofType);
 
+    // ================= UPLOAD FORM =================
     return (
         <div className="content-card employee-document-upload">
             <h2>Upload Required Documents</h2>
 
             <form onSubmit={handleSubmit}>
                 <div className="document-upload-grid">
+
+                    {/* ---------- ID PROOF ---------- */}
                     <div className="document-card">
                         <h3>ID Proof</h3>
 
                         <div className="document-form-group">
-                            <label>Proof Type</label>
+                            <label htmlFor="id-proof-type">Proof Type</label>
                             <select
+                                id="id-proof-type"
                                 value={idProofType}
+                                disabled={loading}
                                 onChange={(e) => {
                                     setIdProofType(e.target.value);
                                     setIdProofNumber("");
@@ -238,13 +239,15 @@ const validateDocumentNumber = (type, number) => {
                         </div>
 
                         <div className="document-form-group">
-                            <label>Document Number</label>
+                            <label htmlFor="id-proof-number">Document Number</label>
                             <input
+                                id="id-proof-number"
                                 type="text"
                                 value={idProofNumber}
-                                maxLength={getDocumentNumberConfig(idProofType).maxLength}
-                                inputMode={getDocumentNumberConfig(idProofType).inputMode}
-                                placeholder={getDocumentNumberConfig(idProofType).placeholder}
+                                maxLength={idConfig.maxLength}
+                                inputMode={idConfig.inputMode}
+                                placeholder={idConfig.placeholder}
+                                autoComplete="off"
                                 onChange={(e) => {
                                     let value = e.target.value;
 
@@ -260,27 +263,32 @@ const validateDocumentNumber = (type, number) => {
 
                                     setIdProofNumber(value);
                                 }}
-                                disabled={!idProofType}
+                                disabled={!idProofType || loading}
                             />
                         </div>
 
                         <div className="document-form-group">
-                            <label>Upload ID Proof</label>
+                            <label htmlFor="id-proof-file">Upload ID Proof</label>
                             <input
+                                id="id-proof-file"
                                 type="file"
-                                accept=".pdf,image/*"
-                                onChange={(e) => setIdProofFile(e.target.files[0])}
+                                accept=".pdf,.jpg,.jpeg,.png"
+                                disabled={loading}
+                                onChange={(e) => handleFileChange(e, setIdProofFile)}
                             />
                         </div>
                     </div>
 
+                    {/* ---------- ADDRESS PROOF ---------- */}
                     <div className="document-card">
                         <h3>Address Proof</h3>
 
                         <div className="document-form-group">
-                            <label>Proof Type</label>
+                            <label htmlFor="address-proof-type">Proof Type</label>
                             <select
+                                id="address-proof-type"
                                 value={addressProofType}
+                                disabled={loading}
                                 onChange={(e) => {
                                     setAddressProofType(e.target.value);
                                     setAddressProofNumber("");
@@ -293,36 +301,32 @@ const validateDocumentNumber = (type, number) => {
                         </div>
 
                         <div className="document-form-group">
-                            <label>Document Number</label>
+                            <label htmlFor="address-proof-number">Document Number</label>
                             <input
+                                id="address-proof-number"
                                 type="text"
                                 value={addressProofNumber}
-                                maxLength={getDocumentNumberConfig(addressProofType).maxLength}
-                                inputMode={getDocumentNumberConfig(addressProofType).inputMode}
-                                placeholder={getDocumentNumberConfig(addressProofType).placeholder}
-                                onChange={(e) => {
-                                    let value = e.target.value;
-
-                                    if (addressProofType === "AADHAAR") {
-                                        value = value.replace(/\D/g, "");
-                                    }
-
-                                    if (addressProofType === "LIGHT_BILL") {
-                                        value = value.replace(/\D/g, "");
-                                    }
-
-                                    setAddressProofNumber(value);
-                                }}
-                                disabled={!addressProofType}
+                                maxLength={addressConfig.maxLength}
+                                inputMode={addressConfig.inputMode}
+                                placeholder={addressConfig.placeholder}
+                                autoComplete="off"
+                                onChange={(e) =>
+                                    setAddressProofNumber(
+                                        e.target.value.replace(/\D/g, "")
+                                    )
+                                }
+                                disabled={!addressProofType || loading}
                             />
                         </div>
 
                         <div className="document-form-group">
-                            <label>Upload Address Proof</label>
+                            <label htmlFor="address-proof-file">Upload Address Proof</label>
                             <input
+                                id="address-proof-file"
                                 type="file"
-                                accept=".pdf,image/*"
-                                onChange={(e) => setAddressProofFile(e.target.files[0])}
+                                accept=".pdf,.jpg,.jpeg,.png"
+                                disabled={loading}
+                                onChange={(e) => handleFileChange(e, setAddressProofFile)}
                             />
                         </div>
                     </div>
@@ -331,8 +335,9 @@ const validateDocumentNumber = (type, number) => {
                 <button
                     type="submit"
                     className="primary-btn document-submit-btn"
+                    disabled={loading}
                 >
-                    Submit Documents
+                    {loading ? "Uploading..." : "Submit"}
                 </button>
             </form>
         </div>
