@@ -5504,7 +5504,7 @@ body {
 }
 
 /* Pagination ships with its own width/padding/border.
-   Neutralise them here so it sits in the same row as the dropdown. */
+   Neutralise them so it sits in the same row as the dropdown. */
 .table-footer-controls .hr-pagination {
     width: auto;
     padding: 0;
@@ -5525,11 +5525,84 @@ body {
     padding: 4px 8px;
 }
 
-/* Small screens: let them stack */
-@media (max-width: 600px) {
+/* ===== MOBILE ===== */
+@media (max-width: 768px) {
+
+    /* Footer: text on top, controls full width below */
+    .employee-table-footer,
+    .attendance-page .attendance-table-footer {
+        align-items: stretch;
+        gap: 12px;
+    }
+
     .table-footer-controls {
-        flex-wrap: wrap;
+        width: 100%;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+
+    /* "Rows per page" label left, dropdown right */
+    .page-size-select {
+        width: 100%;
+        justify-content: space-between;
+        font-size: 13px;
+    }
+
+    .page-size-select .filter-control {
+        min-width: 84px;
+        min-height: 40px;
+        font-size: 16px;   /* below 16px, iPhone zooms the page on focus */
+    }
+
+    /* Pagination: Previous | pages | Next across the full width */
+    .table-footer-controls .hr-pagination {
+        width: 100%;
+        justify-content: space-between;
+        gap: 8px;
+    }
+
+    .table-footer-controls .hr-pagination button {
+        height: 40px;      /* easier to tap */
+    }
+
+    /* Many pages: scroll sideways instead of overflowing the screen */
+    .table-footer-controls .hr-pagination-pages {
+        flex: 1;
+        min-width: 0;
         justify-content: flex-start;
+        overflow-x: auto;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .table-footer-controls .hr-pagination-pages::-webkit-scrollbar {
+        display: none;
+    }
+
+    .table-footer-controls .hr-pagination-pages button {
+        flex-shrink: 0;
+    }
+
+    /* Centered when it fits, starts at the left when it scrolls */
+    .table-footer-controls .hr-pagination-pages > :first-child {
+        margin-left: auto;
+    }
+
+    .table-footer-controls .hr-pagination-pages > :last-child {
+        margin-right: auto;
+    }
+}
+
+/* Small phones: shorter Previous / Next so the pages get more room */
+@media (max-width: 480px) {
+    .table-footer-controls .hr-pagination-btn {
+        min-width: 56px !important;
+        padding: 0 8px !important;
+    }
+
+    .table-footer-controls .hr-pagination-page {
+        min-width: 38px !important;
     }
 }
 
