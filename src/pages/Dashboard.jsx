@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Outlet } from "react-router-dom";
 import {
     getAllEmployees,
-    getAllAdmins,
     getAdminProfile,
     updateEmployee,
     activateEmployee,
@@ -17,6 +16,20 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import Notification from "../components/Notification";
 import AdminSidebar from "../components/AdminSidebar";
+import { dateToMillis, dateToEndMillis } from "../utils/dateUtils";
+
+// Backend can send {error}, {message}, a plain string or a field map.
+// Always return a string so the toast never receives an object.
+const getErrorMessage = (error, fallback) => {
+    const data = error.response?.data;
+
+    return (
+        data?.error ||
+        data?.message ||
+        (typeof data === "string" ? data : null) ||
+        fallback
+    );
+};
 
 function Dashboard() {
     const role = readStorageItem("role");
@@ -24,7 +37,7 @@ function Dashboard() {
 
     const [employee, setEmployee] = useState(() => readStorageJson("employee"));
     const [employees, setEmployees] = useState([]);
-    const [admins, setAdmins] = useState([]);
+    
     const [adminProfile, setAdminProfile] = useState(null);
 
     // Employee modal
@@ -32,8 +45,13 @@ function Dashboard() {
     const [selectedEmployee, setSelectedEmployee] = useState(null);
     const [employeeModalMode, setEmployeeModalMode] = useState("view");
 
-    // Employee search
+    // Employee filters
     const [employeeSearchTerm, setEmployeeSearchTerm] = useState("");
+    const [employeeStatusFilter, setEmployeeStatusFilter] = useState("");
+    const [employeeFromDate, setEmployeeFromDate] = useState("");
+    const [employeeToDate, setEmployeeToDate] = useState("");
+
+    const [employeePageSize, setEmployeePageSize] = useState(10);
 
     // Trimmed, so "abc" and "abc " don't cause two requests
     const debouncedEmployeeSearchTerm = useDebounce(
@@ -43,28 +61,58 @@ function Dashboard() {
 
     // Loading states
     const [loadingEmployees, setLoadingEmployees] = useState(false);
-    const [loadingAdmins, setLoadingAdmins] = useState(false);
+    
     const [loadingProfile, setLoadingProfile] = useState(false);
     const [requestingDocuments, setRequestingDocuments] = useState(false);
 
     // Employee pagination
     const [employeeCurrentPage, setEmployeeCurrentPage] = useState(1);
     const [employeeTotalPages, setEmployeeTotalPages] = useState(0);
-    const [employeeTotalElements, setEmployeeTotalElements] = useState(0); // matches for current search
+    const [employeeTotalElements, setEmployeeTotalElements] = useState(0); // matches for current filters
     const [totalEmployees, setTotalEmployees] = useState(0);               // unfiltered total (page header)
     const [employeeRefreshKey, setEmployeeRefreshKey] = useState(0);
 
-    // Reset to page 1 when the search changes.
-    // Done during render (not in a second effect) so no wasted
-    // request is fired for the old page number.
-    const [lastEmployeeSearch, setLastEmployeeSearch] = useState(
-        debouncedEmployeeSearchTerm
-    );
+    // One key for every employee filter. Any change -> back to page 1.
+    // Done during render (not in a second effect) to avoid a wasted request
+    // for the old page number.
+    const employeeFilterKey = [
+        debouncedEmployeeSearchTerm,
+        employeeStatusFilter,
+        employeeFromDate,
+        employeeToDate,
+        employeePageSize
+    ].join("|");
 
-    if (lastEmployeeSearch !== debouncedEmployeeSearchTerm) {
-        setLastEmployeeSearch(debouncedEmployeeSearchTerm);
+    const [lastEmployeeFilterKey, setLastEmployeeFilterKey] =
+        useState(employeeFilterKey);
+
+    if (lastEmployeeFilterKey !== employeeFilterKey) {
+        setLastEmployeeFilterKey(employeeFilterKey);
         setEmployeeCurrentPage(1);
     }
+
+    // Values sent to the API (null when the date is empty)
+    const employeeFromMillis = dateToMillis(employeeFromDate);
+    const employeeToMillis = dateToEndMillis(employeeToDate);
+
+    // "YYYY-MM-DD" strings compare correctly as text
+    const employeeRangeInvalid =
+        Boolean(employeeFromDate && employeeToDate) &&
+        employeeFromDate > employeeToDate;
+
+    const hasEmployeeFilters = Boolean(
+        debouncedEmployeeSearchTerm ||
+        employeeStatusFilter ||
+        employeeFromDate ||
+        employeeToDate
+    );
+
+    const handleClearEmployeeFilters = () => {
+        setEmployeeSearchTerm("");
+        setEmployeeStatusFilter("");
+        setEmployeeFromDate("");
+        setEmployeeToDate("");
+    };
 
     // Notification
     const [notification, setNotification] = useState({
@@ -104,9 +152,15 @@ function Dashboard() {
         setEmployeeRefreshKey((key) => key + 1);
     };
 
-    // Admin employee list: debounced search + pagination
+    // Admin employee list: debounced search + filters + pagination
     useEffect(() => {
+        // Not an admin, or start date is after end date -> do not call the API
         if (role !== "ADMIN") {
+            return;
+        }
+
+        if (employeeRangeInvalid) {
+            setLoadingEmployees(false);   // otherwise the loader can stay stuck
             return;
         }
 
@@ -118,8 +172,11 @@ function Dashboard() {
 
                 const { data } = await getAllEmployees({
                     search: debouncedEmployeeSearchTerm,
+                    status: employeeStatusFilter,
+                    from: employeeFromMillis,
+                    to: employeeToMillis,
                     page: employeeCurrentPage - 1,
-                    size: 10,
+                    size: employeePageSize,
                     signal: controller.signal
                 });
 
@@ -136,8 +193,8 @@ function Dashboard() {
                 setEmployeeTotalElements(data.totalElements);
                 setEmployeeTotalPages(data.totalPages);
 
-                // Unfiltered total is only known when nothing is searched
-                if (!debouncedEmployeeSearchTerm) {
+                // Unfiltered total is only known when nothing is filtered
+                if (!hasEmployeeFilters) {
                     setTotalEmployees(data.totalElements);
                 }
             } catch (error) {
@@ -149,9 +206,7 @@ function Dashboard() {
                 console.error("Fetch employees error:", error);
 
                 showNotification(
-                    error.response?.data?.message ||
-                    error.response?.data ||
-                    "Unable to fetch employees",
+                    getErrorMessage(error, "Unable to fetch employees"),
                     "error"
                 );
             } finally {
@@ -169,31 +224,16 @@ function Dashboard() {
     }, [
         role,
         debouncedEmployeeSearchTerm,
+        employeeStatusFilter,
+        employeeFromMillis,
+        employeeToMillis,
+        employeeRangeInvalid,
+        employeePageSize,
         employeeCurrentPage,
         employeeRefreshKey
     ]);
 
-    // Admin list
-    const handleGetAllAdmins = async () => {
-        try {
-            setLoadingAdmins(true);
 
-            const response = await getAllAdmins(email);
-
-            setAdmins(response.data);
-        } catch (error) {
-            console.error("Fetch admins error:", error);
-
-            showNotification(
-                error.response?.data?.message ||
-                error.response?.data ||
-                "Unable to fetch admins",
-                "error"
-            );
-        } finally {
-            setLoadingAdmins(false);
-        }
-    };
 
     // Admin profile
     const handleGetAdminProfile = async () => {
@@ -207,9 +247,7 @@ function Dashboard() {
             console.error("Fetch admin profile error:", error);
 
             showNotification(
-                error.response?.data?.message ||
-                error.response?.data ||
-                "Unable to fetch admin profile",
+                getErrorMessage(error, "Unable to fetch admin profile"),
                 "error"
             );
         } finally {
@@ -243,8 +281,7 @@ function Dashboard() {
             console.error("Unable to load employee details:", error);
 
             showNotification(
-                error.response?.data?.message ||
-                "Unable to load employee details",
+                getErrorMessage(error, "Unable to load employee details"),
                 "error"
             );
         }
@@ -262,8 +299,7 @@ function Dashboard() {
             console.error("Unable to load employee details:", error);
 
             showNotification(
-                error.response?.data?.message ||
-                "Unable to load employee details",
+                getErrorMessage(error, "Unable to load employee details"),
                 "error"
             );
         }
@@ -333,10 +369,10 @@ function Dashboard() {
             console.error("Update own profile error:", error);
 
             showNotification(
-                error.response?.data?.error ||
-                error.response?.data?.message ||
-                error.message ||
-                "Unable to update profile",
+                getErrorMessage(
+                    error,
+                    error.message || "Unable to update profile"
+                ),
                 "error"
             );
 
@@ -382,9 +418,7 @@ function Dashboard() {
             console.error("Save employee error:", error);
 
             showNotification(
-                error.response?.data?.error ||
-                error.response?.data?.message ||
-                "Unable to update employee",
+                getErrorMessage(error, "Unable to update employee"),
                 "error"
             );
 
@@ -418,9 +452,7 @@ function Dashboard() {
             console.error("Activate employee error:", error);
 
             showNotification(
-                error.response?.data?.message ||
-                error.response?.data ||
-                "Unable to activate employee",
+                getErrorMessage(error, "Unable to activate employee"),
                 "error"
             );
 
@@ -443,8 +475,10 @@ function Dashboard() {
             console.error("Failed to request documents:", error);
 
             showNotification(
-                error.response?.data?.error ||
-                "Failed to request documents and send email.",
+                getErrorMessage(
+                    error,
+                    "Failed to request documents and send email."
+                ),
                 "error"
             );
         } finally {
@@ -508,11 +542,21 @@ function Dashboard() {
         loadingEmployees,
         employeeSearchTerm,
         setEmployeeSearchTerm,
+        employeeStatusFilter,
+        setEmployeeStatusFilter,
+        employeeFromDate,
+        setEmployeeFromDate,
+        employeeToDate,
+        setEmployeeToDate,
+        hasEmployeeFilters,
+        handleClearEmployeeFilters,
         employeeCurrentPage,
         employeeTotalPages,
         setEmployeeCurrentPage,
-        admins,
-        loadingAdmins,
+        
+        employeePageSize,
+        setEmployeePageSize,
+
         adminProfile,
         loadingProfile,
         requestingDocuments,
@@ -520,7 +564,6 @@ function Dashboard() {
         handleSaveOwnProfile,
         refreshAdminProfile,
         handleGetAllEmployees,
-        handleGetAllAdmins,
         handleViewEmployee,
         handleEditEmployee,
         handleCloseEmployeeModal,

@@ -5,6 +5,7 @@ import {
     useState
 } from "react";
 import { formatDate } from "../../utils/dateUtils";
+import { formatPhoneNumber } from "../../utils/phoneFormatter";
 
 
 const EmployeeIdCard = forwardRef(function EmployeeIdCard(
@@ -267,7 +268,7 @@ const EmployeeIdCard = forwardRef(function EmployeeIdCard(
                         </span>
 
                         <span style={styles.detailValue}>
-                            {employee.mobile || "-"}
+                            {formatPhoneNumber(employee.mobile) || "-"}
                         </span>
                     </div>
 

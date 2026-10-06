@@ -8,6 +8,7 @@ import { FiEdit2, FiEye } from "react-icons/fi";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import { formatDate } from "../../utils/dateUtils";
+import { formatPhoneNumber } from "../../utils/phoneFormatter";
 
 
 function Profile({ role, employee, adminProfile, loadingProfile, handleSaveOwnProfile, refreshAdminProfile }) {
@@ -459,7 +460,7 @@ function Profile({ role, employee, adminProfile, loadingProfile, handleSaveOwnPr
                             {isEditingDetails ? (
                                 <input type="text" value={editedMobile} onChange={(event) => setEditedMobile(event.target.value)} placeholder="Mobile Number" maxLength="10" required />
                             ) : (
-                                <strong>{profile.mobile || "-"}</strong>
+                                <strong>{formatPhoneNumber(profile.mobile) || "-"}</strong>
                             )}
                         </div>
 

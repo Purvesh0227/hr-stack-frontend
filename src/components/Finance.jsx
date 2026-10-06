@@ -6,13 +6,18 @@ import {
     generateSalary,
     replaceSalarySlip,
     getTempUploadUrl,
-    uploadFileDirectlyToMinio
+    uploadFileDirectlyToMinio,
+    isRequestCancelled
 } from "../services/api";
 import {
     getMonthName,
-    formatCurrency,
-    sortSlipsNewestFirst
+    formatCurrency
 } from "../utils/salaryUtils";
+import { getErrorMessage } from "../utils/errorUtils";
+import useDebounce from "../hooks/useDebounce";
+import TableFilters from "./dashboard/TableFilters";
+import Pagination from "./Pagination";
+import PageSizeSelect from "./PageSizeSelect";
 import { useNotification } from "../contexts/NotificationContext";
 import "../styles/finance.css";
 
@@ -30,12 +35,55 @@ const EMPTY_GENERATE_FORM = {
     year: ""
 };
 
+const CURRENT_YEAR = new Date().getFullYear();
+
+const YEAR_OPTIONS = Array.from(
+    { length: CURRENT_YEAR - 2019 },
+    (_, index) => CURRENT_YEAR - index
+);
+
 function Finance({ role }) {
     const { showNotification } = useNotification();
 
     const [salarySlips, setSalarySlips] = useState([]);
-    const [showMySalary, setShowMySalary] = useState(false);
-    const [loading, setLoading] = useState(false);
+    const [scope, setScope] = useState(role === "ADMIN" ? "ALL" : "MY");
+const showMySalary = scope === "MY";
+const [loading, setLoading] = useState(true);
+
+// Filters + pagination
+const [searchTerm, setSearchTerm] = useState("");
+const [monthFilter, setMonthFilter] = useState("");
+const [yearFilter, setYearFilter] = useState("");
+const [currentPage, setCurrentPage] = useState(1);
+const [pageSize, setPageSize] = useState(10);
+const [totalPages, setTotalPages] = useState(0);
+const [totalElements, setTotalElements] = useState(0);
+const [refreshKey, setRefreshKey] = useState(0);
+
+const debouncedSearch = useDebounce(searchTerm.trim(), 400);
+
+// Any filter / scope / page-size change -> back to page 1 (no wasted request)
+const slipFilterKey =
+    `${scope}|${debouncedSearch}|${monthFilter}|${yearFilter}|${pageSize}`;
+const [lastSlipFilterKey, setLastSlipFilterKey] = useState(slipFilterKey);
+
+useEffect(() => {
+    if (lastSlipFilterKey !== slipFilterKey) {
+        setLastSlipFilterKey(slipFilterKey);
+        setCurrentPage(1);
+    }
+}, [lastSlipFilterKey, slipFilterKey]);
+
+    // Search only applies to the admin "All" view
+    const hasActiveFilters = Boolean(
+        (!showMySalary && searchTerm.trim()) || monthFilter || yearFilter
+    );
+
+    const clearFilters = () => {
+        setSearchTerm("");
+        setMonthFilter("");
+        setYearFilter("");
+    };
 
     const [selectedSlip, setSelectedSlip] = useState(null);
     const [downloadingId, setDownloadingId] = useState(null);
@@ -57,35 +105,71 @@ function Finance({ role }) {
        LOAD SALARY SLIPS
        ========================================= */
 
-    const loadSalarySlips = async (scope) => {
+// Re-runs the fetch effect. Pass a scope to switch between All / My.
+// Existing callers (buttons, after generate / replace) keep working unchanged.
+const loadSalarySlips = (nextScope) => {
+    if (nextScope) {
+        setScope(nextScope);
+    }
+    setRefreshKey((key) => key + 1);
+};
+
+useEffect(() => {
+    const controller = new AbortController();
+
+    const fetchSalarySlips = async () => {
         try {
             setLoading(true);
 
-            const response = await viewSalarySlips(scope);
+            const { data } = await viewSalarySlips({
+                scope,
+                search: scope === "ALL" ? debouncedSearch : "",
+                month: monthFilter || undefined,
+                year: yearFilter || undefined,
+                page: currentPage - 1,
+                size: pageSize,
+                signal: controller.signal
+            });
 
-            setSalarySlips(
-                sortSlipsNewestFirst(response.data)
-            );
+            // Current page no longer exists
+            if (data.totalPages > 0 && currentPage > data.totalPages) {
+                setCurrentPage(data.totalPages);
+                return;
+            }
 
-            setShowMySalary(scope === "MY");
+            setSalarySlips(data.content);
+            setTotalElements(data.totalElements);
+            setTotalPages(data.totalPages);
         } catch (error) {
+            if (isRequestCancelled(error)) {
+                return;
+            }
+
             showNotification(
-                error.response?.data?.error ||
-                    "Unable to fetch salary slips",
+                getErrorMessage(error, "Unable to fetch salary slips"),
                 "error"
             );
         } finally {
-            setLoading(false);
+            if (!controller.signal.aborted) {
+                setLoading(false);
+            }
         }
     };
 
-    useEffect(() => {
-        if (role === "ADMIN") {
-            loadSalarySlips("ALL");
-        } else {
-            loadSalarySlips("MY");
-        }
-    }, [role]);
+    fetchSalarySlips();
+
+    // Cancels the stale request on every change / unmount
+    return () => controller.abort();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+}, [
+    scope,
+    debouncedSearch,
+    monthFilter,
+    yearFilter,
+    pageSize,
+    currentPage,
+    refreshKey
+]);
 
     /* =========================================
        SALARY VIEW ACTIONS
@@ -447,10 +531,8 @@ function Finance({ role }) {
                         </h2>
 
                         <p>
-                            {salarySlips.length} salary{" "}
-                            {salarySlips.length === 1
-                                ? "slip"
-                                : "slips"}
+                            {totalElements} salary{" "}
+                            {totalElements === 1 ? "slip" : "slips"}
                         </p>
                     </div>
 
@@ -497,115 +579,131 @@ function Finance({ role }) {
                             </p>
                         </div>
                     </div>
+                    <div className="finance-table-filters">
+                        <TableFilters
+                            showSearch={!showMySalary}
+                            searchValue={searchTerm}
+                            onSearchChange={setSearchTerm}
+                            searchPlaceholder="Search by ID, name or email..."
+                            showMonthYear
+                            monthValue={monthFilter}
+                            onMonthChange={setMonthFilter}
+                            yearValue={yearFilter}
+                            onYearChange={setYearFilter}
+                            yearOptions={YEAR_OPTIONS}
+                            hasActiveFilters={hasActiveFilters}
+                            onClear={clearFilters}
+                        />
+                    </div>
 
-                    {loading ? (
+                    {loading && salarySlips.length === 0 ? (
                         <div className="finance-empty-state">
                             <span className="finance-loading-spinner" />
                             <p>Loading salary slips...</p>
                         </div>
                     ) : salarySlips.length === 0 ? (
                         <div className="finance-empty-state">
-                            <p>No salary slips found.</p>
+                            <p>
+                                {hasActiveFilters
+                                    ? "No salary slips match the selected filters."
+                                    : "No salary slips found."}
+                            </p>
                         </div>
                     ) : (
-                        <div className="finance-table-wrapper">
-                            <table className="employee-table">
-                                <thead>
-                                    <tr>
-                                        <th>Employee ID</th>
-                                        <th>Month</th>
-                                        <th>Year</th>
-                                        <th>Net Salary</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-
-                                <tbody>
-                                    {salarySlips.map((slip) => (
-                                        <tr key={slip.id}>
-                                            <td>
-                                                <strong>
-                                                    {slip.empId}
-                                                </strong>
-                                            </td>
-
-                                            <td>
-                                                {getMonthName(
-                                                    slip.month
-                                                )}
-                                            </td>
-
-                                            <td>
-                                                {slip.year}
-                                            </td>
-
-                                            <td>
-                                                <strong className="finance-net-value">
-                                                    {formatCurrency(
-                                                        slip.netSalary
-                                                    )}
-                                                </strong>
-                                            </td>
-
-                                            <td>
-                                                <div className="finance-actions-cell">
-
-                                                    <button
-                                                        className="secondary-btn finance-table-btn"
-                                                        onClick={() =>
-                                                            handleView(
-                                                                slip
-                                                            )
-                                                        }
-                                                    >
-                                                        View
-                                                    </button>
-
-                                                    <button
-                                                        className="primary-btn finance-table-btn"
-                                                        onClick={() =>
-                                                            handleDownload(
-                                                                slip
-                                                            )
-                                                        }
-                                                        disabled={
-                                                            downloadingId ===
-                                                            slip.id
-                                                        }
-                                                    >
-                                                        {downloadingId ===
-                                                        slip.id
-                                                            ? "Downloading..."
-                                                            : "Download"}
-                                                    </button>
-
-                                                    {role === "ADMIN" && slip.replaceAllowed && (
-                                                        <button
-                                                            className="replace-btn finance-table-btn"
-                                                            onClick={() =>
-                                                                handleReplace(
-                                                                    slip
-                                                                )
-                                                            }
-                                                            disabled={
-                                                                replacingId ===
-                                                                slip.id
-                                                            }
-                                                        >
-                                                            {replacingId ===
-                                                            slip.id
-                                                                ? "Replacing..."
-                                                                : "Replace"}
-                                                        </button>
-                                                    )}
-
-                                                </div>
-                                            </td>
+                        <>
+                            <div
+                                className="finance-table-wrapper"
+                                style={{
+                                    opacity: loading ? 0.6 : 1,
+                                    transition: "opacity .15s"
+                                }}
+                            >
+                                <table className="employee-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Employee ID</th>
+                                            <th>Month</th>
+                                            <th>Year</th>
+                                            <th>Net Salary</th>
+                                            <th>Actions</th>
                                         </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
+                                    </thead>
+
+                                    <tbody>
+                                        {salarySlips.map((slip) => (
+                                            <tr key={slip.id}>
+                                                <td>
+                                                    <strong>{slip.empId}</strong>
+                                                </td>
+
+                                                <td>{getMonthName(slip.month)}</td>
+
+                                                <td>{slip.year}</td>
+
+                                                <td>
+                                                    <strong className="finance-net-value">
+                                                        {formatCurrency(slip.netSalary)}
+                                                    </strong>
+                                                </td>
+
+                                                <td>
+                                                    <div className="finance-actions-cell">
+                                                        <button
+                                                            className="secondary-btn finance-table-btn"
+                                                            onClick={() => handleView(slip)}
+                                                        >
+                                                            View
+                                                        </button>
+
+                                                        <button
+                                                            className="primary-btn finance-table-btn"
+                                                            onClick={() => handleDownload(slip)}
+                                                            disabled={downloadingId === slip.id}
+                                                        >
+                                                            {downloadingId === slip.id
+                                                                ? "Downloading..."
+                                                                : "Download"}
+                                                        </button>
+
+                                                        {role === "ADMIN" && slip.replaceAllowed && (
+                                                            <button
+                                                                className="replace-btn finance-table-btn"
+                                                                onClick={() => handleReplace(slip)}
+                                                                disabled={replacingId === slip.id}
+                                                            >
+                                                                {replacingId === slip.id
+                                                                    ? "Replacing..."
+                                                                    : "Replace"}
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div className="employee-table-footer">
+                                <span>
+                                    Showing <strong>{salarySlips.length}</strong> of{" "}
+                                    <strong>{totalElements}</strong> salary slips
+                                </span>
+
+                                <div className="table-footer-controls">
+                                    <PageSizeSelect
+                                        value={pageSize}
+                                        onChange={setPageSize}
+                                    />
+
+                                    <Pagination
+                                        currentPage={currentPage}
+                                        totalPages={totalPages}
+                                        onPageChange={setCurrentPage}
+                                    />
+                                </div>
+                            </div>
+                        </>
                     )}
                 </div>
             </div>

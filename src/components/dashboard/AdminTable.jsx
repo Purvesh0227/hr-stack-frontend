@@ -1,16 +1,16 @@
 import { formatDate } from "../../utils/dateUtils";
+import {formatPhoneNumber} from "../../utils/phoneFormatter";
 
-function AdminTable({ admins, loadingAdmins }) {
-    if (loadingAdmins) {
-        return null;
-    }
-
-    if (admins.length === 0) {
-        return null;
-    }
-
+// Rows only. Loading, empty state and pagination live in Admins.jsx
+function AdminTable({ admins, dimmed = false }) {
     return (
-        <div className="employee-table-wrapper">
+        <div
+            className="employee-table-wrapper"
+            style={{
+                opacity: dimmed ? 0.6 : 1,
+                transition: "opacity .15s"
+            }}
+        >
             <table className="employee-table">
                 <thead>
                     <tr>
@@ -34,7 +34,7 @@ function AdminTable({ admins, loadingAdmins }) {
 
                             <td>{admin.email}</td>
 
-                            <td>{admin.mobile}</td>
+                            <td>{formatPhoneNumber(admin.mobile)}</td>
 
                             <td>{formatDate(admin.createdOn)}</td>
 
