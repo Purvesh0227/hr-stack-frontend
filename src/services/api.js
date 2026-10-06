@@ -84,16 +84,30 @@ export const registerEmployee = (employeeData) => API.post("/register", employee
 export const createAdmin = (adminData) =>  API.post("/createAdmin", adminData);
 
 // Get All Admins
-export const getAllAdmins = (email) => API.get("/allAdmins", { params: { email } });
+// Get All Admins (server-side search + joining date range + pagination)
+export const getAllAdmins = ({
+    search = "",
+    from,
+    to,
+    page = 0,
+    size = 10,
+    signal
+} = {}) =>
+    API.get("/allAdmins", {
+        params: { search, from, to, page, size },
+        signal
+    });
 
 // Get Admin Profile
 export const getAdminProfile = (email) =>
     API.get("/adminProfile", { params: { email } });
 
-// Get All Employees (server-side search + pagination)
-// page is 0-based. Pass an AbortController signal to cancel stale requests.
+
 export const getAllEmployees = ({
     search = "",
+    status = "",
+    from,
+    to,
     page = 0,
     size = 10,
     signal
@@ -101,6 +115,9 @@ export const getAllEmployees = ({
     API.get("/allEmployees", {
         params: {
             search,
+            status: status || undefined,   
+            from,
+            to,
             page,
             size
         },
@@ -196,8 +213,21 @@ export const generateSalary = (empId, month, year) =>
     });
 
 // View salary slips - scope: "MY" or "ALL"
-export const viewSalarySlips = (scope) =>
-    API.get("/salary/view", { params: { scope } });
+// View salary slips (server-side search + month/year + pagination)
+// scope: "MY" or "ALL". month 1-12 and year are optional.
+export const viewSalarySlips = ({
+    scope = "MY",
+    search = "",
+    month,
+    year,
+    page = 0,
+    size = 10,
+    signal
+} = {}) =>
+    API.get("/salary/view", {
+        params: { scope, search, month, year, page, size },
+        signal
+    });
 
 // Download salary slip PDF
 export const downloadSalarySlip = (empId, month, year) =>

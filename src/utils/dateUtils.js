@@ -36,3 +36,13 @@ export const formatDate = (timestamp) => {
 
     return new Date(Number(timestamp)).toLocaleDateString();
 };
+
+
+
+export const dateToEndMillis = (date) => {
+    if (!date) {
+        return null;
+    }
+    
+     return new Date(`${date}T23:59:59.999`).getTime();
+};

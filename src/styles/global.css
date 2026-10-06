@@ -5405,3 +5405,134 @@ body {
 }
 .login-forgot-link:hover { text-decoration: underline; }
 .login-forgot-link:disabled { color: #94a3b8; cursor: not-allowed; text-decoration: none; }
+
+
+/* ===== TABLE FILTERS (search + status + date range) ===== */
+.employee-table-actions {
+    flex-wrap: wrap;
+}
+
+.table-filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 10px;
+}
+
+.filter-control {
+    padding: 10px 12px;
+    border: 1px solid var(--border-strong);
+    border-radius: 8px;
+    background: var(--bg-input);
+    color: var(--text-primary);
+    font-size: 14px;
+    min-height: 40px;
+    box-sizing: border-box;
+}
+
+.filter-control:focus {
+    outline: none;
+    border-color: var(--accent-blue);
+}
+
+.filter-date-group {
+    display: flex;
+    gap: 10px;
+}
+
+.filter-date-group label {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.filter-clear-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    min-height: 40px;
+    padding: 0 12px;
+    border: 1px solid var(--border-strong);
+    border-radius: 8px;
+    background: var(--bg-card);
+    color: var(--text-primary);
+    cursor: pointer;
+}
+
+.filter-clear-btn:hover {
+    border-color: var(--accent-blue);
+}
+
+.filter-error {
+    flex-basis: 100%;
+    margin: 0;
+    font-size: 12px;
+    color: #dc2626;
+}
+
+/* browser's calendar icon visible in dark mode */
+[data-theme="dark"] .filter-control[type="date"] {
+    color-scheme: dark;
+}
+
+@media (max-width: 768px) {
+    .table-filters,
+    .filter-date-group {
+        width: 100%;
+    }
+
+    .filter-control,
+    .filter-date-group label {
+        flex: 1;
+    }
+}
+
+.admin-card-filters {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* ===== TABLE FOOTER: rows-per-page + pagination ===== */
+.table-footer-controls {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 16px;
+}
+
+/* Pagination ships with its own width/padding/border.
+   Neutralise them here so it sits in the same row as the dropdown. */
+.table-footer-controls .hr-pagination {
+    width: auto;
+    padding: 0;
+    border-top: none;
+}
+
+.page-size-select {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+.page-size-select .filter-control {
+    min-height: 34px;      /* same height as the pagination buttons */
+    padding: 4px 8px;
+}
+
+/* Small screens: let them stack */
+@media (max-width: 600px) {
+    .table-footer-controls {
+        flex-wrap: wrap;
+        justify-content: flex-start;
+    }
+}
+
+.finance-table-filters {
+    padding: 0 20px 16px;
+}

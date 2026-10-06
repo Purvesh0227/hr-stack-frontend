@@ -12,11 +12,10 @@ import useDebounce from "../hooks/useDebounce";
 import Pagination from "./Pagination";
 import "../styles/Attendance.css"
 import useSubmitLock from "../hooks/useSubmitLock";
+import PageSizeSelect from "./PageSizeSelect";
 
-const RECORDS_PER_PAGE = 7;
+const DEFAULT_PAGE_SIZE = 10;
 
-// Start/end (epoch millis) of the chosen month in the current year,
-// using the browser's local time. No month selected = no date limit.
 const getMonthRange = (month) => {
     if (!month) {
         return {};
@@ -65,11 +64,13 @@ function Attendance({ role }) {
     const [otpCooldown, setOtpCooldown] = useState(0);
 
     const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
 
     // Reset to page 1 when scope, search or month changes.
     // Done during render (not in a second effect) so no wasted
     // request is fired for the old page number.
-    const attendanceFilterKey = `${scope}|${debouncedSearchTerm}|${selectedMonth}`;
+    const attendanceFilterKey =
+    `${scope}|${debouncedSearchTerm}|${selectedMonth}|${pageSize}`;
     const [lastAttendanceFilterKey, setLastAttendanceFilterKey] = useState(
         attendanceFilterKey
     );
@@ -101,7 +102,7 @@ function Attendance({ role }) {
                     search: scope === "ALL" ? debouncedSearchTerm : "",
                     ...getMonthRange(selectedMonth),
                     page: currentPage - 1,
-                    size: RECORDS_PER_PAGE,
+                    size: pageSize,
                     signal: controller.signal
                 });
 
@@ -144,6 +145,7 @@ function Attendance({ role }) {
         scope,
         debouncedSearchTerm,
         selectedMonth,
+        pageSize,
         currentPage,
         attendanceRefreshKey
     ]);
@@ -697,13 +699,10 @@ function Attendance({ role }) {
                                 <div className="attendance-search-wrapper">
                                     <input
                                         type="text"
-                                        placeholder="Search Employee ID..."
+                                        placeholder="Search by Employee ID or name..."
                                         value={searchTerm}
-                                        onChange={(e) =>
-                                            setSearchTerm(
-                                                e.target.value
-                                            )
-                                        }
+                                        maxLength={50}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
                                         className="attendance-search-input"
                                     />
                                 </div>
@@ -742,7 +741,9 @@ function Attendance({ role }) {
                     {attendance.length === 0 ? (
                         !loadingAttendance && (
                             <p className="no-attendance">
-                                No attendance records found.
+                               {debouncedSearchTerm || selectedMonth
+                                    ? "No attendance records match the selected filters."
+                                    : "No attendance records found."}
                             </p>
                         )
                     ) : (
@@ -758,6 +759,7 @@ function Attendance({ role }) {
                                     <thead>
                                         <tr>
                                             <th>Employee ID</th>
+                                            <th>Employee Name</th>
                                             <th>Marked On</th>
                                             <th>Status</th>
                                         </tr>
@@ -774,7 +776,7 @@ function Attendance({ role }) {
                                                             {record.empId}
                                                         </strong>
                                                     </td>
-
+                                                    <td>{record.employeeName}</td>
                                                     <td>
                                                         {formatDateTime(
                                                             record.markedOn
@@ -810,11 +812,18 @@ function Attendance({ role }) {
                                     records
                                 </span>
 
-                                <Pagination
-                                    currentPage={currentPage}
-                                    totalPages={attendanceTotalPages}
-                                    onPageChange={setCurrentPage}
-                                />
+                               <div className="table-footer-controls">
+                                    <PageSizeSelect
+                                        value={pageSize}
+                                        onChange={setPageSize}
+                                    />
+
+                                    <Pagination
+                                        currentPage={currentPage}
+                                        totalPages={attendanceTotalPages}
+                                        onPageChange={setCurrentPage}
+                                    />
+                                </div>
                             </div>
                         </>
                     )}

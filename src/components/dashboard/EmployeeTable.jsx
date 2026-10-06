@@ -1,19 +1,41 @@
 import Loader from "../Loader";
 import Pagination from "../Pagination";
-import { FiEdit2, FiEye, FiSearch } from "react-icons/fi";
+import PageSizeSelect from "../PageSizeSelect";
+import TableFilters from "./TableFilters";
+import { FiEdit2, FiEye } from "react-icons/fi";
 import { formatDate } from "../../utils/dateUtils";
+import { formatPhoneNumber } from "../../utils/phoneFormatter";
+
+
+const STATUS_OPTIONS = [
+    { value: "", label: "All Status" },
+    { value: "PENDING", label: "Pending" },
+    { value: "PENDING_VERIFICATION", label: "Pending Verification" },
+    { value: "ACTIVE", label: "Active" }
+];
 
 function EmployeeTable({
     employees,
     employeeTotalElements,
-    activeSearch,
     loadingEmployees,
+
     employeeSearchTerm,
     setEmployeeSearchTerm,
+    employeeStatusFilter,
+    setEmployeeStatusFilter,
+    employeeFromDate,
+    setEmployeeFromDate,
+    employeeToDate,
+    setEmployeeToDate,
+    hasEmployeeFilters,
+    handleClearEmployeeFilters,
+
     employeeCurrentPage,
     employeeTotalPages,
     setEmployeeCurrentPage,
-    handleGetAllEmployees,
+    employeePageSize,
+    setEmployeePageSize,
+
     handleViewEmployee,
     handleEditEmployee,
     toDisplayText
@@ -48,39 +70,21 @@ function EmployeeTable({
                 </div>
 
                 <div className="employee-table-actions">
-
-                    {/* Search */}
-                    <div className="employee-search-wrapper">
-                        <span className="employee-search-icon">
-                            <FiSearch size={16} />
-                        </span>
-
-                        <input
-                            type="text"
-                            placeholder="Search Employee ID..."
-                            value={employeeSearchTerm}
-                            onChange={(e) =>
-                                setEmployeeSearchTerm(e.target.value)
-                            }
-                            className="employee-search-input"
-                        />
-                    </div>
-
-                    {/* View Employees */}
-                    {/* <button
-                        className="primary-btn table-action-btn"
-                        onClick={handleGetAllEmployees}
-                        disabled={loadingEmployees}
-                    >
-                        {loadingEmployees ? (
-                            <>
-                                <span className="button-spinner" />
-                                Loading...
-                            </>
-                        ) : (
-                            "View Employees"
-                        )}
-                    </button> */}
+                    <TableFilters
+                        searchValue={employeeSearchTerm}
+                        onSearchChange={setEmployeeSearchTerm}
+                        searchPlaceholder="Search by ID, name or email..."
+                        statusOptions={STATUS_OPTIONS}
+                        statusValue={employeeStatusFilter}
+                        onStatusChange={setEmployeeStatusFilter}
+                        showDateRange
+                        fromDate={employeeFromDate}
+                        toDate={employeeToDate}
+                        onFromDateChange={setEmployeeFromDate}
+                        onToDateChange={setEmployeeToDate}
+                        hasActiveFilters={hasEmployeeFilters}
+                        onClear={handleClearEmployeeFilters}
+                    />
                 </div>
             </div>
 
@@ -151,7 +155,7 @@ function EmployeeTable({
                                         <td>{emp.email}</td>
 
                                         {/* Mobile */}
-                                        <td>{emp.mobile}</td>
+                                        <td>{formatPhoneNumber(emp.mobile)}</td>
 
                                         {/* Role */}
                                         <td>{emp.role}</td>
@@ -207,7 +211,7 @@ function EmployeeTable({
                         </table>
                     </div>
 
-                    {/* Footer / Pagination */}
+                    {/* Footer / Rows per page / Pagination */}
                     <div className="employee-table-footer">
                         <span>
                             Showing{" "}
@@ -221,20 +225,27 @@ function EmployeeTable({
                             employees
                         </span>
 
-                        <Pagination
-                            currentPage={employeeCurrentPage}
-                            totalPages={employeeTotalPages}
-                            onPageChange={setEmployeeCurrentPage}
-                        />
+                        <div className="table-footer-controls">
+                            <PageSizeSelect
+                                value={employeePageSize}
+                                onChange={setEmployeePageSize}
+                            />
+
+                            <Pagination
+                                currentPage={employeeCurrentPage}
+                                totalPages={employeeTotalPages}
+                                onPageChange={setEmployeeCurrentPage}
+                            />
+                        </div>
                     </div>
                 </>
             )}
 
-            {/* No Employees / No Search Results */}
+            {/* No Employees / No Filter Results */}
             {!loadingEmployees && employees.length === 0 && (
                 <p className="no-attendance">
-                    {activeSearch
-                        ? `No employees found for "${activeSearch}".`
+                    {hasEmployeeFilters
+                        ? "No employees match the selected filters."
                         : "No employees available."}
                 </p>
             )}

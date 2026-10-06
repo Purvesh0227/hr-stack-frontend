@@ -8,14 +8,25 @@ function Employees() {
         employees,
         employeeTotalElements,
         totalEmployees,
-        debouncedEmployeeSearchTerm,
         loadingEmployees,
+
         employeeSearchTerm,
         setEmployeeSearchTerm,
+        employeeStatusFilter,
+        setEmployeeStatusFilter,
+        employeeFromDate,
+        setEmployeeFromDate,
+        employeeToDate,
+        setEmployeeToDate,
+        hasEmployeeFilters,
+        handleClearEmployeeFilters,
+
         employeeCurrentPage,
         employeeTotalPages,
         setEmployeeCurrentPage,
-        handleGetAllEmployees,
+        employeePageSize,
+        setEmployeePageSize,
+
         handleViewEmployee,
         handleEditEmployee,
         handleCloseEmployeeModal,
@@ -66,14 +77,25 @@ function Employees() {
                 <EmployeeTable
                     employees={employees}
                     employeeTotalElements={employeeTotalElements}
-                    activeSearch={debouncedEmployeeSearchTerm}
                     loadingEmployees={loadingEmployees}
+
                     employeeSearchTerm={employeeSearchTerm}
                     setEmployeeSearchTerm={setEmployeeSearchTerm}
+                    employeeStatusFilter={employeeStatusFilter}
+                    setEmployeeStatusFilter={setEmployeeStatusFilter}
+                    employeeFromDate={employeeFromDate}
+                    setEmployeeFromDate={setEmployeeFromDate}
+                    employeeToDate={employeeToDate}
+                    setEmployeeToDate={setEmployeeToDate}
+                    hasEmployeeFilters={hasEmployeeFilters}
+                    handleClearEmployeeFilters={handleClearEmployeeFilters}
+
                     employeeCurrentPage={employeeCurrentPage}
                     employeeTotalPages={employeeTotalPages}
                     setEmployeeCurrentPage={setEmployeeCurrentPage}
-                    handleGetAllEmployees={handleGetAllEmployees}
+                    employeePageSize={employeePageSize}
+                    setEmployeePageSize={setEmployeePageSize}
+
                     handleViewEmployee={handleViewEmployee}
                     handleEditEmployee={handleEditEmployee}
                     toDisplayText={toDisplayText}

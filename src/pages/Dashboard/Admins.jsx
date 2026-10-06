@@ -2,22 +2,37 @@ import { useState } from "react";
 import { Navigate, useOutletContext } from "react-router-dom";
 import AdminTable from "../../components/dashboard/AdminTable";
 import AddAdminModal from "../../components/AddAdminModal";
+import TableFilters from "../../components/dashboard/TableFilters";
+import Pagination from "../../components/Pagination";
+import PageSizeSelect from "../../components/PageSizeSelect";
 import Loader from "../../components/Loader";
+import useAdminList from "../../hooks/useAdminList";
 import { FiShield, FiUserPlus } from "react-icons/fi";
 
-function Admins() {
-    const {
-        role,
-        admins,
-        loadingAdmins,
-        handleGetAllAdmins
-    } = useOutletContext();
-
+// Separate component: the hook (and its API call) only runs for admins
+function AdminsContent() {
     const [showAddAdminModal, setShowAddAdminModal] = useState(false);
 
-    if (role !== "ADMIN") {
-        return <Navigate to="/" replace />;
-    }
+    const {
+        admins,
+        loading,
+        totalAdmins,
+        totalElements,
+        totalPages,
+        currentPage,
+        setCurrentPage,
+        pageSize,
+        setPageSize,
+        searchTerm,
+        setSearchTerm,
+        fromDate,
+        setFromDate,
+        toDate,
+        setToDate,
+        hasActiveFilters,
+        clearFilters,
+        refresh
+    } = useAdminList();
 
     return (
         <>
@@ -43,7 +58,7 @@ function Admins() {
 
                         <div>
                             <span>Administrators</span>
-                            <strong>{admins?.length || 0}</strong>
+                            <strong>{totalAdmins}</strong>
                         </div>
                     </div>
                 </div>
@@ -56,19 +71,12 @@ function Admins() {
                             <h2>Administrator Directory</h2>
 
                             <p>
-                                View and manage registered administrators.
+                                {totalElements} administrator
+                                {totalElements !== 1 ? "s" : ""}
                             </p>
                         </div>
 
                         <div className="admin-card-actions">
-                            <button
-                                className="secondary-btn"
-                                onClick={handleGetAllAdmins}
-                                disabled={loadingAdmins}
-                            >
-                                View Admins
-                            </button>
-
                             <button
                                 className="primary-btn"
                                 onClick={() => setShowAddAdminModal(true)}
@@ -79,14 +87,60 @@ function Admins() {
                         </div>
                     </div>
 
-                    {/* Loading */}
-                    {loadingAdmins && <Loader />}
+                    {/* Filters */}
+                    <div className="admin-card-filters">
+                        <TableFilters
+                            searchValue={searchTerm}
+                            onSearchChange={setSearchTerm}
+                            searchPlaceholder="Search by ID, name or email..."
+                            showDateRange
+                            fromDate={fromDate}
+                            toDate={toDate}
+                            onFromDateChange={setFromDate}
+                            onToDateChange={setToDate}
+                            hasActiveFilters={hasActiveFilters}
+                            onClear={clearFilters}
+                        />
+                    </div>
+
+                    {/* First load only, so the table doesn't vanish on every search */}
+                    {loading && admins.length === 0 && <Loader />}
 
                     {/* Admin Table */}
-                    <AdminTable
-                        admins={admins}
-                        loadingAdmins={loadingAdmins}
-                    />
+                    {admins.length > 0 && (
+                        <>
+                            <AdminTable admins={admins} dimmed={loading} />
+
+                            <div className="employee-table-footer">
+                                <span>
+                                    Showing <strong>{admins.length}</strong> of{" "}
+                                    <strong>{totalElements}</strong> administrators
+                                </span>
+
+                                <div className="table-footer-controls">
+                                    <PageSizeSelect
+                                        value={pageSize}
+                                        onChange={setPageSize}
+                                    />
+
+                                    <Pagination
+                                        currentPage={currentPage}
+                                        totalPages={totalPages}
+                                        onPageChange={setCurrentPage}
+                                    />
+                                </div>
+                            </div>
+                        </>
+                    )}
+
+                    {/* Empty state */}
+                    {!loading && admins.length === 0 && (
+                        <p className="no-attendance">
+                            {hasActiveFilters
+                                ? "No administrators match the selected filters."
+                                : "No administrators available."}
+                        </p>
+                    )}
                 </div>
             </div>
 
@@ -94,10 +148,20 @@ function Admins() {
             <AddAdminModal
                 isOpen={showAddAdminModal}
                 onClose={() => setShowAddAdminModal(false)}
-                refreshAdmins={handleGetAllAdmins}
+                refreshAdmins={refresh}
             />
         </>
     );
+}
+
+function Admins() {
+    const { role } = useOutletContext();
+
+    if (role !== "ADMIN") {
+        return <Navigate to="/" replace />;
+    }
+
+    return <AdminsContent />;
 }
 
 export default Admins;
