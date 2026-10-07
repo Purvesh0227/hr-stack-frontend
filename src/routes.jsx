@@ -6,6 +6,8 @@ import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 
+import VerifyEmail from "./pages/VerifyEmail";
+
 import DashboardHome from "./pages/Dashboard/DashboardHome";
 import Employees from "./pages/Dashboard/Employees";
 import Admins from "./pages/Dashboard/Admins";
@@ -31,6 +33,8 @@ function AppRoutes() {
             <Routes>
                 <Route path="/login" element={ <AuthEntry> <Login /> </AuthEntry>} />
                 <Route path="/register" element={<AuthEntry> <Register /> </AuthEntry>} />
+
+                <Route path="/verify-email"  element={<VerifyEmail />}/>
 
                 <Route path="/forgot-password" element={<AuthEntry><ForgotPassword /></AuthEntry>} />
 

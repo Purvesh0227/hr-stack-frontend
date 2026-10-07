@@ -301,4 +301,17 @@ export const uploadDocumentDirectlyToMinio = (uploadUrl, file) =>
     export const resetPassword = (data) => API.post("/reset-password",data);
 
 
+    export const sendEmailVerificationOtp = (data) => API.post("/email-verification/send", data);
+    export const verifyEmailOtp = (data) => API.post("/email-verification/verify", data);
+
+    export const sendEmailVerificationLink = (data) => API.post("/email-verification/send-link", data);
+
+    export const confirmEmailVerificationLink = (token) =>
+    API.post("/email-verification/confirm-link", null, {
+        params: { token }
+    });
+
+    export const getEmailVerificationStatus = (data) =>
+    API.post("/email-verification/status", data);
+
 export default API;
