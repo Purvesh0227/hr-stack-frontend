@@ -1,6 +1,12 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { FiEye, FiEyeOff, FiCamera, FiCheck, FiX } from "react-icons/fi";
+import { useEffect, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import {
+    FiEye,
+    FiEyeOff,
+    FiCamera,
+    FiCheck,
+    FiX
+} from "react-icons/fi";
 import { registerEmployee } from "../services/api";
 import { useNotification } from "../contexts/NotificationContext";
 import {
@@ -11,9 +17,14 @@ import {
 } from "../utils/validators";
 import "../styles/global.css";
 import useSubmitLock from "../hooks/useSubmitLock";
+import EmailVerification from "../components/EmailVerification";
+
+const REGISTER_DRAFT_KEY = "hrstack-register-draft";
+const VERIFIED_EMAIL_KEY = "hrstack-register-verified-email";
 
 function Register() {
     const navigate = useNavigate();
+    const location = useLocation();
     const { showNotification } = useNotification();
 
     const [employee, setEmployee] = useState({
@@ -31,12 +42,160 @@ function Register() {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-    const handleChange = (e) => {
-        setEmployee({
-            ...employee,
-            [e.target.name]: e.target.value
+    /* =========================================
+       EMAIL VERIFICATION STATE
+       ========================================= */
+
+    const [verifiedEmail, setVerifiedEmail] = useState("");
+
+    const emailVerified =
+        Boolean(employee.email) &&
+        verifiedEmail === employee.email.trim().toLowerCase();
+
+    /* =========================================
+       RESTORE REGISTER DRAFT
+       ========================================= */
+
+    useEffect(() => {
+        const savedDraft =
+            sessionStorage.getItem(REGISTER_DRAFT_KEY);
+
+        const savedVerifiedEmail =
+            sessionStorage.getItem(VERIFIED_EMAIL_KEY);
+
+        if (savedDraft) {
+            try {
+                const parsedDraft = JSON.parse(savedDraft);
+
+                setEmployee((current) => ({
+                    ...current,
+                    firstName: parsedDraft.firstName || "",
+                    lastName: parsedDraft.lastName || "",
+                    email: parsedDraft.email || "",
+                    mobile: parsedDraft.mobile || ""
+                }));
+            } catch {
+                sessionStorage.removeItem(
+                    REGISTER_DRAFT_KEY
+                );
+            }
+        }
+
+        if (savedVerifiedEmail) {
+            setVerifiedEmail(
+                savedVerifiedEmail.trim().toLowerCase()
+            );
+        }
+    }, []);
+
+    /* =========================================
+       RECEIVE VERIFIED EMAIL FROM VERIFY PAGE
+       ========================================= */
+
+    useEffect(() => {
+        const routerVerifiedEmail =
+            location.state?.verifiedEmail;
+
+        if (!routerVerifiedEmail) {
+            return;
+        }
+
+        const normalizedEmail =
+            routerVerifiedEmail.trim().toLowerCase();
+
+        setEmployee((current) => ({
+            ...current,
+            email: normalizedEmail
+        }));
+
+        setVerifiedEmail(normalizedEmail);
+
+        sessionStorage.setItem(
+            VERIFIED_EMAIL_KEY,
+            normalizedEmail
+        );
+
+        /*
+         * Remove router state after consuming it.
+         * This prevents the same state from being
+         * processed again on refresh/navigation.
+         */
+        navigate(location.pathname, {
+            replace: true,
+            state: {}
         });
+    }, [location, navigate]);
+
+    /* =========================================
+       HANDLE INPUT CHANGES
+       ========================================= */
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+
+        setEmployee((current) => ({
+            ...current,
+            [name]: value
+        }));
+
+        /*
+         * If the user changes the email after
+         * verification, the old verification must
+         * no longer count for the new email.
+         */
+        if (name === "email") {
+            const normalizedEmail =
+                value.trim().toLowerCase();
+
+            if (normalizedEmail !== verifiedEmail) {
+                setVerifiedEmail("");
+
+                sessionStorage.removeItem(
+                    VERIFIED_EMAIL_KEY
+                );
+            }
+        }
+
+        /*
+         * Store only non-sensitive registration data.
+         *
+         * Password and confirmPassword are intentionally
+         * NOT stored in sessionStorage.
+         */
+        if (
+            name === "firstName" ||
+            name === "lastName" ||
+            name === "email" ||
+            name === "mobile"
+        ) {
+            setEmployee((current) => {
+                const updatedEmployee = {
+                    ...current,
+                    [name]: value
+                };
+
+                sessionStorage.setItem(
+                    REGISTER_DRAFT_KEY,
+                    JSON.stringify({
+                        firstName:
+                            updatedEmployee.firstName,
+                        lastName:
+                            updatedEmployee.lastName,
+                        email:
+                            updatedEmployee.email,
+                        mobile:
+                            updatedEmployee.mobile
+                    })
+                );
+
+                return updatedEmployee;
+            });
+        }
     };
+
+    /* =========================================
+       DERIVED VALIDATION
+       ========================================= */
 
     const emailValid = isValidEmail(employee.email);
     const phoneValid = isValidPhone(employee.mobile);
@@ -93,19 +252,47 @@ function Register() {
         }
 
         setProfilePhoto(file);
-        setProfilePhotoPreview(URL.createObjectURL(file));
+        setProfilePhotoPreview(
+            URL.createObjectURL(file)
+        );
+    };
+
+    /* =========================================
+       EMAIL VERIFIED CALLBACK
+       ========================================= */
+
+    const handleEmailVerified = (email) => {
+        const normalizedEmail =
+            email.trim().toLowerCase();
+
+        setVerifiedEmail(normalizedEmail);
+
+        sessionStorage.setItem(
+            VERIFIED_EMAIL_KEY,
+            normalizedEmail
+        );
     };
 
     /* =========================================
        REGISTER
        ========================================= */
+
     const [loading, run] = useSubmitLock();
+
     const handleRegister = async (e) => {
         e.preventDefault();
 
         if (!emailValid) {
             showNotification(
                 "Please enter a valid email.",
+                "error"
+            );
+            return;
+        }
+
+        if (!emailVerified) {
+            showNotification(
+                "Please verify your email first.",
                 "error"
             );
             return;
@@ -140,82 +327,97 @@ function Register() {
             );
             return;
         }
+
         run(async () => {
-        try {
-            const formData = new FormData();
+            try {
+                const formData = new FormData();
 
-            formData.append(
-                "firstName",
-                employee.firstName
-            );
-
-            formData.append(
-                "lastName",
-                employee.lastName
-            );
-
-            formData.append(
-                "email",
-                employee.email
-            );
-
-            formData.append(
-                "mobile",
-                employee.mobile
-            );
-
-            formData.append(
-                "password",
-                employee.password
-            );
-
-            if (profilePhoto) {
                 formData.append(
-                    "profilePhoto",
-                    profilePhoto
+                    "firstName",
+                    employee.firstName
                 );
-            }
 
-            await registerEmployee(formData);
+                formData.append(
+                    "lastName",
+                    employee.lastName
+                );
 
-            showNotification(
-                "Employee Registered Successfully",
-                "success"
-            );
+                formData.append(
+                    "email",
+                    employee.email
+                );
 
-            navigate("/login");
+                formData.append(
+                    "mobile",
+                    employee.mobile
+                );
 
-        } catch (error) {
-            if (error.response) {
+                formData.append(
+                    "password",
+                    employee.password
+                );
 
-                if (error.response.data?.error) {
-                    showNotification(
-                        error.response.data.error,
-                        "error"
-                    );
-                } else {
-                    const errors = error.response.data;
-
-                    let message = "";
-
-                    for (const key in errors) {
-                        message += `${errors[key]}\n`;
-                    }
-
-                    showNotification(
-                        message || "Registration Failed",
-                        "error"
+                if (profilePhoto) {
+                    formData.append(
+                        "profilePhoto",
+                        profilePhoto
                     );
                 }
 
-            } else {
-                showNotification(
-                    "Registration Failed",
-                    "error"
+                await registerEmployee(formData);
+
+                /*
+                 * Registration completed successfully.
+                 * Remove the temporary registration draft.
+                 */
+                sessionStorage.removeItem(
+                    REGISTER_DRAFT_KEY
                 );
+
+                sessionStorage.removeItem(
+                    VERIFIED_EMAIL_KEY
+                );
+
+                showNotification(
+                    "Employee Registered Successfully",
+                    "success"
+                );
+
+                navigate("/login");
+
+            } catch (error) {
+                if (error.response) {
+
+                    if (error.response.data?.error) {
+                        showNotification(
+                            error.response.data.error,
+                            "error"
+                        );
+                    } else {
+                        const errors =
+                            error.response.data;
+
+                        let message = "";
+
+                        for (const key in errors) {
+                            message += `${errors[key]}\n`;
+                        }
+
+                        showNotification(
+                            message ||
+                            "Registration Failed",
+                            "error"
+                        );
+                    }
+
+                } else {
+                    showNotification(
+                        "Registration Failed",
+                        "error"
+                    );
+                }
             }
-        }
-    });
+        });
     };
 
     return (
@@ -253,6 +455,7 @@ function Register() {
                         </p>
 
                     </div>
+
                 </div>
 
             </section>
@@ -270,12 +473,14 @@ function Register() {
                 >
 
                     {/* Mobile logo */}
+
                     <div className="register-mobile-logo">
                         HRStack
                     </div>
 
 
                     {/* Header */}
+
                     <div className="register-header">
 
                         <h2>
@@ -313,6 +518,7 @@ function Register() {
                             ) : (
                                 <div className="register-photo-placeholder">
                                     <FiCamera size={22} />
+
                                     <span>
                                         Add profile photo
                                     </span>
@@ -320,12 +526,15 @@ function Register() {
                             )}
 
                             <div className="register-photo-overlay">
+
                                 <FiCamera size={15} />
+
                                 <span>
                                     {profilePhotoPreview
                                         ? "Change photo"
                                         : "Upload photo"}
                                 </span>
+
                             </div>
 
                         </label>
@@ -430,6 +639,13 @@ function Register() {
                                     : "Enter a valid email address"}
                             </p>
                         )}
+
+                        <EmailVerification
+                            email={employee.email}
+                            emailValid={emailValid}
+                            verified={emailVerified}
+                            onVerified={handleEmailVerified}
+                        />
 
                     </div>
 
@@ -544,6 +760,7 @@ function Register() {
                                 ) : (
                                     <FiX />
                                 )}
+
                                 8 characters
                             </span>
 
@@ -559,6 +776,7 @@ function Register() {
                                 ) : (
                                     <FiX />
                                 )}
+
                                 Uppercase
                             </span>
 
@@ -574,6 +792,7 @@ function Register() {
                                 ) : (
                                     <FiX />
                                 )}
+
                                 Lowercase
                             </span>
 
@@ -589,6 +808,7 @@ function Register() {
                                 ) : (
                                     <FiX />
                                 )}
+
                                 Number
                             </span>
 
@@ -604,6 +824,7 @@ function Register() {
                                 ) : (
                                     <FiX />
                                 )}
+
                                 Special character
                             </span>
 
@@ -696,6 +917,7 @@ function Register() {
                         className="register-submit-btn"
                         disabled={
                             loading ||
+                            !emailVerified ||
                             !passwordsMatch ||
                             !emailValid ||
                             !phoneValid ||
@@ -706,7 +928,9 @@ function Register() {
                             !hasSpecial
                         }
                     >
-                        {loading ? "Creating account..." : "Create account"}
+                        {loading
+                            ? "Creating account..."
+                            : "Create account"}
                     </button>
 
 
