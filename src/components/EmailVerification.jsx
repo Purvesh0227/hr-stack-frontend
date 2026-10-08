@@ -32,6 +32,8 @@ function EmailVerification({
     const [otp, setOtp] = useState("");
     const [cooldown, setCooldown] = useState(0);
 
+    const [verificationMethod, setVerificationMethod] = useState("OTP");
+
     const [linkSentTo, setLinkSentTo] = useState("");
     const [linkStartedAt, setLinkStartedAt] = useState(null);
 
@@ -231,141 +233,139 @@ function EmailVerification({
         );
     }
 
-    if (!otpSent && !linkSent) {
-        return (
-            <div className="email-verify-box">
-                <p className="email-verify-hint">
-                    Verify your email before creating your account.
-                </p>
-
-                <div className="email-verify-row">
-                    <button
-                        type="button"
-                        className="email-verify-btn"
-                        onClick={sendOtp}
-                        disabled={sending || sendingLink}
-                    >
-                        {sending
-                            ? "Sending OTP..."
-                            : "Verify with OTP"}
-                    </button>
-
-                    <button
-                        type="button"
-                        className="email-verify-btn"
-                        onClick={sendVerificationLink}
-                        disabled={sendingLink || sending}
-                    >
-                        {sendingLink
-                            ? "Sending Link..."
-                            : "Verify with Link"}
-                    </button>
-                </div>
-            </div>
-        );
-    }
-
-    if (linkSent && !otpSent) {
-        return (
-            <div className="email-verify-box">
-                <p className="email-verify-hint">
-                    Verification link sent to:
-                </p>
-
-                <strong className="email-verify-email">
-                    {current}
-                </strong>
-
-                <p className="email-verify-hint">
-                    Open the email and click
-                    <strong> Verify Email</strong>.
-                </p>
-
-                <p className="email-verify-hint">
-                    This page will automatically detect
-                    the verification.
-                </p>
-
-                {/* <button
-                    type="button"
-                    className="email-verify-btn"
-                    onClick={manuallyCheckVerification}
-                    disabled={checking}
-                >
-                    {checking
-                        ? "Checking..."
-                        : "I've Verified My Email"}
-                </button> */}
-
-                <button
-                    type="button"
-                    className="email-verify-resend"
-                    onClick={sendVerificationLink}
-                    disabled={
-                        sendingLink ||
-                        cooldown > 0
-                    }
-                >
-                    {cooldown > 0
-                        ? `Resend Link in ${cooldown}s`
-                        : "Resend Verification Link"}
-                </button>
-            </div>
-        );
-    }
-
+if (!otpSent && !linkSent) {
     return (
-        <div className="email-verify-box">
-            <p className="email-verify-hint">
-                Enter the 6-digit OTP sent to {current}
-            </p>
+        <div className="email-verify-compact">
+            <span className="email-verify-label">
+                Email needs verification via
+            </span>
 
-            <div className="email-verify-row">
-                <input
-                    type="text"
-                    inputMode="numeric"
-                    placeholder="123456"
-                    value={otp}
-                    onChange={(e) =>
-                        setOtp(
-                            e.target.value
-                                .replace(/\D/g, "")
-                                .slice(0, 6)
-                        )
+            <div
+                className="email-verify-toggle"
+                role="group"
+                aria-label="Email verification method"
+            >
+                <button
+                    type="button"
+                    className={
+                        verificationMethod === "OTP"
+                            ? "active"
+                            : ""
                     }
-                    autoComplete="one-time-code"
-                    aria-label="Email verification OTP"
-                />
+                    onClick={() =>
+                        setVerificationMethod("OTP")
+                    }
+                >
+                    OTP
+                </button>
 
                 <button
                     type="button"
-                    className="email-verify-btn"
-                    onClick={verifyOtp}
-                    disabled={
-                        verifying ||
-                        otp.length !== 6
+                    className={
+                        verificationMethod === "LINK"
+                            ? "active"
+                            : ""
+                    }
+                    onClick={() =>
+                        setVerificationMethod("LINK")
                     }
                 >
-                    {verifying
-                        ? "Verifying..."
-                        : "Verify OTP"}
+                    Link
                 </button>
             </div>
 
             <button
                 type="button"
-                className="email-verify-resend"
-                onClick={sendOtp}
-                disabled={
-                    sending ||
-                    cooldown > 0
+                className="email-verify-send-btn"
+                onClick={
+                    verificationMethod === "OTP"
+                        ? sendOtp
+                        : sendVerificationLink
                 }
+                disabled={sending || sendingLink}
             >
-                {cooldown > 0
-                    ? `Resend OTP in ${cooldown}s`
-                    : "Resend OTP"}
+                {verificationMethod === "OTP"
+                    ? sending
+                        ? "..."
+                        : "Send OTP"
+                    : sendingLink
+                        ? "..."
+                        : "Send Link"}
             </button>
         </div>
+    );
+}
+
+if (linkSent && !otpSent) {
+    return (
+        <div className="email-verify-compact email-verify-sent">
+            <span className="email-verify-status">
+                Verification link sent
+            </span>
+
+            <span className="email-verify-subtext">
+                Check your email and click Verify Email
+            </span>
+
+            <button
+                type="button"
+                className="email-verify-small-action"
+                onClick={sendVerificationLink}
+                disabled={sendingLink || cooldown > 0}
+            >
+                {cooldown > 0
+                    ? `${cooldown}s`
+                    : "Resend"}
+            </button>
+        </div>
+    );
+}
+
+    return (
+         <div className="email-verify-compact email-verify-otp">
+        <span className="email-verify-status">
+            OTP sent
+        </span>
+
+        <input
+            type="text"
+            inputMode="numeric"
+            placeholder="6-digit OTP"
+            value={otp}
+            onChange={(e) =>
+                setOtp(
+                    e.target.value
+                        .replace(/\D/g, "")
+                        .slice(0, 6)
+                )
+            }
+            autoComplete="one-time-code"
+            aria-label="Email verification OTP"
+        />
+
+        <button
+            type="button"
+            className="email-verify-small-action primary"
+            onClick={verifyOtp}
+            disabled={
+                verifying ||
+                otp.length !== 6
+            }
+        >
+            {verifying ? "..." : "Verify"}
+        </button>
+
+        <button
+            type="button"
+            className="email-verify-resend-small"
+            onClick={sendOtp}
+            disabled={sending || cooldown > 0}
+        >
+            {cooldown > 0
+                ? `${cooldown}s`
+                : "Resend"}
+        </button>
+    </div>
     );
 }
 

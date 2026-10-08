@@ -1730,11 +1730,8 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-
-    padding: 35px 48px;
-
+    padding: 48px 56px;
     box-sizing: border-box;
-
     background: var(--bg-page);
 }
 
@@ -1745,17 +1742,15 @@ body {
 
 .register-card {
     width: 100%;
-    max-width: 500px;
+    max-width: 600px;
 
-    min-height: 650px;
-
-    max-height: calc(100vh - 50px);
+    max-height: calc(120vh - 70px);
 
     overflow-y: auto;
 
     box-sizing: border-box;
 
-    padding: 34px 40px;
+    padding: 42px 40px 36px;
 
     background: var(--bg-card);
 
@@ -1784,44 +1779,33 @@ body {
 ============================================================ */
 
 .register-header {
-    margin-bottom: 22px;
+    margin-bottom: 24px;
 }
 
 .register-mobile-logo {
     display: none;
-
     margin-bottom: 20px;
-
     color: var(--text-primary);
-
     font-size: 20px;
     font-weight: 800;
-
     letter-spacing: -0.05em;
 }
 
 .register-header h2 {
     margin: 0;
-
     color: var(--text-primary);
-
-    font-size: 27px;
-
+    font-size: 29px;
     font-weight: 700;
-
-    line-height: 1.2;
-
-    letter-spacing: -0.035em;
+    line-height: 1.15;
+    letter-spacing: -0.04em;
 }
 
 .register-header p {
-    margin: 7px 0 0;
-
+    max-width: 390px;
+    margin: 8px 0 0;
     color: var(--text-secondary);
-
     font-size: 12px;
-
-    line-height: 1.5;
+    line-height: 1.6;
 }
 
 
@@ -1844,10 +1828,9 @@ body {
 
 .register-name-row {
     display: grid;
-
     grid-template-columns: 1fr 1fr;
-
-    gap: 11px;
+    gap: 14px;
+    margin-bottom: 18px;
 }
 
 
@@ -1863,14 +1846,16 @@ body {
     flex-direction: column;
 }
 
+.register-name-row + .register-field {
+    margin-top: 18px;
+}
+
 .register-field label {
-    margin-bottom: 7px;
-
+    margin-bottom: 8px;
     color: var(--text-primary);
-
     font-size: 11px;
-
     font-weight: 600;
+    line-height: 1.2;
 }
 
 
@@ -1880,26 +1865,16 @@ body {
 
 .register-field input {
     width: 100%;
-    height: 44px;
-
+    height: 46px;
     box-sizing: border-box;
-
-    padding: 0 12px;
-
+    padding: 0 13px;
     border: 1px solid var(--border-color);
-
     border-radius: 9px;
-
     outline: none;
-
     background: var(--bg-input);
-
     color: var(--text-primary);
-
     font-family: var(--font-family);
-
     font-size: 12px;
-
     transition:
         border-color 0.18s ease,
         box-shadow 0.18s ease,
@@ -1935,12 +1910,9 @@ body {
 
 .register-photo-section {
     display: flex;
-
     flex-direction: column;
-
     align-items: center;
-
-    margin-bottom: 2px;
+    margin-bottom: 26px;
 }
 
 .register-photo-upload {
@@ -2040,12 +2012,10 @@ body {
 }
 
 .register-field-help {
-    margin: 7px 0 0;
-
+    margin: 8px 0 0;
     color: var(--text-muted);
-
     font-size: 9px;
-
+    line-height: 1.4;
     text-align: center;
 }
 
@@ -2351,6 +2321,7 @@ body {
         max-height: none;
 
         padding: 28px 24px;
+
 
         border-radius: 14px;
     }
@@ -5902,4 +5873,156 @@ body {
     .email-verify-btn {
         width: 100%;
     }
+}
+
+/* toggle for verification method */
+.email-verify-compact {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 5px;
+    flex-wrap: wrap;
+}
+
+.email-verify-label {
+    color: var(--text-secondary);
+    font-size: 10px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.email-verify-toggle {
+    display: inline-flex;
+    padding: 1px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background: var(--bg-hover-row);
+}
+
+.email-verify-toggle button {
+    border: 0;
+    border-radius: 5px;
+    padding: 4px 8px;
+    background: transparent;
+    color: var(--text-secondary);
+    font-family: var(--font-family);
+    font-size: 9px;
+    font-weight: 600;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.email-verify-toggle button.active {
+    background: var(--bg-card);
+    color: var(--text-primary);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+.email-verify-send-btn {
+    border: 0;
+    border-radius: 5px;
+    padding: 5px 9px;
+    background: var(--bg-primary-btn);
+    color: var(--text-on-active);
+    font-family: var(--font-family);
+    font-size: 9px;
+    font-weight: 600;
+    line-height: 1;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.email-verify-send-btn:hover:not(:disabled) {
+    background: var(--bg-primary-btn-hover);
+}
+
+.email-verify-send-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* css for the otp and email link block  */
+.email-verify-sent {
+    gap: 7px;
+}
+
+.email-verify-status {
+    color: var(--text-primary);
+    font-size: 10px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.email-verify-subtext {
+    color: var(--text-secondary);
+    font-size: 9px;
+    white-space: nowrap;
+}
+
+.email-verify-small-action {
+    border: 0;
+    border-radius: 5px;
+    padding: 4px 8px;
+    background: var(--bg-hover-row);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    font-family: var(--font-family);
+    font-size: 9px;
+    font-weight: 600;
+    line-height: 1;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.email-verify-small-action.primary {
+    background: var(--bg-primary-btn);
+    color: var(--text-on-active);
+    border-color: var(--bg-primary-btn);
+}
+
+.email-verify-small-action:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.email-verify-otp {
+    gap: 6px;
+}
+
+.email-verify-otp input {
+    width: 82px;
+    height: 27px;
+    padding: 4px 7px;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    background: var(--bg-input);
+    color: var(--text-primary);
+    font-family: var(--font-family);
+    font-size: 10px;
+    outline: none;
+}
+
+.email-verify-otp input:focus {
+    border-color: var(--border-strong);
+}
+
+.email-verify-resend-small {
+    border: 0;
+    background: transparent;
+    color: var(--text-secondary);
+    font-family: var(--font-family);
+    font-size: 9px;
+    font-weight: 600;
+    padding: 4px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.email-verify-resend-small:hover:not(:disabled) {
+    color: var(--text-primary);
+}
+
+.email-verify-resend-small:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
 }
