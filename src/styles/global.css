@@ -5687,7 +5687,7 @@ body {
 }
 
 
-/* =========================================
+//* =========================================
    EMAIL VERIFICATION PAGE
    ========================================= */
 
@@ -5697,15 +5697,15 @@ body {
     align-items: center;
     justify-content: center;
     padding: 24px;
-    background: #f7f8fa;
+    background: var(--bg-page);
 }
 
 .email-verification-card {
     width: 100%;
     max-width: 460px;
     padding: 42px 36px;
-    background: #ffffff;
-    border: 1px solid #e8eaee;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
     border-radius: 16px;
     text-align: center;
     box-shadow: 0 12px 35px rgba(15, 15, 15, 0.08);
@@ -5713,7 +5713,7 @@ body {
 
 .email-verification-card h1 {
     margin: 20px 0 10px;
-    color: #0f0f0f;
+    color: var(--text-primary);
     font-size: 28px;
     font-weight: 700;
 }
@@ -5721,7 +5721,7 @@ body {
 .email-verification-card p {
     margin: 0 auto 26px;
     max-width: 360px;
-    color: #6b7280;
+    color: var(--text-secondary);
     font-size: 15px;
     line-height: 1.6;
 }
@@ -5752,11 +5752,11 @@ body {
 
 .email-verification-error-icon {
     background: #fef2f2;
-    color: #dc2626;
+    color: var(--danger);
 }
 
 .email-verification-spinner {
-    color: #6b7280;
+    color: var(--text-secondary);
     font-size: 28px;
     font-weight: 700;
     letter-spacing: 4px;
@@ -5767,16 +5767,16 @@ body {
     border: none;
     border-radius: 10px;
     padding: 13px 18px;
-    background: #111111;
-    color: #ffffff;
+    background: var(--bg-primary-btn);
+    color: var(--text-on-active);
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
-    transition: opacity 0.2s ease;
+    transition: background 0.2s ease, opacity 0.2s ease;
 }
 
 .email-verification-primary:hover {
-    opacity: 0.9;
+    background: var(--bg-primary-btn-hover);
 }
 
 @media (max-width: 600px) {
@@ -5793,21 +5793,22 @@ body {
     }
 }
 
+
 /* =========================================
-   EMAIL VERIFICATION
+   EMAIL VERIFICATION - REGISTER
    ========================================= */
 
 .email-verify-box {
     margin-top: 10px;
     padding: 16px;
-    border: 1px solid #e8eaee;
+    border: 1px solid var(--border-color);
     border-radius: 12px;
-    background: #fafbfc;
+    background: var(--bg-card);
 }
 
 .email-verify-hint {
     margin: 0 0 10px;
-    color: #6b7280;
+    color: var(--text-secondary);
     font-size: 13px;
     line-height: 1.5;
 }
@@ -5815,7 +5816,7 @@ body {
 .email-verify-email {
     display: block;
     margin-bottom: 12px;
-    color: #111111;
+    color: var(--text-primary);
     font-size: 14px;
     word-break: break-word;
 }
@@ -5834,26 +5835,35 @@ body {
     min-width: 0;
     box-sizing: border-box;
     padding: 11px 12px;
-    border: 1px solid #dfe3e8;
+    border: 1px solid var(--border-strong);
     border-radius: 9px;
-    background: #ffffff;
-    color: #111111;
+    background: var(--bg-input);
+    color: var(--text-primary);
     outline: none;
 }
 
+.email-verify-box input::placeholder {
+    color: var(--text-muted);
+}
+
 .email-verify-box input:focus {
-    border-color: #111111;
+    border-color: var(--bg-primary-btn);
 }
 
 .email-verify-btn {
     border: none;
     border-radius: 9px;
     padding: 11px 14px;
-    background: #111111;
-    color: #ffffff;
+    background: var(--bg-primary-btn);
+    color: var(--text-on-active);
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
+    transition: background 0.2s ease, opacity 0.2s ease;
+}
+
+.email-verify-btn:hover {
+    background: var(--bg-primary-btn-hover);
 }
 
 .email-verify-btn:disabled {
@@ -5866,7 +5876,7 @@ body {
     padding: 0;
     border: none;
     background: transparent;
-    color: #4f46e5;
+    color: var(--accent-blue, #4f46e5);
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
@@ -5879,7 +5889,7 @@ body {
 
 .email-verify-success {
     margin-top: 10px;
-    color: #16a34a;
+    color: var(--status-active-text);
     font-size: 13px;
     font-weight: 600;
 }
