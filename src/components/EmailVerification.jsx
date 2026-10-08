@@ -83,49 +83,49 @@ function EmailVerification({
         return false;
     };
 
-    useEffect(() => {
-        if (!linkSent || !linkStartedAt || verified) {
-            return;
-        }
+    // useEffect(() => {
+    //     if (!linkSent || !linkStartedAt || verified) {
+    //         return;
+    //     }
 
-        let stopped = false;
+    //     let stopped = false;
 
-        const poll = async () => {
-            if (stopped || document.hidden) {
-                return;
-            }
+    //     const poll = async () => {
+    //         if (stopped || document.hidden) {
+    //             return;
+    //         }
 
-            const elapsed =
-                Date.now() - linkStartedAt;
+    //         const elapsed =
+    //             Date.now() - linkStartedAt;
 
-            if (elapsed >= LINK_WAIT_MS) {
-                stopped = true;
-                return;
-            }
+    //         if (elapsed >= LINK_WAIT_MS) {
+    //             stopped = true;
+    //             return;
+    //         }
 
-            const isVerified =
-                await checkVerificationStatus();
+    //         const isVerified =
+    //             await checkVerificationStatus();
 
-            if (isVerified) {
-                stopped = true;
-            }
-        };
+    //         if (isVerified) {
+    //             stopped = true;
+    //         }
+    //     };
 
-        const interval = setInterval(
-            poll,
-            STATUS_INTERVAL_MS
-        );
+    //     const interval = setInterval(
+    //         poll,
+    //         STATUS_INTERVAL_MS
+    //     );
 
-        return () => {
-            stopped = true;
-            clearInterval(interval);
-        };
-    }, [
-        linkSent,
-        linkStartedAt,
-        verified,
-        current
-    ]);
+    //     return () => {
+    //         stopped = true;
+    //         clearInterval(interval);
+    //     };
+    // }, [
+    //     linkSent,
+    //     linkStartedAt,
+    //     verified,
+    //     current
+    // ]);
 
     const sendOtp = () =>
         runSend(async () => {
