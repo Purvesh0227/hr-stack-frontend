@@ -314,4 +314,8 @@ export const uploadDocumentDirectlyToMinio = (uploadUrl, file) =>
     export const getEmailVerificationStatus = (data) =>
     API.post("/email-verification/status", data);
 
+    // login otp 
+    export const verifyLoginOtp = (data) => API.post("/login/verify-otp", data);
+    export const resendLoginOtp = (data) => API.post("/login/resend-otp", data);
+
 export default API;
