@@ -641,6 +641,42 @@ body {
 /* ============================================================
    LOGIN PAGE
 ============================================================ */
+.login-google {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    margin-top: 20px;
+    width: 100%;
+    color-scheme: light;   /* stops a white box around Google's iframe in dark mode */
+}
+
+.login-divider {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+.login-divider::before,
+.login-divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--border-strong);
+}
+
+.login-google > div:last-child {
+    max-width: 100%;
+    overflow: hidden;
+    border-radius: 6px;
+}
+
+[data-theme="dark"] .login-google > div:last-child {
+    border: 1px solid var(--border-strong);   /* black button gets a thin edge on a dark card */
+}
 
 .login-page {
     min-height: 100vh;

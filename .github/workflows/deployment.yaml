@@ -34,6 +34,7 @@ jobs:
         env:
           VITE_API_BASE_URL: https://hr-stack-backend.onrender.com
           VITE_VAPID_PUBLIC_KEY: BGomtdB5Rn44kz3YpYSf2cCbqOdLXIOeQTotyxLAcwkxyKEdFpZCbLiQ2CBiUmOGtF1Rk7DrI_SYUBNV-vN7nL4
+          VITE_GOOGLE_CLIENT_ID: 491763983472-op2grhsph5s8nrkj1lvinjfreutqr8qj.apps.googleusercontent.com
         run: npm run build
 
       - name: Configure SPA fallback

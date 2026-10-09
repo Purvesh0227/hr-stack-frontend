@@ -318,4 +318,7 @@ export const uploadDocumentDirectlyToMinio = (uploadUrl, file) =>
     export const verifyLoginOtp = (data) => API.post("/login/verify-otp", data);
     export const resendLoginOtp = (data) => API.post("/login/resend-otp", data);
 
+    // Google sign-in
+    export const googleLogin = (idToken) => API.post("/google-login", { idToken });
+
 export default API;

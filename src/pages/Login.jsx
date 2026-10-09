@@ -3,12 +3,15 @@ import { useNavigate, Link } from "react-router-dom";
 import {
     loginEmployee,
     verifyLoginOtp,
-    resendLoginOtp
+    resendLoginOtp,
+    googleLogin
 } from "../services/api";
 import { useNotification } from "../contexts/NotificationContext";
 import { FiEye, FiEyeOff, FiArrowRight } from "react-icons/fi";
 import "../styles/global.css";
 import useSubmitLock from "../hooks/useSubmitLock";
+import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
+import { useTheme } from "../contexts/ThemeContext";
 
 // Backend sends {error: "..."} or {field: "..."} for validation
 const getErrorMessage = (error, fallback) => {
@@ -20,12 +23,16 @@ const getErrorMessage = (error, fallback) => {
     return fallback;
 };
 
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+
 function Login() {
     const navigate = useNavigate();
     const { showNotification } = useNotification();
 
     // "credentials" -> "otp"
     const [step, setStep] = useState("credentials");
+
+    const { theme } = useTheme();
 
     const [loginData, setLoginData] = useState({
         email: "",
@@ -74,7 +81,7 @@ function Login() {
         }
     };
 
-    // Save the real session (used after OTP, or when 2FA is switched off)
+    // Save the real session (used after OTP, Google, or when 2FA is off)
     const completeLogin = (data) => {
         const { token, employee } = data;
 
@@ -143,251 +150,295 @@ function Login() {
             }
         });
 
+    // Google sign-in (no OTP: Google already verified the user)
+    const handleGoogleSuccess = (credentialResponse) =>
+        run(async () => {
+            try {
+                const response = await googleLogin(credentialResponse.credential);
+                completeLogin(response.data);
+            } catch (error) {
+                showNotification(
+                    getErrorMessage(error, "Google sign-in failed."),
+                    "error"
+                );
+            }
+        });
+
     return (
-        <div className="login-page">
+        <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID || ""}>
+            <div className="login-page">
 
-            {/* =========================================
-                LEFT BRANDING PANEL
-            ========================================= */}
+                {/* =========================================
+                    LEFT BRANDING PANEL
+                ========================================= */}
 
-            <section className="login-brand-panel">
+                <section className="login-brand-panel">
 
-                <div className="login-brand-content">
+                    <div className="login-brand-content">
 
-                    <div className="login-logo">
-                        HRStack
-                    </div>
-
-                    <div className="login-brand-copy">
-                        <span className="login-brand-eyebrow">
-                            Employee Management Platform
-                        </span>
-
-                        <h1>
-                            Everything your team
-                            <span> needs, in one place.</span>
-                        </h1>
-
-                        <p>
-                            Manage employees, attendance, documents,
-                            and payroll information from a single
-                            secure workspace.
-                        </p>
-                    </div>
-                </div>
-
-            </section>
-
-
-            {/* =========================================
-                RIGHT LOGIN PANEL
-            ========================================= */}
-
-            <section className="login-form-panel">
-
-                <div className="login-card">
-
-                    <div className="login-header">
-
-                        <div className="login-mobile-logo">
+                        <div className="login-logo">
                             HRStack
                         </div>
 
-                        {step === "credentials" ? (
-                            <>
-                                <h2>Welcome back</h2>
-                                <p>Sign in to continue to your account.</p>
-                            </>
-                        ) : (
-                            <>
-                                <h2>Check your email</h2>
-                                <p>
-                                    We sent a 6-digit OTP to {maskedEmail}.
-                                    Valid for 5 minutes.
-                                </p>
-                            </>
-                        )}
+                        <div className="login-brand-copy">
+                            <span className="login-brand-eyebrow">
+                                Employee Management Platform
+                            </span>
 
+                            <h1>
+                                Everything your team
+                                <span> needs, in one place.</span>
+                            </h1>
+
+                            <p>
+                                Manage employees, attendance, documents,
+                                and payroll information from a single
+                                secure workspace.
+                            </p>
+                        </div>
                     </div>
 
+                </section>
 
-                    {/* =====================
-                        STEP 1: CREDENTIALS
-                    ===================== */}
 
-                    {step === "credentials" && (
-                        <form
-                            className="login-form"
-                            onSubmit={handleLogin}
-                        >
+                {/* =========================================
+                    RIGHT LOGIN PANEL
+                ========================================= */}
 
-                            {/* EMAIL */}
+                <section className="login-form-panel">
 
-                            <div className="login-field">
+                    <div className="login-card">
 
-                                <label htmlFor="login-email">
-                                    Email address
-                                </label>
+                        <div className="login-header">
 
-                                <input
-                                    id="login-email"
-                                    type="email"
-                                    name="email"
-                                    placeholder="you@example.com"
-                                    value={loginData.email}
-                                    onChange={handleChange}
-                                    autoComplete="email"
-                                    required
-                                />
-
+                            <div className="login-mobile-logo">
+                                HRStack
                             </div>
 
+                            {step === "credentials" ? (
+                                <>
+                                    <h2>Welcome back</h2>
+                                    <p>Sign in to continue to your account.</p>
+                                </>
+                            ) : (
+                                <>
+                                    <h2>Check your email</h2>
+                                    <p>
+                                        We sent a 6-digit OTP to {maskedEmail}.
+                                        Valid for 5 minutes.
+                                    </p>
+                                </>
+                            )}
 
-                            {/* PASSWORD */}
+                        </div>
 
-                            <div className="login-field">
 
-                                <div className="login-label-row">
+                        {/* =====================
+                            STEP 1: CREDENTIALS
+                        ===================== */}
 
-                                    <label htmlFor="login-password">Password</label>
-                                    <Link to="/forgot-password" className="login-forgot-link">Forgot Password?</Link>
+                        {step === "credentials" && (
+                            <>
+                                <form
+                                    className="login-form"
+                                    onSubmit={handleLogin}
+                                >
 
-                                </div>
+                                    {/* EMAIL */}
 
-                                <div className="login-password-wrapper">
+                                    <div className="login-field">
 
-                                    <input
-                                        id="login-password"
-                                        type={
-                                            showPassword
-                                                ? "text"
-                                                : "password"
-                                        }
-                                        name="password"
-                                        placeholder="Enter your password"
-                                        value={loginData.password}
-                                        onChange={handleChange}
-                                        autoComplete="current-password"
-                                        required
-                                    />
+                                        <label htmlFor="login-email">
+                                            Email address
+                                        </label>
 
-                                    <button
-                                        type="button"
-                                        className="login-password-toggle"
-                                        onClick={() =>
-                                            setShowPassword(
-                                                (prev) => !prev
-                                            )
-                                        }
-                                        aria-label={
-                                            showPassword
-                                                ? "Hide password"
-                                                : "Show password"
-                                        }
-                                    >
-                                        {showPassword ? (
-                                            <FiEyeOff size={17} />
-                                        ) : (
-                                            <FiEye size={17} />
-                                        )}
+                                        <input
+                                            id="login-email"
+                                            type="email"
+                                            name="email"
+                                            placeholder="you@example.com"
+                                            value={loginData.email}
+                                            onChange={handleChange}
+                                            autoComplete="email"
+                                            required
+                                        />
+
+                                    </div>
+
+
+                                    {/* PASSWORD */}
+
+                                    <div className="login-field">
+
+                                        <div className="login-label-row">
+
+                                            <label htmlFor="login-password">Password</label>
+                                            <Link to="/forgot-password" className="login-forgot-link">Forgot Password?</Link>
+
+                                        </div>
+
+                                        <div className="login-password-wrapper">
+
+                                            <input
+                                                id="login-password"
+                                                type={
+                                                    showPassword
+                                                        ? "text"
+                                                        : "password"
+                                                }
+                                                name="password"
+                                                placeholder="Enter your password"
+                                                value={loginData.password}
+                                                onChange={handleChange}
+                                                autoComplete="current-password"
+                                                required
+                                            />
+
+                                            <button
+                                                type="button"
+                                                className="login-password-toggle"
+                                                onClick={() =>
+                                                    setShowPassword(
+                                                        (prev) => !prev
+                                                    )
+                                                }
+                                                aria-label={
+                                                    showPassword
+                                                        ? "Hide password"
+                                                        : "Show password"
+                                                }
+                                            >
+                                                {showPassword ? (
+                                                    <FiEyeOff size={17} />
+                                                ) : (
+                                                    <FiEye size={17} />
+                                                )}
+                                            </button>
+
+                                        </div>
+
+                                    </div>
+
+
+                                    {/* LOGIN BUTTON */}
+
+                                    <button type="submit" className="login-submit-btn" disabled={loading}>
+                                        <span>{loading ? "Signing in..." : "Sign in"}</span>
+                                        <FiArrowRight size={17} />
                                     </button>
 
+                                </form>
+
+
+                                {/* GOOGLE SIGN-IN */}
+
+                                {GOOGLE_CLIENT_ID && (
+                                    <div className="login-google">
+
+                                        <div className="login-divider">
+                                            <span>or</span>
+                                        </div>
+
+                                         <GoogleLogin
+                                            key={theme}
+                                            onSuccess={handleGoogleSuccess}
+                                            onError={() =>
+                                                showNotification("Google sign-in failed.", "error")
+                                            }
+                                            theme={theme === "dark" ? "filled_black" : "outline"}
+                                            size="large"
+                                            shape="rectangular"
+                                            text="signin_with"
+                                            width="320"
+                                        />
+
+                                    </div>
+                                )}
+                            </>
+                        )}
+
+
+                        {/* =====================
+                            STEP 2: OTP
+                        ===================== */}
+
+                        {step === "otp" && (
+                            <form
+                                className="login-form"
+                                onSubmit={handleVerify}
+                            >
+
+                                <div className="login-field">
+                                    <label htmlFor="login-otp">6-digit OTP</label>
+                                    <input
+                                        id="login-otp"
+                                        type="text"
+                                        inputMode="numeric"
+                                        placeholder="123456"
+                                        value={otp}
+                                        onChange={(e) =>
+                                            setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))
+                                        }
+                                        autoComplete="one-time-code"
+                                        autoFocus
+                                        required
+                                    />
                                 </div>
 
-                            </div>
+                                <button
+                                    type="submit"
+                                    className="login-submit-btn"
+                                    disabled={loading || otp.length !== 6}
+                                >
+                                    <span>{loading ? "Verifying..." : "Verify & Sign in"}</span>
+                                    <FiArrowRight size={17} />
+                                </button>
 
+                                <button
+                                    type="button"
+                                    className="login-forgot-link"
+                                    onClick={handleResend}
+                                    disabled={loading || cooldown > 0}
+                                >
+                                    {cooldown > 0 ? `Resend OTP in ${cooldown}s` : "Resend OTP"}
+                                </button>
 
-                            {/* LOGIN BUTTON */}
-
-                            <button type="submit" className="login-submit-btn" disabled={loading}>
-                                <span>{loading ? "Signing in..." : "Sign in"}</span>
-                                <FiArrowRight size={17} />
-                            </button>
-
-                        </form>
-                    )}
-
-
-                    {/* =====================
-                        STEP 2: OTP
-                    ===================== */}
-
-                    {step === "otp" && (
-                        <form
-                            className="login-form"
-                            onSubmit={handleVerify}
-                        >
-
-                            <div className="login-field">
-                                <label htmlFor="login-otp">6-digit OTP</label>
-                                <input
-                                    id="login-otp"
-                                    type="text"
-                                    inputMode="numeric"
-                                    placeholder="123456"
-                                    value={otp}
-                                    onChange={(e) =>
-                                        setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))
-                                    }
-                                    autoComplete="one-time-code"
-                                    autoFocus
-                                    required
-                                />
-                            </div>
-
-                            <button
-                                type="submit"
-                                className="login-submit-btn"
-                                disabled={loading || otp.length !== 6}
-                            >
-                                <span>{loading ? "Verifying..." : "Verify & Sign in"}</span>
-                                <FiArrowRight size={17} />
-                            </button>
-
-                            <button
-                                type="button"
-                                className="login-forgot-link"
-                                onClick={handleResend}
-                                disabled={loading || cooldown > 0}
-                            >
-                                {cooldown > 0 ? `Resend OTP in ${cooldown}s` : "Resend OTP"}
-                            </button>
-
-                        </form>
-                    )}
-
-
-                    {/* FOOTER LINK */}
-
-                    <div className="login-register">
-
-                        {step === "credentials" ? (
-                            <>
-                                <span>
-                                    Don't have an account?
-                                </span>
-
-                                <Link to="/register">
-                                    Create an account
-                                </Link>
-                            </>
-                        ) : (
-                            <button
-                                type="button"
-                                className="login-forgot-link"
-                                onClick={resetToCredentials}
-                            >
-                                Back to login
-                            </button>
+                            </form>
                         )}
+
+
+                        {/* FOOTER LINK */}
+
+                        <div className="login-register">
+
+                            {step === "credentials" ? (
+                                <>
+                                    <span>
+                                        Don't have an account?
+                                    </span>
+
+                                    <Link to="/register">
+                                        Create an account
+                                    </Link>
+                                </>
+                            ) : (
+                                <button
+                                    type="button"
+                                    className="login-forgot-link"
+                                    onClick={resetToCredentials}
+                                >
+                                    Back to login
+                                </button>
+                            )}
+
+                        </div>
 
                     </div>
 
-                </div>
+                </section>
 
-            </section>
-
-        </div>
+            </div>
+        </GoogleOAuthProvider>
     );
 }
 
