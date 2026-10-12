@@ -8,6 +8,8 @@ import { HiOutlineMenu, HiOutlineX } from "react-icons/hi";
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import "../styles/global.css";
+import { FiLogOut } from "react-icons/fi";
+import { clearStorage } from "../utils/storage";
 
 function AdminSidebar({ role }) {
     const navigate = useNavigate();
@@ -33,6 +35,12 @@ function AdminSidebar({ role }) {
     const go = (path) => {
         navigate(path);
         setIsOpen(false);
+    };
+
+    const logout = () => {
+        setIsOpen(false);
+        clearStorage();
+        navigate("/login", { replace: true });
     };
 
     return (

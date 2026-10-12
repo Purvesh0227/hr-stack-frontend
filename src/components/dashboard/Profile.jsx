@@ -9,6 +9,7 @@ import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import { formatDate } from "../../utils/dateUtils";
 import { formatPhoneNumber } from "../../utils/phoneFormatter";
+import { useLocation, useNavigate } from "react-router-dom";
 
 
 function Profile({ role, employee, adminProfile, loadingProfile, handleSaveOwnProfile, refreshAdminProfile }) {
@@ -35,6 +36,17 @@ function Profile({ role, employee, adminProfile, loadingProfile, handleSaveOwnPr
     const [editedLastName, setEditedLastName] = useState("");
     const [editedMobile, setEditedMobile] = useState("");
     const [savingDetails, setSavingDetails] = useState(false);
+    const location = useLocation();
+    const navigate = useNavigate();
+
+    useEffect(() => {
+    const params = new URLSearchParams(location.search);
+
+    if (params.get("openIdCard") === "true" && profile) {
+        setShowIdCard(true);
+        navigate(location.pathname, { replace: true });
+    }
+    }, [location.search, location.pathname, navigate, profile]);
 
     useEffect(() => {
         if (!profile?.id) return;
