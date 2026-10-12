@@ -1403,8 +1403,8 @@ body {
     margin-top: 8px;
     margin-bottom: 20px;
     padding: 14px 16px;
-    background: #f7f8fa;
-    border: 1px solid #e5e7eb;
+    background: var(--bg-secondary, #f7f8fa);
+    border: 1px solid var(--border-color, #e5e7eb);
     border-radius: 10px;
 }
 
@@ -1415,7 +1415,7 @@ body {
     gap: 10px;
     cursor: pointer;
     margin: 0;
-    color: #111827;
+    color: var(--text-primary, #111827);
     font-size: 14px;
     font-weight: 500;
     line-height: 1.5;
@@ -1427,7 +1427,7 @@ body {
     height: 17px;
     min-width: 17px;
     margin: 0;
-    accent-color: #111827;
+    accent-color: var(--text-primary, #111827);
     cursor: pointer;
 }
 
@@ -1436,15 +1436,33 @@ body {
     display: block;
     margin-top: 6px;
     margin-left: 27px;
-    color: #6b7280;
+    color: var(--text-secondary, #6b7280);
     font-size: 12px;
     line-height: 1.5;
 }
 
 /* Keyboard accessibility */
 .two-factor-register-option input[type="checkbox"]:focus-visible {
-    outline: 2px solid #6b7280;
+    outline: 2px solid var(--text-secondary, #6b7280);
     outline-offset: 3px;
+}
+
+/* Dark mode */
+[data-theme="dark"] .two-factor-register-option {
+    background: var(--bg-secondary, #1f2937);
+    border-color: var(--border-color, #374151);
+}
+
+[data-theme="dark"] .two-factor-register-option > label {
+    color: var(--text-primary, #f9fafb);
+}
+
+[data-theme="dark"] .two-factor-register-option input[type="checkbox"] {
+    accent-color: var(--text-primary, #f9fafb);
+}
+
+[data-theme="dark"] .two-factor-register-option small {
+    color: var(--text-secondary, #9ca3af);
 }
 
 

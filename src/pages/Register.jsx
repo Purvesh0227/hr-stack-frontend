@@ -1093,7 +1093,7 @@ function Register() {
                             )}
 
                         </div>
-                            <div className="register-field two-factor-register-option">
+                        <div className="register-field two-factor-register-option">
                             <label>
                                 <input
                                     type="checkbox"
