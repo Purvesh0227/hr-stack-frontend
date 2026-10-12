@@ -58,6 +58,8 @@ function Register() {
         confirmPassword: ""
     });
 
+    const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
+
     const [profilePhoto, setProfilePhoto] = useState(null);
     const [profilePhotoPreview, setProfilePhotoPreview] = useState(null);
 
@@ -412,7 +414,8 @@ function Register() {
                         firstName: employee.firstName.trim(),
                         lastName: employee.lastName.trim(),
                         mobile: employee.mobile,
-                        password: employee.password
+                        password: employee.password,
+                        twoFactorEnabled: twoFactorEnabled
                     });
 
                     localStorage.setItem("token", data.token);
@@ -476,6 +479,8 @@ function Register() {
                     "password",
                     employee.password
                 );
+
+                formData.append("twoFactorEnabled", String(twoFactorEnabled));
 
                 if (profilePhoto) {
                     formData.append(
@@ -1088,7 +1093,16 @@ function Register() {
                             )}
 
                         </div>
-
+                            <div className="register-field two-factor-register-option">
+                            <label>
+                                <input
+                                    type="checkbox"
+                                    checked={twoFactorEnabled}
+                                    onChange={(e) => setTwoFactorEnabled(e.target.checked)}
+                                />
+                                <span>Enable Two-Factor Authentication (Email OTP)</span>
+                            </label>
+                        </div>
 
                         {/* =====================================
                             SUBMIT

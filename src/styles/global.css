@@ -1398,6 +1398,56 @@ body {
    REGISTER
 ============================================================ */
 
+/* Two-Factor Authentication option on Register page */
+.two-factor-register-option {
+    margin-top: 8px;
+    margin-bottom: 20px;
+    padding: 14px 16px;
+    background: #f7f8fa;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+}
+
+/* Checkbox and label alignment */
+.two-factor-register-option > label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    margin: 0;
+    color: #111827;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.5;
+}
+
+/* Checkbox appearance */
+.two-factor-register-option input[type="checkbox"] {
+    width: 17px;
+    height: 17px;
+    min-width: 17px;
+    margin: 0;
+    accent-color: #111827;
+    cursor: pointer;
+}
+
+/* Helper text */
+.two-factor-register-option small {
+    display: block;
+    margin-top: 6px;
+    margin-left: 27px;
+    color: #6b7280;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+/* Keyboard accessibility */
+.two-factor-register-option input[type="checkbox"]:focus-visible {
+    outline: 2px solid #6b7280;
+    outline-offset: 3px;
+}
+
+
 .login-register {
     display: flex;
     align-items: center;
