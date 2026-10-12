@@ -579,7 +579,11 @@ function Dashboard() {
 
     return (
         <>
-            <Navbar />
+            <Navbar
+                role={role}
+                employee={employee}
+                adminProfile={adminProfile}
+            />
 
             <Notification
                 message={notification.message}
