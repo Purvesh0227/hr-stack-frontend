@@ -6062,3 +6062,71 @@ body {
     opacity: 0.6;
     cursor: not-allowed;
 }
+
+/* google signup  */
+.register-google {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+    margin-bottom: 8px;
+    color-scheme: light;   /* no white box around Google's iframe in dark mode */
+}
+
+.register-google > div:first-child {
+    max-width: 100%;
+    overflow: hidden;
+    border-radius: 6px;
+}
+
+[data-theme="dark"] .register-google > div:first-child {
+    border: 1px solid var(--border-strong);
+}
+
+.register-divider {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+.register-divider::before,
+.register-divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--border-strong);
+}
+
+.register-google-banner {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 12px 14px;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    background: var(--bg-hover-row);
+    color: var(--text-secondary);
+    font-size: 13px;
+}
+
+.register-google-banner svg {
+    color: var(--status-active-text);
+    flex-shrink: 0;
+}
+
+.register-google-banner button {
+    margin-left: auto;
+    background: none;
+    border: none;
+    padding: 0;
+    color: var(--text-primary);
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: underline;
+    cursor: pointer;
+}

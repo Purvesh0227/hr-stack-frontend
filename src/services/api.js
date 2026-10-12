@@ -321,4 +321,8 @@ export const uploadDocumentDirectlyToMinio = (uploadUrl, file) =>
     // Google sign-in
     export const googleLogin = (idToken) => API.post("/google-login", { idToken });
 
+    //google sign-up 
+    export const googleSignupStart = (idToken) => API.post("/google-signup/start", { idToken });
+    export const googleSignupComplete = (data) => API.post("/google-signup/complete", data);
+
 export default API;
