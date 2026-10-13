@@ -6762,5 +6762,97 @@ body.dark .account-dropdown-logout {
         max-width: calc(100vw - 24px);
     }
 }
+/* =========================================
+   MOBILE SIDEBAR PROFILE FIX
+   ========================================= */
+
+@media (max-width: 768px) {
+    /* Sidebar drawer */
+    .sidebar {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+
+        width: min(260px, 82vw);
+        height: 100dvh;
+        max-height: 100dvh;
+
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+
+        overflow-x: hidden;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+        z-index: 1500;
+    }
+
+    /* Navigation can scroll if needed */
+    .sidebar > div:first-child {
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+    }
+
+    /* Keep profile visible at the bottom */
+    .sidebar-profile-section {
+        position: relative;
+        flex-shrink: 0;
+        margin-top: auto;
+
+        padding: 12px 12px calc(14px + env(safe-area-inset-bottom, 0px));
+
+        border-top: 1px solid var(--border-color, #303030);
+        background: inherit;
+    }
+
+    /* Make the profile button comfortable to tap */
+    .account-dropdown-sidebar {
+        width: 100%;
+    }
+
+    .account-sidebar-trigger {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 12px;
+
+        width: 100%;
+        min-height: 48px;
+        padding: 6px 4px;
+    }
+
+    .account-sidebar-trigger .account-avatar {
+        width: 38px;
+        height: 38px;
+    }
+
+    .account-sidebar-trigger .account-trigger-name {
+        display: block;
+        flex: 1;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    /* Dropdown opens above the profile */
+    .account-dropdown-sidebar .account-dropdown-menu {
+        position: fixed;
+
+        left: 12px;
+        right: auto;
+        bottom: calc(76px + env(safe-area-inset-bottom, 0px));
+        top: auto;
+
+        width: min(260px, calc(100vw - 24px));
+        max-width: calc(100vw - 24px);
+        z-index: 2000;
+    }
+}
+
 
 
