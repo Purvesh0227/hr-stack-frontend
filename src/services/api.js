@@ -327,17 +327,25 @@ export const uploadDocumentDirectlyToMinio = (uploadUrl, file) =>
 
     // ---------------- QR Attendance ----------------
 
-// Admin: create 5-minute QR session
+// Admin: create 5-minute QR session (token is returned only once)
 export const createQrSession = (department) =>
     API.post("/attendance/qr/sessions", { department });
 
+// Admin: live status + scan count
 export const getQrSessionStatus = (sessionId, signal) =>
     API.get(`/attendance/qr/sessions/${sessionId}`, { signal });
 
+// Admin: revoke QR early
 export const revokeQrSession = (sessionId) =>
     API.delete(`/attendance/qr/sessions/${sessionId}`);
 
+// Admin: email QR + link to all active employees (once per QR)
+export const emailQrSession = (sessionId, token) =>
+    API.post(`/attendance/qr/sessions/${sessionId}/email`, { token });
+
+// Admin + Employee: submit scanned token
 export const markQrAttendance = (token) =>
     API.post("/attendance/qr/mark", { token });
 
 export default API;
+

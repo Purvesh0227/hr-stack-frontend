@@ -11,7 +11,7 @@ import {
 
 import "../styles/QrAttendance.css";
 
-// Token is 43 chars (32 bytes base64url). Allow some slack.
+
 const TOKEN_PATTERN = /^#t=([A-Za-z0-9_-]{20,100})$/;
 
 const readTokenFromHash = () => {
@@ -46,11 +46,9 @@ function QrScanPage() {
     useEffect(() => {
         if (!token) return;
 
-        // If the API answers 401 (session expired), api.js sends the user to
-        // login. Keep the link so login can bring them back.
         savePostLoginPath(`/attendance/scan#t=${token}`);
 
-        // Remove token from address bar / history. Keep router's history state.
+
         window.history.replaceState(
             window.history.state,
             "",

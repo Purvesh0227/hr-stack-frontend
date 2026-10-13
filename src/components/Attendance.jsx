@@ -71,9 +71,7 @@ function Attendance({ role }) {
     const [currentPage, setCurrentPage] = useState(1);
     const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
 
-    // Reset to page 1 when scope, search or month changes.
-    // Done during render (not in a second effect) so no wasted
-    // request is fired for the old page number.
+
     const attendanceFilterKey =
     `${scope}|${debouncedSearchTerm}|${selectedMonth}|${pageSize}`;
     const [lastAttendanceFilterKey, setLastAttendanceFilterKey] = useState(

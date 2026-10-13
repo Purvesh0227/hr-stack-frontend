@@ -3,6 +3,7 @@ import { QRCodeSVG } from "qrcode.react";
 
 import {
     createQrSession,
+    emailQrSession,
     getQrSessionStatus,
     revokeQrSession
 } from "../services/api";
@@ -23,6 +24,14 @@ const formatClock = (totalSeconds) => {
     )}`;
 };
 
+/*
+ * Admin side of QR attendance. Lives inside the Initiate Attendance modal.
+ * Props:
+ *   department - value of the department select in the modal
+ *
+ * Token is only held in memory here. Backend never returns it again,
+ * so a page reload = generate a new QR.
+ */
 function QrAttendancePanel({ department }) {
     const { showNotification } = useNotification();
 
@@ -36,6 +45,10 @@ function QrAttendancePanel({ department }) {
     const [scanCount, setScanCount] = useState(0);
     const [serverState, setServerState] = useState("ACTIVE"); // ACTIVE | EXPIRED | REVOKED
     const [busy, setBusy] = useState(false);
+
+    // idle -> confirm -> sending -> sent
+    const [emailState, setEmailState] = useState("idle");
+    const [emailCount, setEmailCount] = useState(0);
 
     const isActive =
         session !== null && serverState === "ACTIVE" && remaining > 0;
@@ -63,8 +76,11 @@ function QrAttendancePanel({ department }) {
     }, [session, clockOffset]);
 
     /* =========================================
-       POLLING
+       LIVE SCAN COUNT
+       Polls until server says EXPIRED / REVOKED. That last poll also
+       delivers the final count.
        ========================================= */
+
     useEffect(() => {
         if (!session || serverState !== "ACTIVE") {
             return;
@@ -82,7 +98,7 @@ function QrAttendancePanel({ department }) {
                 setScanCount(data.scanCount);
                 setServerState(data.status);
             } catch {
-                
+                // transient error: next tick retries
             }
         };
 
@@ -110,6 +126,8 @@ function QrAttendancePanel({ department }) {
             setClockOffset(data.serverNow - Date.now());
             setScanCount(0);
             setServerState("ACTIVE");
+            setEmailState("idle");
+            setEmailCount(0);
 
             showNotification("QR code generated.", "success");
         } catch (error) {
@@ -120,6 +138,37 @@ function QrAttendancePanel({ department }) {
             );
         } finally {
             setBusy(false);
+        }
+    };
+
+    const handleEmail = async () => {
+        if (!session || emailState === "sending") return;
+
+        try {
+            setEmailState("sending");
+
+            const { data } = await emailQrSession(
+                session.sessionId,
+                session.token
+            );
+
+            setEmailCount(data.recipients);
+            setEmailState("sent");
+
+            showNotification(data.message, "success");
+        } catch (error) {
+            // 409 = already emailed for this QR
+            setEmailState(
+                error.response?.data?.code === "ALREADY_EMAILED"
+                    ? "sent"
+                    : "idle"
+            );
+
+            showNotification(
+                error.response?.data?.error ||
+                    "Failed to email QR code.",
+                "error"
+            );
         }
     };
 
@@ -144,6 +193,11 @@ function QrAttendancePanel({ department }) {
         }
     };
 
+    /* =========================================
+       QR LINK
+       Token in URL hash (#t=...): browsers never send hash to servers,
+       so it stays out of access logs and Referer headers.
+       ========================================= */
 
     const scanUrl = useMemo(() => {
         if (!session) return "";
@@ -154,7 +208,9 @@ function QrAttendancePanel({ department }) {
         );
     }, [session]);
 
-
+    /* =========================================
+       RENDER
+       ========================================= */
 
     if (!session) {
         return (
@@ -213,13 +269,61 @@ function QrAttendancePanel({ department }) {
                         </div>
                     </div>
 
-                    <button
-                        className="qr-revoke-btn"
-                        onClick={handleRevoke}
-                        disabled={busy}
-                    >
-                        {busy ? "Revoking..." : "Revoke QR"}
-                    </button>
+                    <div className="qr-actions">
+                        {emailState === "idle" && (
+                            <button
+                                className="qr-secondary-btn"
+                                onClick={() => setEmailState("confirm")}
+                                disabled={busy}
+                            >
+                                Email to all employees
+                            </button>
+                        )}
+
+                        {emailState === "confirm" && (
+                            <div className="qr-email-confirm" role="alertdialog">
+                                <span>Email this QR to all active employees?</span>
+
+                                <div className="qr-email-confirm-buttons">
+                                    <button
+                                        className="qr-secondary-btn"
+                                        onClick={handleEmail}
+                                    >
+                                        Yes, send
+                                    </button>
+
+                                    <button
+                                        className="qr-link-btn"
+                                        onClick={() => setEmailState("idle")}
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        {emailState === "sending" && (
+                            <button className="qr-secondary-btn" disabled>
+                                Sending...
+                            </button>
+                        )}
+
+                        {emailState === "sent" && (
+                            <span className="qr-email-sent" role="status">
+                                {emailCount > 0
+                                    ? `Emailing ${emailCount} employee(s)`
+                                    : "Already emailed"}
+                            </span>
+                        )}
+
+                        <button
+                            className="qr-revoke-btn"
+                            onClick={handleRevoke}
+                            disabled={busy}
+                        >
+                            {busy ? "Revoking..." : "Revoke QR"}
+                        </button>
+                    </div>
                 </div>
             ) : (
                 <div className="qr-box qr-box-ended">

@@ -1,8 +1,8 @@
+
 .qr-panel {
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    
+    gap: 14px;
 }
 
 .qr-hint {
@@ -16,8 +16,8 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 4px;
-    padding: 12px;
+    gap: 6px;
+    padding: 18px 16px;
     border: 1px solid var(--border-color);
     border-radius: 12px;
     background: var(--bg-hover-row);
@@ -30,8 +30,6 @@
     border-radius: 12px;
     background: #ffffff;
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
-    border: 1px solid var(--qr-tile-border);
-    box-shadow: var(--qr-tile-shadow);
 }
 
 .qr-tile svg {
@@ -41,14 +39,14 @@
 }
 
 .qr-countdown-label {
-    margin-top: 4px;
-    font-size: 11px;
+    margin-top: 8px;
+    font-size: 12px;
     color: var(--text-secondary);
 }
 
 .qr-countdown {
-    font-size:20px;
-    font-weight: 600;
+    font-size: 30px;
+    font-weight: 700;
     font-variant-numeric: tabular-nums;
     letter-spacing: 1px;
     color: var(--text-primary);
@@ -62,9 +60,9 @@
     width: 100%;
     display: flex;
     justify-content: space-between;
-    gap: 8px;
-    margin-top: 4px;
-    padding-top: 8px;
+    gap: 12px;
+    margin-top: 8px;
+    padding-top: 12px;
     border-top: 1px solid var(--border-color);
 }
 
@@ -89,7 +87,7 @@
 }
 
 .qr-revoke-btn {
-    margin-top: 6px;
+    margin-top: 10px;
     min-height: 38px;
     padding: 0 18px;
     border: 1px solid var(--danger);
@@ -104,7 +102,7 @@
 
 .qr-revoke-btn:hover:not(:disabled) {
     background: var(--danger);
-    color: var(--qr-danger-hover-text);
+    color: var(--text-on-active);
 }
 
 .qr-revoke-btn:disabled {
@@ -113,7 +111,7 @@
 }
 
 .qr-box-ended {
-    padding: 16px 12px;
+    padding: 22px 16px;
     text-align: center;
 }
 
@@ -132,7 +130,7 @@
 .attendance-mode-switch {
     display: flex;
     gap: 4px;
-    margin-bottom: 10px;
+    margin-bottom: 16px;
     padding: 4px;
     border: 1px solid var(--border-color);
     border-radius: 10px;
@@ -165,7 +163,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 12px;
+    padding: 20px;
     background: var(--bg-page);
 }
 
@@ -175,17 +173,17 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
-    padding: 20px 16px;
+    gap: 12px;
+    padding: 28px 24px;
     text-align: center;
     background: var(--bg-card);
     border: 1px solid var(--border-color);
     border-radius: 14px;
-    box-shadow: var(--qr-card-shadow);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
 }
 
 .qr-scan-card .attendance-generate-btn {
-    margin-top: 2px;
+    margin-top: 6px;
 }
 
 .qr-scan-title {
@@ -228,16 +226,21 @@
 .qr-scan-icon-ok {
     color: var(--status-active-text);
     border: 2px solid var(--status-active-dot);
-    background: var(--qr-ok-bg);
 }
 
 .qr-scan-icon-bad {
     color: var(--danger);
     border: 2px solid var(--danger);
-    background: var(--qr-bad-bg);
 }
 
-/* ---------- Theme variables ---------- */
+/* =========================================
+   LIGHT / DARK MODE
+   App sets  <html data-theme="dark">  (see ThemeContext).
+   Light = :root default, dark = [data-theme="dark"].
+   All colors above come from theme.css vars, so they already switch.
+   Block below only tunes what vars cannot: shadows, QR tile edge,
+   hover contrast, focus rings. Own --qr-* names = no clash with theme.css.
+   ========================================= */
 
 :root {
     --qr-tile-border: #E5E7EB;
@@ -251,17 +254,38 @@
 
 [data-theme="dark"] {
     --qr-tile-border: #26262B;
-    --qr-tile-shadow:
-        0 0 0 1px rgba(255, 255, 255, 0.06),
+    --qr-tile-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06),
         0 4px 18px rgba(0, 0, 0, 0.55);
     --qr-card-shadow: 0 18px 50px rgba(0, 0, 0, 0.6);
     --qr-focus-ring: rgba(59, 130, 246, 0.55);
+    /* --danger is light red in dark theme: white text on it is weak */
     --qr-danger-hover-text: #0A0A0C;
     --qr-ok-bg: rgba(52, 211, 153, 0.12);
     --qr-bad-bg: rgba(248, 113, 113, 0.12);
 }
 
-/* Keyboard focus, visible in both themes */
+.qr-tile {
+    border: 1px solid var(--qr-tile-border);
+    box-shadow: var(--qr-tile-shadow);
+}
+
+.qr-scan-card {
+    box-shadow: var(--qr-card-shadow);
+}
+
+.qr-revoke-btn:hover:not(:disabled) {
+    color: var(--qr-danger-hover-text);
+}
+
+.qr-scan-icon-ok {
+    background: var(--qr-ok-bg);
+}
+
+.qr-scan-icon-bad {
+    background: var(--qr-bad-bg);
+}
+
+/* keyboard focus, visible in both themes */
 .qr-revoke-btn:focus-visible,
 .attendance-mode-switch button:focus-visible,
 .qr-scan-card .attendance-generate-btn:focus-visible,
@@ -270,56 +294,98 @@
     outline-offset: 2px;
 }
 
-/* Inactive tab hover */
+/* inactive tab hover */
 .attendance-mode-switch button:not(.active):hover {
     color: var(--text-primary);
 }
 
-/* ---------- Responsive spacing ---------- */
-
+/* phone: scan card breathes on small screens */
 @media (max-width: 480px) {
-    .qr-scan-page {
-        padding: 8px;
-    }
-
     .qr-scan-card {
-        padding: 16px 12px;
-        gap: 8px;
-    }
-
-    .qr-box {
-        padding: 10px;
-    }
-
-    .qr-meta-row {
-        gap: 6px;
+        padding: 22px 18px;
     }
 }
 
-/* Compact layout for shorter screens */
-@media (max-height: 650px) {
-    .qr-scan-page {
-        align-items: flex-start;
-        padding-top: 12px;
-        padding-bottom: 12px;
-    }
-
-    .qr-scan-card {
-        gap: 6px;
-        padding: 14px 16px;
-    }
-
-    .qr-scan-icon {
-        width: 44px;
-        height: 44px;
-    }
-}
-
-/* Respect reduced motion */
+/* respect reduced motion (nothing animates here, but keeps it safe if added later) */
 @media (prefers-reduced-motion: reduce) {
     .qr-panel *,
     .qr-scan-card * {
         transition: none !important;
         animation: none !important;
     }
+}
+
+/* ---------- Email broadcast (admin panel) ---------- */
+
+.qr-actions {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.qr-actions .qr-revoke-btn {
+    margin-top: 0;
+}
+
+.qr-secondary-btn {
+    min-height: 38px;
+    padding: 0 18px;
+    border: 1px solid var(--border-color);
+    border-radius: 9px;
+    background: var(--bg-card);
+    color: var(--text-primary);
+    font-family: var(--font-family);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.qr-secondary-btn:hover:not(:disabled) {
+    background: var(--bg-hover-row);
+}
+
+.qr-secondary-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.qr-email-confirm {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--text-primary);
+    text-align: center;
+}
+
+.qr-email-confirm-buttons {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.qr-link-btn {
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    font-family: var(--font-family);
+    font-size: 13px;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.qr-email-sent {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--status-active-text);
+}
+
+.qr-secondary-btn:focus-visible,
+.qr-link-btn:focus-visible {
+    outline: 2px solid var(--qr-focus-ring);
+    outline-offset: 2px;
 }
