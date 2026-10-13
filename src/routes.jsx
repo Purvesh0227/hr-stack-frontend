@@ -8,6 +8,8 @@ import ProtectedRoute from "./components/ProtectedRoute";
 
 import VerifyEmail from "./pages/VerifyEmail";
 
+import QrScanPage from "./pages/QrScanPage";
+
 import DashboardHome from "./pages/Dashboard/DashboardHome";
 import Employees from "./pages/Dashboard/Employees";
 import Admins from "./pages/Dashboard/Admins";
@@ -53,6 +55,16 @@ function AppRoutes() {
                 <Route path="finance" element={<FinancePage />} />
                 <Route path="settings" element={<SettingsPage />} />
             </Route>
+
+
+            <Route
+                path="/attendance/scan"
+                element={
+                    <ProtectedRoute>
+                        <QrScanPage />
+                    </ProtectedRoute>
+                }
+            />
 
             <Route path="*" element={<NotFound />} />
         </Routes>

@@ -14,6 +14,9 @@ import "../styles/Attendance.css"
 import useSubmitLock from "../hooks/useSubmitLock";
 import PageSizeSelect from "./PageSizeSelect";
 
+import QrAttendancePanel from "./QrAttendancePanel";
+import "../styles/QrAttendance.css";
+
 const DEFAULT_PAGE_SIZE = 10;
 
 const getMonthRange = (month) => {
@@ -56,6 +59,8 @@ function Attendance({ role }) {
 
     const [otp, setOtp] = useState(null);
     const [enteredOtp, setEnteredOtp] = useState("");
+
+    const [attendanceMode, setAttendanceMode] = useState("OTP"); // OTP | QR
 
     const [loading, setLoading] = useState(false);
     const [generatingOtp, setGeneratingOtp] = useState(false);
@@ -323,6 +328,7 @@ function Attendance({ role }) {
         setOtp(null);
         setCountdown(0);
         setShowInitiate(true);
+        setAttendanceMode("OTP");
     };
 
     const handleCloseInitiate = () => {
@@ -446,9 +452,31 @@ function Attendance({ role }) {
                                 then generate the OTP.
                             </p>
 
+                            <div className="attendance-mode-switch" role="tablist">
+                                <button
+                                    type="button"
+                                    role="tab"
+                                    aria-selected={attendanceMode === "OTP"}
+                                    className={attendanceMode === "OTP" ? "active" : ""}
+                                    onClick={() => setAttendanceMode("OTP")}
+                                >
+                                    OTP
+                                </button>
+
+                                <button
+                                    type="button"
+                                    role="tab"
+                                    aria-selected={attendanceMode === "QR"}
+                                    className={attendanceMode === "QR" ? "active" : ""}
+                                    onClick={() => setAttendanceMode("QR")}
+                                >
+                                    QR Code
+                                </button>
+                            </div>
+
                             {/* Date + Department */}
                             <div className="attendance-form-row">
-
+                            {attendanceMode === "OTP" && (
                                 <div className="attendance-form-group">
                                     <label>Date</label>
 
@@ -467,7 +495,7 @@ function Attendance({ role }) {
                                         }
                                     />
                                 </div>
-
+                            )}
                                 <div className="attendance-form-group">
                                     <label>Department</label>
 
@@ -490,7 +518,8 @@ function Attendance({ role }) {
                                     </select>
                                 </div>
                             </div>
-
+                {attendanceMode === "OTP" && (
+                    <>
                             {/* Generate OTP */}
                             <button
                                 className="attendance-generate-btn"
@@ -590,6 +619,13 @@ function Attendance({ role }) {
                                     </button>
                                 </div>
                             )}
+                        </>
+                )}
+
+                {/* Kept mounted (just hidden) so switching tabs does not lose the QR on screen */}
+                <div style={{ display: attendanceMode === "QR" ? "block" : "none" }}>
+                    <QrAttendancePanel department={department} />
+                </div>
 
                             {/* Modal Footer */}
                             <div className="attendance-modal-footer">
