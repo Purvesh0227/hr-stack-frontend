@@ -592,7 +592,11 @@ function Dashboard() {
             />
 
             <div className="dashboard-wrapper">
-                <AdminSidebar role={role} />
+                <AdminSidebar
+                    role={role}
+                    employee={employee}
+                    adminProfile={adminProfile}
+                />
 
                 <main className="dashboard-main">
                     <Outlet context={outletContext} />
