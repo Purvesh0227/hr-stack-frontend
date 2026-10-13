@@ -10,8 +10,9 @@ import { useLocation, useNavigate } from "react-router-dom";
 import "../styles/global.css";
 import { FiLogOut } from "react-icons/fi";
 import { clearStorage } from "../utils/storage";
+import ProfileCard from "./ProfileCard";
 
-function AdminSidebar({ role }) {
+function AdminSidebar({ role, employee, adminProfile }) {
     const navigate = useNavigate();
     const location = useLocation();
     const [isOpen, setIsOpen] = useState(false); // mobile drawer state
@@ -133,6 +134,14 @@ function AdminSidebar({ role }) {
                             <span>Settings</span>
                         </button>
                     </nav>
+                </div>
+                <div className="sidebar-profile-section">
+                    <ProfileCard
+                        role={role}
+                        employee={employee}
+                        adminProfile={adminProfile}
+                        placement="sidebar"
+                    />
                 </div>
             </aside>
         </>

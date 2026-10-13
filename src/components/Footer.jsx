@@ -4,7 +4,7 @@ function Footer() {
     return (
         <footer className="footer">
             <div className="footer-content">
-                <p><strong>2026 HR Stack</strong> - Employee Onboarding Application</p>
+                <p><strong>© 2026 HRStack.</strong> All rights reserved.</p>
             </div>
         </footer>
     );
