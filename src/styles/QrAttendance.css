@@ -1,0 +1,325 @@
+.qr-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    
+}
+
+.qr-hint {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--text-secondary);
+}
+
+.qr-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    background: var(--bg-hover-row);
+}
+
+/* QR always on white: scanners need dark-on-light even in dark theme */
+.qr-tile {
+    display: flex;
+    padding: 8px;
+    border-radius: 12px;
+    background: #ffffff;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+    border: 1px solid var(--qr-tile-border);
+    box-shadow: var(--qr-tile-shadow);
+}
+
+.qr-tile svg {
+    display: block;
+    max-width: 100%;
+    height: auto;
+}
+
+.qr-countdown-label {
+    margin-top: 4px;
+    font-size: 11px;
+    color: var(--text-secondary);
+}
+
+.qr-countdown {
+    font-size:20px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 1px;
+    color: var(--text-primary);
+}
+
+.qr-countdown-low {
+    color: var(--danger);
+}
+
+.qr-meta-row {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: 4px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border-color);
+}
+
+.qr-meta-row > div {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: 12px;
+}
+
+.qr-meta-row > div:last-child {
+    align-items: flex-end;
+}
+
+.qr-meta-row span {
+    color: var(--text-secondary);
+}
+
+.qr-meta-row strong {
+    color: var(--text-primary);
+    font-size: 13px;
+}
+
+.qr-revoke-btn {
+    margin-top: 6px;
+    min-height: 38px;
+    padding: 0 18px;
+    border: 1px solid var(--danger);
+    border-radius: 9px;
+    background: transparent;
+    color: var(--danger);
+    font-family: var(--font-family);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.qr-revoke-btn:hover:not(:disabled) {
+    background: var(--danger);
+    color: var(--qr-danger-hover-text);
+}
+
+.qr-revoke-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.qr-box-ended {
+    padding: 16px 12px;
+    text-align: center;
+}
+
+.qr-ended-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.qr-box-ended .attendance-generate-btn {
+    margin-top: 8px;
+}
+
+/* ---------- Mode switch (OTP | QR Code) ---------- */
+
+.attendance-mode-switch {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 10px;
+    padding: 4px;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    background: var(--bg-hover-row);
+}
+
+.attendance-mode-switch button {
+    flex: 1;
+    min-height: 36px;
+    border: none;
+    border-radius: 7px;
+    background: transparent;
+    color: var(--text-secondary);
+    font-family: var(--font-family);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.attendance-mode-switch button.active {
+    background: var(--bg-primary-btn);
+    color: var(--text-on-active);
+}
+
+/* ---------- Employee scan page ---------- */
+
+.qr-scan-page {
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+    background: var(--bg-page);
+}
+
+.qr-scan-card {
+    width: 100%;
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 20px 16px;
+    text-align: center;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    box-shadow: var(--qr-card-shadow);
+}
+
+.qr-scan-card .attendance-generate-btn {
+    margin-top: 2px;
+}
+
+.qr-scan-title {
+    margin: 0;
+    font-size: 20px;
+    color: var(--text-primary);
+}
+
+.qr-scan-lead {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.qr-scan-sub {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--text-secondary);
+}
+
+.qr-scan-warn {
+    margin: 0;
+    font-size: 13px;
+    color: var(--danger);
+}
+
+.qr-scan-icon {
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.qr-scan-icon-ok {
+    color: var(--status-active-text);
+    border: 2px solid var(--status-active-dot);
+    background: var(--qr-ok-bg);
+}
+
+.qr-scan-icon-bad {
+    color: var(--danger);
+    border: 2px solid var(--danger);
+    background: var(--qr-bad-bg);
+}
+
+/* ---------- Theme variables ---------- */
+
+:root {
+    --qr-tile-border: #E5E7EB;
+    --qr-tile-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+    --qr-card-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+    --qr-focus-ring: rgba(17, 17, 17, 0.35);
+    --qr-danger-hover-text: #FFFFFF;
+    --qr-ok-bg: rgba(5, 150, 105, 0.08);
+    --qr-bad-bg: rgba(220, 38, 38, 0.08);
+}
+
+[data-theme="dark"] {
+    --qr-tile-border: #26262B;
+    --qr-tile-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.06),
+        0 4px 18px rgba(0, 0, 0, 0.55);
+    --qr-card-shadow: 0 18px 50px rgba(0, 0, 0, 0.6);
+    --qr-focus-ring: rgba(59, 130, 246, 0.55);
+    --qr-danger-hover-text: #0A0A0C;
+    --qr-ok-bg: rgba(52, 211, 153, 0.12);
+    --qr-bad-bg: rgba(248, 113, 113, 0.12);
+}
+
+/* Keyboard focus, visible in both themes */
+.qr-revoke-btn:focus-visible,
+.attendance-mode-switch button:focus-visible,
+.qr-scan-card .attendance-generate-btn:focus-visible,
+.qr-panel .attendance-generate-btn:focus-visible {
+    outline: 2px solid var(--qr-focus-ring);
+    outline-offset: 2px;
+}
+
+/* Inactive tab hover */
+.attendance-mode-switch button:not(.active):hover {
+    color: var(--text-primary);
+}
+
+/* ---------- Responsive spacing ---------- */
+
+@media (max-width: 480px) {
+    .qr-scan-page {
+        padding: 8px;
+    }
+
+    .qr-scan-card {
+        padding: 16px 12px;
+        gap: 8px;
+    }
+
+    .qr-box {
+        padding: 10px;
+    }
+
+    .qr-meta-row {
+        gap: 6px;
+    }
+}
+
+/* Compact layout for shorter screens */
+@media (max-height: 650px) {
+    .qr-scan-page {
+        align-items: flex-start;
+        padding-top: 12px;
+        padding-bottom: 12px;
+    }
+
+    .qr-scan-card {
+        gap: 6px;
+        padding: 14px 16px;
+    }
+
+    .qr-scan-icon {
+        width: 44px;
+        height: 44px;
+    }
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    .qr-panel *,
+    .qr-scan-card * {
+        transition: none !important;
+        animation: none !important;
+    }
+}

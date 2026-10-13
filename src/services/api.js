@@ -325,4 +325,19 @@ export const uploadDocumentDirectlyToMinio = (uploadUrl, file) =>
     export const googleSignupStart = (idToken) => API.post("/google-signup/start", { idToken });
     export const googleSignupComplete = (data) => API.post("/google-signup/complete", data);
 
+    // ---------------- QR Attendance ----------------
+
+// Admin: create 5-minute QR session
+export const createQrSession = (department) =>
+    API.post("/attendance/qr/sessions", { department });
+
+export const getQrSessionStatus = (sessionId, signal) =>
+    API.get(`/attendance/qr/sessions/${sessionId}`, { signal });
+
+export const revokeQrSession = (sessionId) =>
+    API.delete(`/attendance/qr/sessions/${sessionId}`);
+
+export const markQrAttendance = (token) =>
+    API.post("/attendance/qr/mark", { token });
+
 export default API;

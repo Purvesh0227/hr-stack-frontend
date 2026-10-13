@@ -13,6 +13,8 @@ import useSubmitLock from "../hooks/useSubmitLock";
 import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
 import { useTheme } from "../contexts/ThemeContext";
 
+import { consumePostLoginPath } from "../utils/postLoginRedirect";
+
 // Backend sends {error: "..."} or {field: "..."} for validation
 const getErrorMessage = (error, fallback) => {
     const data = error.response?.data;
@@ -91,7 +93,7 @@ function Login() {
         localStorage.setItem("role", employee.role);
 
         showNotification("Login Successful", "success");
-        navigate("/");
+        navigate(consumePostLoginPath(), { replace: true });
     };
 
     // STEP 1: email + password
