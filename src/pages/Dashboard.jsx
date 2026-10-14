@@ -18,8 +18,9 @@ import Notification from "../components/Notification";
 import AdminSidebar from "../components/AdminSidebar";
 import { dateToMillis, dateToEndMillis } from "../utils/dateUtils";
 
-// Backend can send {error}, {message}, a plain string or a field map.
-// Always return a string so the toast never receives an object.
+import AnnouncementPopup from "../components/AnnouncementPopup";
+
+
 const getErrorMessage = (error, fallback) => {
     const data = error.response?.data;
 
@@ -589,6 +590,11 @@ function Dashboard() {
                 message={notification.message}
                 type={notification.type}
                 onClose={closeNotification}
+            />
+
+            <AnnouncementPopup
+                role={role}
+                email={email}
             />
 
             <div className="dashboard-wrapper">

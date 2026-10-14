@@ -17,12 +17,12 @@ import {
     getAnnouncements,
     deleteAnnouncement,
     getAnnouncementAttachmentUrl
-} from "../../services/announcementService";
+} from "../../services/Announcementservice";
 import { isRequestCancelled } from "../../services/api";
 import { getErrorMessage } from "../../utils/errorUtils";
 import "../../styles/announcements.css";
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 5;
 
 const formatDateTime = (millis) =>
     millis
