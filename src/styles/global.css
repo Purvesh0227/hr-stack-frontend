@@ -707,7 +707,7 @@ body {
 
     text-align: center;
 
-    position: sticky;
+    position: static;
     bottom: 0;
     z-index: 900;
 
@@ -6494,8 +6494,8 @@ body {
 }
 
 .account-navbar-trigger .account-avatar {
-    width: 40px;
-    height: 40px;
+    width: 35px;
+    height:35px;
 }
 
 .account-navbar-trigger:hover {
@@ -6512,7 +6512,7 @@ body {
     margin-top: auto;
 
     /* Shift content toward the left */
-    padding: 12px 6px 14px;
+    padding: 11px 6px 5px;
 
     border-top: 1px solid var(--border-color, #e8eaee);
 }
@@ -6530,7 +6530,7 @@ body {
 
     width: 100%;
     min-width: 0;
-    padding: 8px 4px;
+    padding: 2px 1px;
 
     border: none;
     border-radius: 10px;
@@ -6543,8 +6543,8 @@ body {
 }
 
 .account-sidebar-trigger .account-avatar {
-    width: 36px;
-    height: 36px;
+    width: 35px;
+    height: 35px;
 }
 
 .account-sidebar-trigger .account-trigger-name {
@@ -6555,7 +6555,7 @@ body {
     white-space: nowrap;
     text-align: left;
     font-size: 14px;
-    font-weight: 500;
+    font-weight: 700;
 }
 
 .account-sidebar-trigger:hover {
@@ -6826,8 +6826,8 @@ body.dark .account-dropdown-logout {
     }
 
     .account-sidebar-trigger .account-avatar {
-        width: 38px;
-        height: 38px;
+        width: 35px;
+        height: 35px;
     }
 
     .account-sidebar-trigger .account-trigger-name {
