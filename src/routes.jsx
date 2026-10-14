@@ -19,6 +19,7 @@ import SettingsPage from "./pages/Dashboard/SettingsPage";
 import AlreadyLoggedIn from "./pages/AlreadyLoggedIn";
 import ForgotPassword from "./pages/ForgotPassword";
 import { readStorageJson } from "./utils/storage";
+import AnnouncementsPage from "./pages/Dashboard/AnnouncementsPage";
 
 function AuthEntry({ children }) {
     const employee = readStorageJson("employee");
@@ -53,6 +54,7 @@ function AppRoutes() {
                 <Route path="admins" element={<Admins />} />
                 <Route path="attendance" element={<AttendancePage />} />
                 <Route path="finance" element={<FinancePage />} />
+                <Route path="announcements" element={<AnnouncementsPage />} />
                 <Route path="settings" element={<SettingsPage />} />
             </Route>
 

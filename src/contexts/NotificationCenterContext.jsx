@@ -19,6 +19,10 @@ const NotificationCenterContext = createContext(null);
 // After a failed fetch, wait before trying again
 const FAILURE_COOLDOWN_MS = 10_000;
 
+
+const NOTIFICATION_POLL_INTERVAL_MS = 2 * 60 * 1000;
+
+
 export function NotificationCenterProvider({ children }) {
 
     const [notifications, setNotifications] = useState([]);
@@ -101,6 +105,22 @@ export function NotificationCenterProvider({ children }) {
             // keep current list
         }
     };
+
+    
+    // Refresh notifications every 2 minutes without a page reload.
+    useEffect(() => {
+        if (!isLoggedIn) return;
+
+        const intervalId = window.setInterval(() => {
+            // Avoid unnecessary requests when the browser tab is hidden.
+            if (document.visibilityState === "visible") {
+                fetchNotifications();
+            }
+        }, NOTIFICATION_POLL_INTERVAL_MS);
+
+        return () => window.clearInterval(intervalId);
+    }, [isLoggedIn, fetchNotifications]);
+
 
     // Runs on login/logout and when the filter (UNREAD / READ / ALL) changes
     useEffect(() => {

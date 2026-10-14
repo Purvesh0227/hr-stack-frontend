@@ -3,6 +3,7 @@ import "../styles/global.css";
 import ThemeToggle from "./ThemeToggle";
 import NotificationBell from "./common/NotificationBell";
 import ProfileCard from "./ProfileCard";
+import GlobalSearch from "./GlobalSearch";
 
 function Navbar({ role, employee, adminProfile }) {
     const navigate = useNavigate();
@@ -16,6 +17,8 @@ function Navbar({ role, employee, adminProfile }) {
             >
                 HRStack
             </button>
+
+            <GlobalSearch />
 
             <div className="navbar-actions">
                 <ThemeToggle />

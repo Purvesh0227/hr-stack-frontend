@@ -8,7 +8,7 @@ import { HiOutlineMenu, HiOutlineX } from "react-icons/hi";
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import "../styles/global.css";
-import { FiLogOut } from "react-icons/fi";
+import { FiLogOut, FiBell } from "react-icons/fi";
 import { clearStorage } from "../utils/storage";
 import ProfileCard from "./ProfileCard";
 
@@ -24,6 +24,7 @@ function AdminSidebar({ role, employee, adminProfile }) {
         if (path.startsWith("/employees")) return "employees";
         if (path.startsWith("/admins")) return "admins";
         if (path.startsWith("/attendance")) return "attendance";
+        if (path.startsWith("/announcements")) return "announcements";
         if (path.startsWith("/finance")) return "finance";
         if (path.startsWith("/settings")) return "settings";
 
@@ -116,6 +117,14 @@ function AdminSidebar({ role, employee, adminProfile }) {
                         >
                             <FaCalendarCheck className="icon" />
                             <span>Attendance</span>
+                        </button>
+
+                        <button
+                            className={activeMenu === "announcements" ? "active" : ""}
+                            onClick={() => go("/announcements")}
+                        >
+                            <FiBell className="icon" />
+                            <span>Announcements</span>
                         </button>
 
                         <button
