@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiBell, FiX, FiArrowRight } from "react-icons/fi";
-import { getAnnouncements } from "../services/Announcementservice";
+import { getAnnouncements } from "../services/Announcementservice.js";
 import "../styles/announcements.css";
 
 const POLL_INTERVAL = 30_000;
