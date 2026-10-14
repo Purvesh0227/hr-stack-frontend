@@ -72,3 +72,116 @@
     .gs-kbd { display: none; }
     .global-search input { padding-right: 12px; }
 }
+
+
+/* Tablet */
+@media (max-width: 768px) {
+    .global-search {
+        flex: 1 1 0;
+        min-width: 0;
+        max-width: none;
+        margin: 0 8px;
+    }
+
+    .global-search input {
+        height: 38px;
+        padding: 8px 12px 8px 34px;
+        font-size: 13px;
+        border-radius: 9px;
+    }
+
+    .gs-icon {
+        left: 11px;
+    }
+
+    .gs-kbd {
+        display: none;
+    }
+
+    .gs-dropdown {
+        top: calc(100% + 6px);
+        max-height: 60vh;
+        border-radius: 10px;
+    }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+    .global-search {
+        flex: 1 1 0;
+        width: auto;
+        min-width: 0;
+        margin: 0 6px;
+    }
+
+    .global-search input {
+        height: 35px;
+        padding: 7px 8px 7px 32px;
+        font-size: 12px;
+        border-radius: 9px;
+    }
+
+    .global-search input::placeholder {
+        text-overflow: ellipsis;
+    }
+
+    .gs-icon {
+        left: 10px;
+        font-size: 14px;
+    }
+
+    .gs-dropdown {
+        position: absolute;
+        left: 0;
+        right: 0;
+        width: auto;
+        max-height: 55vh;
+        padding: 5px;
+        overflow-x: hidden;
+    }
+
+    .gs-group-title {
+        padding: 7px 8px 4px;
+        font-size: 10px;
+    }
+
+    .gs-item {
+        gap: 8px;
+        padding: 9px 7px;
+    }
+
+    .gs-item-icon {
+        width: 28px;
+        height: 28px;
+    }
+
+    .gs-item-text strong {
+        font-size: 13px;
+    }
+
+    .gs-item-text small {
+        font-size: 11px;
+    }
+
+    .gs-empty,
+    .gs-hint {
+        padding: 10px 8px;
+        font-size: 12px;
+    }
+}
+
+/* Very small phones */
+@media (max-width: 360px) {
+    .global-search {
+        margin: 0 4px;
+    }
+
+    .global-search input {
+        font-size: 11px;
+        padding-left: 29px;
+    }
+
+    .gs-icon {
+        left: 8px;
+    }
+}

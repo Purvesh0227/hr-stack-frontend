@@ -8,6 +8,8 @@ import "../styles/announcements.css";
 const POLL_INTERVAL = 30_000;
 const PAGE_SIZE = 50;
 
+// changes 
+
 function AnnouncementPopup({ role, email }) {
     const navigate = useNavigate();
     const [queue, setQueue] = useState([]);
