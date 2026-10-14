@@ -109,7 +109,7 @@ function ProfileCard({ role, employee, adminProfile, placement = "navbar" }) {
 
                     {placement === "sidebar" && (
                         <span className="account-trigger-name">
-                            {firstName || "My account"} {lastName}
+                            {firstName || "My account"}
                         </span>
                     )}
                 </button>
