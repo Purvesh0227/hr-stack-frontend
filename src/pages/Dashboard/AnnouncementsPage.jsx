@@ -17,7 +17,7 @@ import {
     getAnnouncements,
     deleteAnnouncement,
     getAnnouncementAttachmentUrl
-} from "../../services/Announcementservice.js";
+} from "../../services/announcementService.js";
 import { isRequestCancelled } from "../../services/api";
 import { getErrorMessage } from "../../utils/errorUtils";
 import "../../styles/announcements.css";

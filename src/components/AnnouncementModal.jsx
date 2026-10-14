@@ -5,7 +5,7 @@ import {
     updateAnnouncement,
     getAnnouncementUploadUrl,
     uploadAnnouncementFile
-} from "../services/Announcementservice.js";
+} from "../services/announcementService.js";
 import { useNotification } from "../contexts/NotificationContext";
 import useSubmitLock from "../hooks/useSubmitLock";
 import { getErrorMessage } from "../utils/errorUtils";
