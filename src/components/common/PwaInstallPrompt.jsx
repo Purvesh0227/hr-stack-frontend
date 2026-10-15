@@ -10,23 +10,30 @@ import { readStorageItem, writeStorageValue } from "../../utils/storage";
 
 const DISMISS_KEY = "hrstack_pwa_install_dismissed";
 
+const APK_URL =
+    "https://github.com/purvesh0227/hr-stack-frontend/releases/latest/download/hr-stack.apk";
+
+const isAndroid = /Android/i.test(navigator.userAgent);
+
+const isStandaloneMode = () =>
+    window.matchMedia("(display-mode: standalone)").matches ||
+    window.navigator.standalone === true;
+
+const isDismissed = () => readStorageItem(DISMISS_KEY) === "true";
+
 function PwaInstallPrompt() {
     const [installPrompt, setInstallPrompt] = useState(null);
-    const [showModal, setShowModal] = useState(false);
     const [dontRemind, setDontRemind] = useState(false);
 
+    // Android browser: show popup straight away (APK download).
+    // Other devices: popup opens when the browser fires beforeinstallprompt.
+    const [showModal, setShowModal] = useState(
+        () => isAndroid && !isStandaloneMode() && !isDismissed()
+    );
+
     useEffect(() => {
-        const isStandalone =
-            window.matchMedia("(display-mode: standalone)").matches ||
-            window.navigator.standalone === true;
-
-        if (isStandalone) {
-            return;
-        }
-
-        const dismissed = readStorageItem(DISMISS_KEY);
-
-        if (dismissed === "true") {
+        // inside installed app / dismissed / Android (uses APK): no PWA prompt
+        if (isAndroid || isStandaloneMode() || isDismissed()) {
             return;
         }
 
@@ -72,6 +79,13 @@ function PwaInstallPrompt() {
     };
 
     const handleInstall = async () => {
+        if (isAndroid) {
+            saveDontRemindPreference();
+            window.location.href = APK_URL;
+            setShowModal(false);
+            return;
+        }
+
         if (!installPrompt) {
             return;
         }
@@ -118,12 +132,15 @@ function PwaInstallPrompt() {
                 </div>
 
                 <h2 id="pwa-install-title">
-                    Install HR-Stack App
+                    {isAndroid
+                        ? "Get the HR-Stack Android App"
+                        : "Install HR-Stack App"}
                 </h2>
 
                 <p className="pwa-install-description">
-                    Get quick access to HR-Stack on your device
-                    for a faster and smoother experience.
+                    {isAndroid
+                        ? "Download the HR-Stack app for faster access and instant notifications."
+                        : "Get quick access to HR-Stack on your device for a faster and smoother experience."}
                 </p>
 
                 <div className="pwa-install-benefits">
@@ -171,7 +188,7 @@ function PwaInstallPrompt() {
                         onClick={handleInstall}
                     >
                         <FiDownload />
-                        <span>Install</span>
+                        <span>{isAndroid ? "Download" : "Install"}</span>
                     </button>
                 </div>
             </div>
