@@ -184,10 +184,24 @@
         gap: 8px;
         margin-right: 52px !important;   /* clear the avatar */
         position: relative;
-        z-index: 2;
+        z-index: 1200;
     }
 
     .notification-bell-wrapper {
         flex-shrink: 0;
+    }
+}
+
+@media (max-width: 600px) {
+    .notification-dropdown {
+        top: 112px !important;
+        max-height: calc(100dvh - 130px);
+        overflow-y: auto;
+        z-index: 1300;
+    }
+
+    /* hide hamburger while bell list is open */
+    body:has(.notification-dropdown) .sidebar-mobile-toggle {
+        display: none !important;
     }
 }
