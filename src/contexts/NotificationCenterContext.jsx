@@ -20,7 +20,7 @@ const NotificationCenterContext = createContext(null);
 const FAILURE_COOLDOWN_MS = 10_000;
 
 
-const NOTIFICATION_POLL_INTERVAL_MS = 2 * 60 * 1000;
+const NOTIFICATION_POLL_INTERVAL_MS = 1 * 60 * 1000;
 
 
 export function NotificationCenterProvider({ children }) {
