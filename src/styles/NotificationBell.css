@@ -174,3 +174,20 @@
     .notification-filter { margin: 10px 14px; }
     .notification-item { padding: 13px 14px; }
 }
+
+.navbar-actions { flex-shrink: 0; }
+
+@media (max-width: 768px) {
+    .navbar-actions {
+        display: flex !important;
+        align-items: center;
+        gap: 8px;
+        margin-right: 52px !important;   /* clear the avatar */
+        position: relative;
+        z-index: 2;
+    }
+
+    .notification-bell-wrapper {
+        flex-shrink: 0;
+    }
+}
