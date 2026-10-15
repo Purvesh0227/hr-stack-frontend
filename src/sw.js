@@ -1,10 +1,18 @@
-import { precacheAndRoute } from "workbox-precaching";
+import { precacheAndRoute, createHandlerBoundToURL } from "workbox-precaching";
+import { NavigationRoute, registerRoute } from "workbox-routing";
 import { clientsClaim } from "workbox-core";
 
 self.skipWaiting();
 clientsClaim();
 
 precacheAndRoute(self.__WB_MANIFEST);
+
+
+registerRoute(
+    new NavigationRoute(
+        createHandlerBoundToURL("/hr-stack-frontend/index.html")
+    )
+);
 
 /* =========================================================
    PUSH NOTIFICATION

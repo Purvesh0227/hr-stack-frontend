@@ -5,32 +5,31 @@ import { VitePWA } from "vite-plugin-pwa";
 export default defineConfig(({ mode }) => ({
     base: "/hr-stack-frontend/",
 
-    // remove console.log / debugger from production build
     esbuild: mode === "production" ? { drop: ["console", "debugger"] } : {},
 
     plugins: [
         react(),
 
         VitePWA({
-            registerType: "autoUpdate",
+            strategies: "injectManifest",
+            srcDir: "src",
+            filename: "sw.js",
 
+            registerType: "autoUpdate",
             injectRegister: "auto",
 
             devOptions: {
                 enabled: true,
+                type: "module",
             },
 
-            includeAssets: [
-                "favicon.ico",
-                "robots.txt",
-            ],
+            includeAssets: ["favicon.ico", "robots.txt"],
 
             manifest: {
                 id: "/hr-stack-frontend/",
                 name: "HR-Stack",
                 short_name: "HR-Stack",
-                description:
-                    "HR-Stack Employee Management Application",
+                description: "HR-Stack Employee Management Application",
 
                 start_url: "/hr-stack-frontend/",
                 scope: "/hr-stack-frontend/",
@@ -60,15 +59,10 @@ export default defineConfig(({ mode }) => ({
                 ],
             },
 
-            workbox: {
-                
+            injectManifest: {
                 globPatterns: [
                     "**/*.{js,css,html,ico,png,svg,webp,woff,woff2}",
                 ],
-
-                cleanupOutdatedCaches: true,
-                clientsClaim: true,
-                skipWaiting: true,
             },
         }),
     ],
