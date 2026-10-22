@@ -1,0 +1,45 @@
+name: Frontend CI
+
+on:
+  push:
+    branches:
+      - main
+      - prod
+  pull_request:
+    branches:
+      - main
+      - prod
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Lint, Test, Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Unit and component tests
+        run: npm test
+
+      - name: Build
+        env:
+          VITE_API_BASE_URL: https://hr-stack-backend.onrender.com
+          VITE_VAPID_PUBLIC_KEY: BFX87mdCQFYWFHfcU53tO0CoOn1J_HVzXYhHd1AVksz4UwGNlgga3H8TqzEudmW_cGFMVTnxkiA3ib6f4OGl3BA
+          VITE_GOOGLE_CLIENT_ID: 491763983472-op2grhsph5s8nrkj1lvinjfreutqr8qj.apps.googleusercontent.com
+        run: npm run build
