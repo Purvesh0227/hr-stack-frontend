@@ -42,3 +42,16 @@ dist-ssr
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+
+# Environment files
+.env
+.env.local
+.env.test
+.env.*.local
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/

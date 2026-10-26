@@ -8,16 +8,23 @@ const __dirname = path.dirname(__filename);
 const authFile = path.join(__dirname, '../playwright/.auth/user.json');
 
 setup('authenticate', async ({ page }) => {
+  const email = process.env.E2E_ADMIN_EMAIL;
+  const password = process.env.E2E_ADMIN_PASSWORD;
+
+  if (!email || !password) {
+    throw new Error(
+      'Missing E2E_ADMIN_EMAIL or E2E_ADMIN_PASSWORD. Copy .env.test.example to .env.test and fill it in.'
+    );
+  }
+
   await page.goto('login');
-  
-  await page.locator('input[type="email"]').fill('purvesh0207@gmail.com');
-  await page.locator('input[type="password"]').fill('Admin@123');
-  
-  // Wait for the API response at the same time as clicking the button
+
+  await page.locator('input[type="email"]').fill(email);
+  await page.locator('input[type="password"]').fill(password);
+
   const [response] = await Promise.all([
     page.waitForResponse(res => res.url().includes('/employee/login')),
-    // ADD { exact: true } HERE
-    page.getByRole('button', { name: 'Sign in', exact: true }).click()
+    page.getByRole('button', { name: 'Sign in', exact: true }).click(),
   ]);
 
   if (!response.ok()) {

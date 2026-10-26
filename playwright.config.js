@@ -1,5 +1,14 @@
 // @ts-check
 import { defineConfig, devices } from '@playwright/test';
+import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Load .env.test so tests use env vars, never hardcoded values
+dotenv.config({ path: path.resolve(__dirname, '.env.test') });
 
 export default defineConfig({
   testDir: './e2e',
@@ -10,26 +19,22 @@ export default defineConfig({
   reporter: 'html',
 
   use: {
-    baseURL: 'http://localhost:5173/hr-stack-frontend/',
+    baseURL: process.env.E2E_BASE_URL || 'http://localhost:5173/hr-stack-frontend/',
     trace: 'on-first-retry',
-    navigationTimeout: 60000, 
+    navigationTimeout: 60000,
     ignoreHTTPSErrors: true,
   },
 
   projects: [
-    { 
-      name: 'setup', 
-      testMatch: /.*\.setup\.js/ 
-    },
+    { name: 'setup', testMatch: /.*\.setup\.js/ },
     {
       name: 'chromium',
-      use: { 
+      use: {
         ...devices['Desktop Chrome'],
         storageState: 'playwright/.auth/user.json',
       },
       dependencies: ['setup'],
     },
-
   ],
 
   webServer: {

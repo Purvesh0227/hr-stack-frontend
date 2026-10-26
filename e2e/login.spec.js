@@ -6,12 +6,12 @@ test.describe('Module 1: Login Flow', () => {
   test.use({ storageState: { cookies: [], origins: [] } });
 
   test.beforeEach(async ({ page }) => {
-  
     await page.goto('login', { waitUntil: 'domcontentloaded' });
   });
 
   test('shows error toast on invalid credentials', async ({ page }) => {
-    await page.locator('input[type="email"]').fill('purvesh0207@gmail.com');
+    // Use the email from env, but a wrong password
+    await page.locator('input[type="email"]').fill(process.env.E2E_ADMIN_EMAIL);
     await page.locator('input[type="password"]').fill('WrongPassword123');
     
     // 1. Set up a promise to wait for the backend to reject the login
@@ -47,8 +47,9 @@ test.describe('Module 1: Login Flow', () => {
   });
 
   test('successfully logs in and redirects to dashboard', async ({ page }) => {
-    await page.locator('input[type="email"]').fill('purvesh0207@gmail.com');
-    await page.locator('input[type="password"]').fill('Admin@123');
+    // Use the env variables here too
+    await page.locator('input[type="email"]').fill(process.env.E2E_ADMIN_EMAIL);
+    await page.locator('input[type="password"]').fill(process.env.E2E_ADMIN_PASSWORD);
     
     // 1. Set up a promise to wait for the backend to ACCEPT the login
     const responsePromise = page.waitForResponse(
@@ -61,7 +62,8 @@ test.describe('Module 1: Login Flow', () => {
       page.getByRole('button', { name: 'Sign in', exact: true }).click()
     ]);
 
-    await expect(page.getByRole('heading', { name: /welcome, purvesh/i })).toBeVisible({ timeout: 10000 });
+    // 3. Verify the dashboard loads (we use the generic "Welcome" heading now)
+    await expect(page.getByRole('heading', { name: /welcome/i })).toBeVisible({ timeout: 10000 });
     
     // 4. Verify token is saved
     const token = await page.evaluate(() => localStorage.getItem('token'));
