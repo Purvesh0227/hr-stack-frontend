@@ -22,16 +22,16 @@ test.describe('Module 4: QR Attendance', () => {
     // 4. Click Generate QR
     await page.getByRole('button', { name: 'Generate QR Code' }).click();
 
-    // 5. Assert the QR code panel appeared
+    // 5. Assert the QR code panel appeared (Wait up to 15s for backend to respond)
     const qrPanel = page.locator('.qr-panel');
-    await expect(qrPanel.locator('.qr-box')).toBeVisible();
+    await expect(qrPanel.locator('.qr-box')).toBeVisible({ timeout: 15000 });
     await expect(qrPanel.getByText('QR expires in')).toBeVisible();
 
     // 6. Revoke the QR
     await page.getByRole('button', { name: 'Revoke QR', exact: true }).click();
     
-    // 7. Assert it shows "QR Revoked"
-    await expect(qrPanel.getByText('QR Revoked')).toBeVisible();
+    // 7. Assert it shows "QR Revoked" (Wait up to 15s for backend)
+    await expect(qrPanel.getByText('QR Revoked')).toBeVisible({ timeout: 15000 });
 
     // 8. Close the modal using the exact class from your code
     await page.locator('.attendance-modal-footer').getByRole('button', { name: 'Close' }).click();

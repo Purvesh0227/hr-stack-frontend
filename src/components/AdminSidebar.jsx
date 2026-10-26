@@ -8,7 +8,7 @@ import { HiOutlineMenu, HiOutlineX } from "react-icons/hi";
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import "../styles/global.css";
-import { FiLogOut, FiBell } from "react-icons/fi";
+import { FiLogOut, FiBell, FiSmartphone } from "react-icons/fi";
 import { clearStorage } from "../utils/storage";
 import ProfileCard from "./ProfileCard";
 
@@ -27,6 +27,7 @@ function AdminSidebar({ role, employee, adminProfile }) {
         if (path.startsWith("/announcements")) return "announcements";
         if (path.startsWith("/finance")) return "finance";
         if (path.startsWith("/settings")) return "settings";
+        if (path.startsWith("/app-releases")) return "app-releases";
 
         return "dashboard";
     };
@@ -125,6 +126,14 @@ function AdminSidebar({ role, employee, adminProfile }) {
                         >
                             <FiBell className="icon" />
                             <span>Announcements</span>
+                        </button>
+
+                        <button
+                            className={activeMenu === "app-releases" ? "active" : ""}
+                            onClick={() => go("/app-releases")}
+                        >
+                            <FiSmartphone className="icon" />
+                            <span>App Releases</span>
                         </button>
 
                         <button

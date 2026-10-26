@@ -7,6 +7,7 @@ import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 import VerifyEmail from "./pages/VerifyEmail";
+import AppReleasesPage from "./pages/Dashboard/AppReleasesPage";
 
 import QrScanPage from "./pages/QrScanPage";
 
@@ -49,6 +50,7 @@ function AppRoutes() {
                     </ProtectedRoute>
                 }
             >
+                <Route path="app-releases" element={<AppReleasesPage />} />
                 <Route index element={<DashboardHome />} />
                 <Route path="employees" element={<Employees />} />
                 <Route path="admins" element={<Admins />} />
