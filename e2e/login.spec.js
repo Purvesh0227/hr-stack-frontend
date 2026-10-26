@@ -62,7 +62,7 @@ test.describe('Module 1: Login Flow', () => {
       page.getByRole('button', { name: 'Sign in', exact: true }).click()
     ]);
 
-    // 3. Verify the dashboard loads (we use the generic "Welcome" heading now)
+    // 3. Verify the dashboard loads
     await expect(page.getByRole('heading', { name: /welcome/i })).toBeVisible({ timeout: 10000 });
     
     // 4. Verify token is saved

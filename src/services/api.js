@@ -347,5 +347,22 @@ export const emailQrSession = (sessionId, token) =>
 export const markQrAttendance = (token) =>
     API.post("/attendance/qr/mark", { token });
 
+// ---------------- App Releases ----------------
+
+export const getAdminAppReleases = () =>
+    API.get("/app-releases/admin");
+
+export const getPublicAppReleases = () =>
+    API.get("/app-releases/public");
+
+export const createAppRelease = (data) =>
+    API.post("/app-releases", data);
+
+export const updateAppRelease = (id, data) =>
+    API.put(`/app-releases/${id}`, data);
+
+export const deleteAppRelease = (id) =>
+    API.delete(`/app-releases/${id}`);
+
 export default API;
 
