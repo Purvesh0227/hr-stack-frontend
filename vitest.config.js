@@ -16,6 +16,11 @@ export default defineConfig({
         clearMocks: true,
         restoreMocks: true,
 
+        // 👇 ADDED THESE TWO LINES TO FIX THE CI ERROR
+        include: ["src/**/*.{test,spec}.{js,jsx}"],
+        exclude: ["e2e/**", "node_modules/**", "dist/**"],
+        // 👆
+
         // MSW + jsdom sometimes leave handles open; don't hang the run
         testTimeout: 10000,
         hookTimeout: 10000,

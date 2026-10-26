@@ -15,7 +15,8 @@ export default defineConfig([
         "src/sw.js",
         "src/test/msw/**",
         "vitest.config.js",
-        "playwright.config.js"
+        "playwright.config.js",
+        "e2e"
     ]),
 
     {
