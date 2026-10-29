@@ -4,7 +4,7 @@ import { FiPlus, FiDownload, FiEdit2, FiTrash2 } from "react-icons/fi";
 import { getAdminAppReleases, getPublicAppReleases, deleteAppRelease } from "../../services/api";
 import AppReleaseModal from "../../components/AppReleaseModal";
 import Loader from "../../components/Loader";
-import { open } from '@tauri-apps/plugin-opener';
+import { openUrl } from '@tauri-apps/plugin-opener';
 
 export default function AppReleasesPage() {
     const { role, showNotification } = useOutletContext();
@@ -45,20 +45,18 @@ export default function AppReleasesPage() {
         }
     };
 
-        const handleDownload = async (url) => {
-        try {
-            // Check if we are in Tauri
-            if (window.__TAURI__) {
-                await open(url);
-            } else {
-                window.open(url, "_blank");
-            }
-        } catch (error) {
-            console.error("Failed to open link:", error);
-            // Last resort fallback
+const handleDownload = async (url) => {
+    try {
+        if (window.__TAURI__) {
+            await openUrl(url); // <-- Use openUrl here
+        } else {
             window.open(url, "_blank");
         }
-    };
+    } catch (error) {
+        console.error("Failed to open link:", error);
+        window.open(url, "_blank");
+    }
+};
 
     const getStatusBadge = (status) => {
         const styles = {
