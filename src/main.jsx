@@ -49,7 +49,7 @@ registerServiceWorker();
 ReactDOM.createRoot(
     document.getElementById("root")
 ).render(
-    <BrowserRouter> 
+    <BrowserRouter basename="/hr-stack-frontend">
         <ThemeProvider>
             <App />
         </ThemeProvider>
