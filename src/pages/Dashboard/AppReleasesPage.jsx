@@ -44,8 +44,15 @@ export default function AppReleasesPage() {
         }
     };
 
-    const handleDownload = (url) => {
+    const handleDownload = async (url) => {
+    try {
+        // Dynamically import the opener plugin only in Tauri
+        const { open } = await import('@tauri-apps/plugin-opener');
+        await open(url);
+    } catch (error) {
+        // Fallback for the web browser
         window.open(url, "_blank");
+    }
     };
 
     const getStatusBadge = (status) => {
