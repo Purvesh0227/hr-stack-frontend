@@ -42,4 +42,6 @@ jobs:
           VITE_API_BASE_URL: https://hr-stack-backend.onrender.com
           VITE_VAPID_PUBLIC_KEY: BFX87mdCQFYWFHfcU53tO0CoOn1J_HVzXYhHd1AVksz4UwGNlgga3H8TqzEudmW_cGFMVTnxkiA3ib6f4OGl3BA
           VITE_GOOGLE_CLIENT_ID: 491763983472-op2grhsph5s8nrkj1lvinjfreutqr8qj.apps.googleusercontent.com
+          VITE_GOOGLE_DESKTOP_CLIENT_ID: ${{ secrets.VITE_GOOGLE_DESKTOP_CLIENT_ID }}
+          VITE_GOOGLE_DESKTOP_CLIENT_SECRET: ${{ secrets.VITE_GOOGLE_DESKTOP_CLIENT_SECRET }}
         run: npm run build
