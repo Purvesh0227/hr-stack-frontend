@@ -16,7 +16,9 @@
     "e2e:report": "playwright show-report"
   },
   "dependencies": {
+    "@choochmeque/tauri-plugin-google-auth-api": "^0.6.0-rc.5",
     "@react-oauth/google": "^0.13.5",
+    "@tauri-apps/plugin-notification": "^2.8.0",
     "axios": "^1.19.0",
     "html2canvas": "^1.4.1",
     "jspdf": "^4.2.1",

@@ -1,1 +1,1 @@
-if('serviceWorker' in navigator) navigator.serviceWorker.register('/hr-stack-frontend/dev-sw.js?dev-sw', { scope: '/hr-stack-frontend/', type: 'module' })
+if('serviceWorker' in navigator) navigator.serviceWorker.register('/dev-sw.js?dev-sw', { scope: '/', type: 'module' })

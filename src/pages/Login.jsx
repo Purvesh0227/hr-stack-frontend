@@ -12,6 +12,7 @@ import "../styles/global.css";
 import useSubmitLock from "../hooks/useSubmitLock";
 import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
 import { useTheme } from "../contexts/ThemeContext";
+import { signIn } from '@choochmeque/tauri-plugin-google-auth-api';
 
 import { consumePostLoginPath } from "../utils/postLoginRedirect";
 
@@ -26,6 +27,9 @@ const getErrorMessage = (error, fallback) => {
 };
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+
+const isTauri = window.__TAURI__ !== undefined;
+
 
 function Login() {
     const navigate = useNavigate();
@@ -49,6 +53,24 @@ function Login() {
     const [cooldown, setCooldown] = useState(0);
 
     const [loading, run] = useSubmitLock();
+
+    const handleDesktopGoogleLogin = () =>
+        run(async () => {
+            try {
+                const response = await signIn({
+                    clientId: import.meta.env.VITE_GOOGLE_DESKTOP_CLIENT_ID,
+                    clientSecret: import.meta.env.VITE_GOOGLE_DESKTOP_CLIENT_SECRET,
+                    scopes: ['openid', 'email', 'profile'],
+                });
+                const res = await googleLogin(response.idToken);
+                completeLogin(res.data);
+            } catch (error) {
+                showNotification(
+                    getErrorMessage(error, "Google Desktop login failed."),
+                    "error"
+                );
+            }
+    });
 
     const handleChange = (e) => {
         setLoginData({
@@ -334,25 +356,36 @@ function Login() {
 
                                 {/* GOOGLE SIGN-IN */}
 
-                                {GOOGLE_CLIENT_ID && (
+                                                                {GOOGLE_CLIENT_ID && (
                                     <div className="login-google">
 
                                         <div className="login-divider">
                                             <span>or</span>
                                         </div>
 
-                                         <GoogleLogin
-                                            key={theme}
-                                            onSuccess={handleGoogleSuccess}
-                                            onError={() =>
-                                                showNotification("Google sign-in failed.", "error")
-                                            }
-                                            theme={theme === "dark" ? "filled_black" : "outline"}
-                                            size="large"
-                                            shape="rectangular"
-                                            text="signin_with"
-                                            width="320"
-                                        />
+                                        {isTauri ? (
+                                            <button
+                                                type="button"
+                                                className="login-submit-btn"
+                                                onClick={handleDesktopGoogleLogin}
+                                                disabled={loading}
+                                            >
+                                                <span>Sign in with Google (Desktop)</span>
+                                            </button>
+                                        ) : (
+                                            <GoogleLogin
+                                                key={theme}
+                                                onSuccess={handleGoogleSuccess}
+                                                onError={() =>
+                                                    showNotification("Google sign-in failed.", "error")
+                                                }
+                                                theme={theme === "dark" ? "filled_black" : "outline"}
+                                                size="large"
+                                                shape="rectangular"
+                                                text="signin_with"
+                                                width="320"
+                                            />
+                                        )}
 
                                     </div>
                                 )}

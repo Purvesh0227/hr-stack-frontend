@@ -24,6 +24,7 @@ import {
 import "../styles/global.css";
 import useSubmitLock from "../hooks/useSubmitLock";
 import EmailVerification from "../components/EmailVerification";
+import { signIn } from '@choochmeque/tauri-plugin-google-auth-api';
 
 const REGISTER_DRAFT_KEY = "hrstack-register-draft";
 const VERIFIED_EMAIL_KEY = "hrstack-register-verified-email";
@@ -302,6 +303,42 @@ function Register() {
        ========================================= */
 
     const [loading, run] = useSubmitLock();
+
+    const isTauri = window.__TAURI__ !== undefined;
+
+const handleDesktopGoogleSignup = () =>
+    run(async () => {
+        try {
+            const response = await signIn({
+                clientId: import.meta.env.VITE_GOOGLE_DESKTOP_CLIENT_ID,
+                clientSecret: import.meta.env.VITE_GOOGLE_DESKTOP_CLIENT_SECRET,
+                scopes: ['openid', 'email', 'profile'],
+            });
+
+            // Reuse your existing backend call, just with the Tauri idToken
+            const { data } = await googleSignupStart(response.idToken);
+
+            setGoogleSignup({ signupToken: data.signupToken });
+
+            setEmployee((current) => ({
+                ...current,
+                firstName: data.firstName || "",
+                lastName: data.lastName || "",
+                email: data.email,
+                password: "",
+                confirmPassword: ""
+            }));
+
+            setVerifiedEmail("");
+            sessionStorage.removeItem(VERIFIED_EMAIL_KEY);
+            sessionStorage.removeItem(REGISTER_DRAFT_KEY);
+        } catch (error) {
+            showNotification(
+                getErrorMessage(error, "Google Desktop sign-up failed."),
+                "error"
+            );
+        }
+    });
 
     /* =========================================
        GOOGLE SIGN-UP
@@ -631,25 +668,29 @@ function Register() {
                         {!isGoogle && GOOGLE_CLIENT_ID && (
                             <div className="register-google">
 
-                                <GoogleLogin
-                                    key={theme}
-                                    onSuccess={handleGoogleSuccess}
-                                    onError={() =>
-                                        showNotification(
-                                            "Google sign-up failed.",
-                                            "error"
-                                        )
-                                    }
-                                    theme={
-                                        theme === "dark"
-                                            ? "filled_black"
-                                            : "outline"
-                                    }
-                                    size="large"
-                                    shape="rectangular"
-                                    text="signup_with"
-                                    width="320"
-                                />
+                                {isTauri ? (
+                                    <button
+                                        type="button"
+                                        className="register-submit-btn"
+                                        onClick={handleDesktopGoogleSignup}
+                                        disabled={loading}
+                                    >
+                                        <span>Sign up with Google (Desktop)</span>
+                                    </button>
+                                ) : (
+                                    <GoogleLogin
+                                        key={theme}
+                                        onSuccess={handleGoogleSuccess}
+                                        onError={() =>
+                                            showNotification("Google sign-up failed.", "error")
+                                        }
+                                        theme={theme === "dark" ? "filled_black" : "outline"}
+                                        size="large"
+                                        shape="rectangular"
+                                        text="signup_with"
+                                        width="320"
+                                    />
+                                )}
 
                                 <div className="register-divider">
                                     <span>or</span>

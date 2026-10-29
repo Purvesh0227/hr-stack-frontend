@@ -17,15 +17,17 @@ const registerServiceWorker = async () => {
 
     const isProduction = import.meta.env.PROD;
 
+    // CHANGED: Removed /hr-stack-frontend/ prefix
     const swUrl = isProduction
-        ? "/hr-stack-frontend/sw.js"
-        : "/hr-stack-frontend/dev-sw.js?dev-sw";
+        ? "/sw.js"
+        : "/dev-sw.js?dev-sw";
 
     try {
         const registration = await navigator.serviceWorker.register(
             swUrl,
             {
-                scope: "/hr-stack-frontend/",
+                // CHANGED: Removed /hr-stack-frontend/ prefix
+                scope: "/",
                 type: isProduction ? "classic" : "module",
             }
         );
@@ -47,7 +49,7 @@ registerServiceWorker();
 ReactDOM.createRoot(
     document.getElementById("root")
 ).render(
-    <BrowserRouter basename="/hr-stack-frontend">
+    <BrowserRouter> 
         <ThemeProvider>
             <App />
         </ThemeProvider>
