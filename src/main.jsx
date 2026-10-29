@@ -19,7 +19,7 @@ const registerServiceWorker = async () => {
 
     // CHANGED: Removed /hr-stack-frontend/ prefix
     const swUrl = isProduction
-        ? "/sw.js"
+        ? "/hr-stack-frontend/sw.js"
         : "/dev-sw.js?dev-sw";
 
     try {
