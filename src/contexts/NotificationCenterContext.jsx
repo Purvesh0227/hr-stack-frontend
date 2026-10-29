@@ -19,9 +19,8 @@ const NotificationCenterContext = createContext(null);
 // After a failed fetch, wait before trying again
 const FAILURE_COOLDOWN_MS = 10_000;
 
-
-const NOTIFICATION_POLL_INTERVAL_MS = 1 * 60 * 1000;
-
+// Poll every 30 seconds (changed from 2 mins so you don't wait too long to test)
+const NOTIFICATION_POLL_INTERVAL_MS = 30 * 1000; 
 
 export function NotificationCenterProvider({ children }) {
 
@@ -66,6 +65,28 @@ export function NotificationCenterProvider({ children }) {
             // ignore an old response that finished after a newer request
             if (requestId !== latestRequest.current) return;
 
+            // ✅ CHECK FOR NEW NOTIFICATIONS (FOR NATIVE TAURI APP ONLY)
+            if (
+                window.__TAURI__ && 
+                data.unreadCount > unreadCount && 
+                data.notifications && 
+                data.notifications.length > 0
+            ) {
+                const latest = data.notifications[0];
+                try {
+                    const { sendNotification, isPermissionGranted } = await import('@tauri-apps/plugin-notification');
+                    const granted = await isPermissionGranted();
+                    if (granted) {
+                        sendNotification({
+                            title: 'HR-Stack Update',
+                            body: latest.message
+                        });
+                    }
+                } catch (err) {
+                    console.error("Tauri notification failed:", err);
+                }
+            }
+
             setNotifications(data.notifications || []);
             setUnreadCount(data.unreadCount || 0);
 
@@ -77,7 +98,7 @@ export function NotificationCenterProvider({ children }) {
             }
         }
 
-    }, [isLoggedIn]);
+    }, [isLoggedIn, unreadCount]);
 
     const refreshNotifications = useCallback(
         () => fetchNotifications(true),
@@ -106,8 +127,7 @@ export function NotificationCenterProvider({ children }) {
         }
     };
 
-    
-    // Refresh notifications every 2 minutes without a page reload.
+    // Refresh notifications continuously without a page reload.
     useEffect(() => {
         if (!isLoggedIn) return;
 
@@ -120,7 +140,6 @@ export function NotificationCenterProvider({ children }) {
 
         return () => window.clearInterval(intervalId);
     }, [isLoggedIn, fetchNotifications]);
-
 
     // Runs on login/logout and when the filter (UNREAD / READ / ALL) changes
     useEffect(() => {
@@ -148,14 +167,11 @@ export function NotificationCenterProvider({ children }) {
 }
 
 export function useNotificationCenter() {
-
     const context = useContext(NotificationCenterContext);
-
     if (!context) {
         throw new Error(
             "useNotificationCenter must be used inside NotificationCenterProvider"
         );
     }
-
     return context;
 }
