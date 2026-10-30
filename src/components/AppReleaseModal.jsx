@@ -4,7 +4,13 @@ import { useNotification } from "../contexts/NotificationContext";
 import useSubmitLock from "../hooks/useSubmitLock";
 import { createAppRelease, updateAppRelease } from "../services/api";
 
-export default function AppReleaseModal({ isOpen, onClose, onSaved, release = null }) {
+export default function AppReleaseModal({
+    isOpen,
+    onClose,
+    onSaved,
+    release = null,
+    defaultPlatform = "ANDROID"
+}) {
     const { showNotification } = useNotification();
     const [loading, run] = useSubmitLock();
     const isEdit = Boolean(release);
@@ -12,8 +18,9 @@ export default function AppReleaseModal({ isOpen, onClose, onSaved, release = nu
     const [form, setForm] = useState({
         version: "",
         releaseNotes: "",
-        releaseDate: "",
-        status: "DRAFT"
+        releaseDate: new Date().toISOString().split("T")[0],
+        status: "DRAFT",
+        platform: "ANDROID"
     });
 
     useEffect(() => {
@@ -21,11 +28,14 @@ export default function AppReleaseModal({ isOpen, onClose, onSaved, release = nu
             setForm({
                 version: release?.version || "",
                 releaseNotes: release?.releaseNotes || "",
-                releaseDate: release?.releaseDate || new Date().toISOString().split('T')[0],
-                status: release?.status || "DRAFT"
+                releaseDate:
+                    release?.releaseDate ||
+                    new Date().toISOString().split("T")[0],
+                status: release?.status || "DRAFT",
+                platform: release?.platform || defaultPlatform || "ANDROID"
             });
         }
-    }, [isOpen, release]);
+    }, [isOpen, release, defaultPlatform]);
 
     if (!isOpen) return null;
 
@@ -53,22 +63,72 @@ export default function AppReleaseModal({ isOpen, onClose, onSaved, release = nu
 
     return (
         <div className="modal-overlay">
-            <div className="modal" style={{ maxWidth: "500px", width: "100%" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "20px" }}>
+            <div
+                className="modal"
+                style={{ maxWidth: "500px", width: "100%" }}
+            >
+                <div
+                    style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        marginBottom: "20px"
+                    }}
+                >
                     <h2>{isEdit ? "Edit Release" : "New App Release"}</h2>
-                    <button onClick={onClose} className="cancel-btn" style={{ border: "none" }}><FiX size={20} /></button>
+                    <button
+                        onClick={onClose}
+                        className="cancel-btn"
+                        style={{ border: "none" }}
+                    >
+                        <FiX size={20} />
+                    </button>
                 </div>
-                
-                <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
+
+                <form
+                    onSubmit={handleSubmit}
+                    style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "15px"
+                    }}
+                >
+                    <div className="login-field">
+                        <label>Platform</label>
+                        <select
+                            value={form.platform}
+                            onChange={(e) =>
+                                setForm({ ...form, platform: e.target.value })
+                            }
+                            className="filter-control"
+                            style={{ width: "100%", height: "44px" }}
+                            disabled={isEdit}
+                        >
+                            <option value="ANDROID">Android (APK)</option>
+                            <option value="WINDOWS">Windows (EXE)</option>
+                        </select>
+                        {isEdit && (
+                            <small style={{ color: "var(--text-secondary)" }}>
+                                Platform cannot be changed after creation.
+                            </small>
+                        )}
+                    </div>
+
                     <div className="login-field">
                         <label>Version Number</label>
                         <input
                             type="text"
                             placeholder="e.g. 1.0.0 (without 'v')"
                             value={form.version}
-                            onChange={(e) => setForm({ ...form, version: e.target.value })}
+                            onChange={(e) =>
+                                setForm({ ...form, version: e.target.value })
+                            }
                             required
                         />
+                        <small style={{ color: "var(--text-secondary)" }}>
+                            {form.platform === "WINDOWS"
+                                ? `Downloads: HR-Stack_${form.version || "X.Y.Z"}_x64-setup.exe`
+                                : "Downloads: hr-stack.apk"}
+                        </small>
                     </div>
 
                     <div className="login-field">
@@ -76,7 +136,12 @@ export default function AppReleaseModal({ isOpen, onClose, onSaved, release = nu
                         <input
                             type="date"
                             value={form.releaseDate}
-                            onChange={(e) => setForm({ ...form, releaseDate: e.target.value })}
+                            onChange={(e) =>
+                                setForm({
+                                    ...form,
+                                    releaseDate: e.target.value
+                                })
+                            }
                             required
                         />
                     </div>
@@ -85,7 +150,9 @@ export default function AppReleaseModal({ isOpen, onClose, onSaved, release = nu
                         <label>Status</label>
                         <select
                             value={form.status}
-                            onChange={(e) => setForm({ ...form, status: e.target.value })}
+                            onChange={(e) =>
+                                setForm({ ...form, status: e.target.value })
+                            }
                             className="filter-control"
                             style={{ width: "100%", height: "44px" }}
                         >
@@ -100,7 +167,12 @@ export default function AppReleaseModal({ isOpen, onClose, onSaved, release = nu
                         <textarea
                             rows={4}
                             value={form.releaseNotes}
-                            onChange={(e) => setForm({ ...form, releaseNotes: e.target.value })}
+                            onChange={(e) =>
+                                setForm({
+                                    ...form,
+                                    releaseNotes: e.target.value
+                                })
+                            }
                             placeholder="What's new in this version?"
                             required
                             style={{
@@ -115,11 +187,22 @@ export default function AppReleaseModal({ isOpen, onClose, onSaved, release = nu
                         />
                     </div>
 
-                    <div className="modal-buttons" style={{ marginTop: "10px" }}>
-                        <button type="button" className="cancel-btn" onClick={onClose}>
+                    <div
+                        className="modal-buttons"
+                        style={{ marginTop: "10px" }}
+                    >
+                        <button
+                            type="button"
+                            className="cancel-btn"
+                            onClick={onClose}
+                        >
                             Cancel
                         </button>
-                        <button type="submit" className="save-btn" disabled={loading}>
+                        <button
+                            type="submit"
+                            className="save-btn"
+                            disabled={loading}
+                        >
                             {loading ? "Saving..." : "Save Release"}
                         </button>
                     </div>
