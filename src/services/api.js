@@ -349,11 +349,11 @@ export const markQrAttendance = (token) =>
 
 // ---------------- App Releases ----------------
 
-export const getAdminAppReleases = () =>
-    API.get("/app-releases/admin");
+export const getAdminAppReleases = (platform) =>
+    API.get("/app-releases/admin", { params: { platform } });
 
-export const getPublicAppReleases = () =>
-    API.get("/app-releases/public");
+export const getPublicAppReleases = (platform) =>
+    API.get("/app-releases/public", { params: { platform } });
 
 export const createAppRelease = (data) =>
     API.post("/app-releases", data);
