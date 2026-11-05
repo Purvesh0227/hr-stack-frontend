@@ -1,0 +1,13 @@
+# Allow search engines to crawl the public site
+User-agent: *
+Allow: /
+
+# Prevent search engines from crawling the dashboard and private areas
+Disallow: /hr-stack-frontend/dashboard/
+Disallow: /hr-stack-frontend/employees/
+Disallow: /hr-stack-frontend/admins/
+Disallow: /hr-stack-frontend/attendance/
+Disallow: /hr-stack-frontend/finance/
+
+# Point search engines to the sitemap
+Sitemap: https://purvesh0227.github.io/hr-stack-frontend/sitemap.xml
