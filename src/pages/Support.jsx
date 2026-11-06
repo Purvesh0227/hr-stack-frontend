@@ -19,7 +19,7 @@ function Support() {
 
     // My Tickets state
     const [myTickets, setMyTickets] = useState([]);
-    const [loadingTickets, setLoadingTickets] = useState(true);
+    const [, setLoadingTickets] = useState(true);
 
     useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth <= 900);

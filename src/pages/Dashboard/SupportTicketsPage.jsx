@@ -29,10 +29,18 @@ function SupportTicketsPage() {
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(0);
     const [openTicketId, setOpenTicketId] = useState(null);
-    
-    // NEW: Track which ticket is currently being resolved
     const [resolvingId, setResolvingId] = useState(null);
 
+    // 1. ALL HOOKS GO FIRST
+    useEffect(() => {
+        // Only fetch if user is ADMIN (prevents 403 errors for employees)
+        if (role === "ADMIN") {
+            fetchTickets();
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [filter, page, role]);
+
+    // 2. SECURITY CHECK GOES AFTER HOOKS
     if (role !== "ADMIN") {
         return <Navigate to="/" replace />;
     }
@@ -43,31 +51,26 @@ function SupportTicketsPage() {
             const { data } = await getAdminSupportTickets(filter, page - 1, 10);
             setTickets(data.content);
             setTotalPages(data.totalPages);
-        } catch (error) {
+        } catch {
             showNotification("Failed to load tickets", "error");
         } finally {
             setLoading(false);
         }
     };
 
-    useEffect(() => {
-        fetchTickets();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [filter, page]);
-
     const handleResolve = async (e, ticketId) => {
         e.stopPropagation(); 
         if (!window.confirm("Mark this ticket as RESOLVED?")) return;
         
         try {
-            setResolvingId(ticketId); // Show spinner on this specific button
+            setResolvingId(ticketId); 
             await updateSupportTicketStatus(ticketId, "RESOLVED");
             showNotification("Ticket resolved successfully", "success");
             fetchTickets(); 
-        } catch (error) {
+        } catch {
             showNotification("Failed to update status", "error");
         } finally {
-            setResolvingId(null); // Remove spinner
+            setResolvingId(null); 
         }
     };
 
