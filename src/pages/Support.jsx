@@ -73,20 +73,23 @@ function Support() {
                         <h3 style={{ margin: "0 0 10px 0", color: "var(--text-primary)" }}>Email Support</h3>
                         <p style={{ color: "var(--text-secondary)", fontSize: "14px", marginBottom: "15px" }}>Send us an email and we will reply within 24 hours.</p>
                         
-                        {/* Styled as a button for mobile users */}
                         <a 
                             href="mailto:support@hrstack.com" 
                             style={{ 
                                 display: "inline-block", 
-                                padding: "10px 20px", 
-                                background: "var(--bg-primary-btn)", 
-                                color: "var(--text-on-active)", 
+                                padding: "10px 16px", 
+                                background: "var(--bg-card)", 
+                                color: "var(--accent-blue)",
                                 borderRadius: "8px", 
-                                textDecoration: "none", 
-                                fontWeight: "600" 
+                                fontWeight: "600",
+                                border: "1px solid var(--border-strong)",
+                                textDecoration: "none",
+                                transition: "opacity 0.2s ease"
                             }}
+                            onMouseOver={(e) => e.target.style.opacity = "0.8"}
+                            onMouseOut={(e) => e.target.style.opacity = "1"}
                         >
-                            Send Email
+                            support@hrstack.com
                         </a>
                     </div>
 
@@ -98,20 +101,23 @@ function Support() {
                         <h3 style={{ margin: "0 0 10px 0", color: "var(--text-primary)" }}>Call Us</h3>
                         <p style={{ color: "var(--text-secondary)", fontSize: "14px", marginBottom: "15px" }}>Available Mon-Fri, 9:00 AM to 6:00 PM.</p>
                         
-                        {/* Styled as a button for mobile users */}
                         <a 
                             href="tel:+919999999999" 
                             style={{ 
                                 display: "inline-block", 
-                                padding: "10px 20px", 
-                                background: "var(--bg-primary-btn)", 
-                                color: "var(--text-on-active)", 
+                                padding: "10px 16px", 
+                                background: "var(--bg-card)", 
+                                color: "var(--accent-blue)",
                                 borderRadius: "8px", 
-                                textDecoration: "none", 
-                                fontWeight: "600" 
+                                fontWeight: "600",
+                                border: "1px solid var(--border-strong)",
+                                textDecoration: "none",
+                                transition: "opacity 0.2s ease"
                             }}
+                            onMouseOver={(e) => e.target.style.opacity = "0.8"}
+                            onMouseOut={(e) => e.target.style.opacity = "1"}
                         >
-                            Call Now
+                            +91 99999 99999
                         </a>
                     </div>
 
