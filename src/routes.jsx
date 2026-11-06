@@ -6,6 +6,8 @@ import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 
+import SupportTicketsPage from "./pages/Dashboard/SupportTicketsPage";
+
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import FAQ from "./pages/FAQ";
 
@@ -61,6 +63,8 @@ function AppRoutes() {
                 <Route path="finance" element={<FinancePage />} />
                 <Route path="announcements" element={<AnnouncementsPage />} />
                 <Route path="settings" element={<SettingsPage />} />
+
+                <Route path="support-tickets" element={<SupportTicketsPage />} />
             </Route>
 
 
@@ -73,7 +77,7 @@ function AppRoutes() {
                 }
             />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-            <Route path="/faq" element={<FAQ />} />
+            <Route path="/help" element={<FAQ />} />
             
             <Route path="*" element={<NotFound />} />
             <Route path="/support" element={<Support />} />

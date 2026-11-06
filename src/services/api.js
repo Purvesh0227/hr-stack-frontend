@@ -364,5 +364,19 @@ export const updateAppRelease = (id, data) =>
 export const deleteAppRelease = (id) =>
     API.delete(`/app-releases/${id}`);
 
+// ---------------- Support Tickets ----------------
+
+export const createSupportTicket = (data) =>
+    API.post("/support", data);
+
+export const getAdminSupportTickets = (status = "ALL", page = 0, size = 10) =>
+    API.get("/support/admin", { params: { status, page, size } });
+
+export const updateSupportTicketStatus = (ticketId, status) =>
+    API.patch(`/support/admin/${ticketId}/status`, { status });
+
+export const getMySupportTickets = (page = 0, size = 5) =>
+    API.get("/support/my-tickets", { params: { page, size } });
+
 export default API;
 

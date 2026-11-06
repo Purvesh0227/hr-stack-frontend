@@ -42,7 +42,7 @@ function Footer() {
                     <span style={{ color: "var(--border-strong)" }}>|</span>
                     
                     <Link 
-                        to="/faq" 
+                        to="/help" 
                         style={linkStyle}
                         onMouseOver={(e) => e.target.style.color = "var(--text-primary)"}
                         onMouseOut={(e) => e.target.style.color = "var(--text-secondary)"}

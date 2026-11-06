@@ -8,7 +8,7 @@ import { HiOutlineMenu, HiOutlineX } from "react-icons/hi";
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import "../styles/global.css";
-import { FiLogOut, FiBell, FiSmartphone } from "react-icons/fi";
+import { FiLogOut, FiBell, FiSmartphone, FiLifeBuoy } from "react-icons/fi";
 import { clearStorage } from "../utils/storage";
 import ProfileCard from "./ProfileCard";
 
@@ -28,6 +28,7 @@ function AdminSidebar({ role, employee, adminProfile }) {
         if (path.startsWith("/finance")) return "finance";
         if (path.startsWith("/settings")) return "settings";
         if (path.startsWith("/app-releases")) return "app-releases";
+        if (path.startsWith("/support-tickets")) return "support-tickets"; // Added this line
 
         return "dashboard";
     };
@@ -108,6 +109,15 @@ function AdminSidebar({ role, employee, adminProfile }) {
                                 >
                                     <FaUserShield className="icon" />
                                     <span>Admins</span>
+                                </button>
+
+                                
+                                <button
+                                    className={activeMenu === "support-tickets" ? "active" : ""}
+                                    onClick={() => go("/support-tickets")}
+                                >
+                                    <FiLifeBuoy className="icon" />
+                                    <span>Support Tickets</span>
                                 </button>
                             </>
                         )}

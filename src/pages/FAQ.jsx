@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FiPlus, FiMinus, FiX } from "react-icons/fi";
+import { FiX, FiChevronRight, FiMessageCircle } from "react-icons/fi";
 import "../styles/global.css";
 
 const faqs = [
@@ -13,19 +13,15 @@ const faqs = [
 ];
 
 function FAQ() {
-    const [openIndex, setOpenIndex] = useState(null);
-    const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+    const [activeIndex, setActiveIndex] = useState(0);
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 900);
     const navigate = useNavigate();
 
     useEffect(() => {
-        const handleResize = () => setIsMobile(window.innerWidth <= 768);
+        const handleResize = () => setIsMobile(window.innerWidth <= 900);
         window.addEventListener("resize", handleResize);
         return () => window.removeEventListener("resize", handleResize);
     }, []);
-
-    const toggleFAQ = (index) => {
-        setOpenIndex(openIndex === index ? null : index);
-    };
 
     const handleExit = () => {
         const isLoggedIn = localStorage.getItem("token") && localStorage.getItem("employee");
@@ -34,9 +30,9 @@ function FAQ() {
 
     return (
         <div style={{ minHeight: "100vh", background: "var(--bg-page)", padding: isMobile ? "20px" : "40px", display: "flex", justifyContent: "center" }}>
-            <div style={{ width: "100%", maxWidth: "1000px", display: "flex", flexDirection: "column", marginTop: "20px" }}>
+            <div style={{ width: "100%", maxWidth: "1100px", display: "flex", flexDirection: "column", marginTop: "20px" }}>
                 
-                {/* EXIT BUTTON */}
+                {/* TOP BAR */}
                 <div style={{ marginBottom: "40px" }}>
                     <button 
                         onClick={handleExit} 
@@ -50,60 +46,95 @@ function FAQ() {
                         onMouseOver={(e) => e.currentTarget.style.borderColor = "var(--border-strong)"}
                         onMouseOut={(e) => e.currentTarget.style.borderColor = "var(--border-color)"}
                     >
-                        <FiX size={16} /> Exit
+                        <FiX size={16} /> Close Page
                     </button>
                 </div>
 
-                <div style={{ marginBottom: "50px" }}>
+                {/* HEADER */}
+                <div style={{ marginBottom: "40px" }}>
                     <h1 style={{ color: "var(--text-primary)", fontSize: isMobile ? "36px" : "48px", margin: "0 0 15px 0", fontWeight: "700", letterSpacing: "-1px" }}>
-                        Frequently Asked Questions
+                        Help Center
                     </h1>
                     <p style={{ color: "var(--text-secondary)", margin: 0, fontSize: "18px" }}>
-                        Everything you need to know about HR-Stack.
+                        Browse our frequently asked questions to find the answers you need.
                     </p>
                 </div>
 
-                {/* FAQ LIST WITH PLUS/MINUS */}
-                <div style={{ borderTop: "1px solid var(--border-color)", marginBottom: "60px" }}>
-                    {faqs.map((faq, index) => (
-                        <div key={index} style={{ borderBottom: "1px solid var(--border-color)" }}>
+                {/* 2-COLUMN SPLIT LAYOUT */}
+                <div style={{ 
+                    display: "grid", 
+                    gridTemplateColumns: isMobile ? "1fr" : "1fr 1.5fr", 
+                    background: "var(--bg-card)",
+                    border: "1px solid var(--border-color)",
+                    borderRadius: "16px",
+                    overflow: "hidden",
+                    boxShadow: "0 10px 40px rgba(0,0,0,0.03)",
+                    minHeight: "400px"
+                }}>
+                    
+                    {/* LEFT: Questions Menu */}
+                    <div style={{ borderRight: isMobile ? "none" : "1px solid var(--border-color)", borderBottom: isMobile ? "1px solid var(--border-color)" : "none" }}>
+                        {faqs.map((faq, index) => (
                             <button
-                                onClick={() => toggleFAQ(index)}
+                                key={index}
+                                onClick={() => setActiveIndex(index)}
                                 style={{
-                                    width: "100%", display: "flex", justifyContent: "space-between", alignItems: "center",
-                                    padding: "28px 0", background: "transparent", border: "none",
-                                    color: "var(--text-primary)", fontSize: isMobile ? "16px" : "18px",
-                                    fontWeight: "600", cursor: "pointer", textAlign: "left"
+                                    width: "100%",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "space-between",
+                                    padding: "22px 24px",
+                                    background: activeIndex === index ? "var(--bg-page)" : "transparent",
+                                    border: "none",
+                                    borderLeft: activeIndex === index ? "3px solid var(--accent-blue)" : "3px solid transparent",
+                                    color: activeIndex === index ? "var(--text-primary)" : "var(--text-secondary)",
+                                    fontSize: "15px",
+                                    fontWeight: activeIndex === index ? "600" : "500",
+                                    cursor: "pointer",
+                                    textAlign: "left",
+                                    transition: "all 0.2s ease",
+                                    borderBottom: "1px solid var(--border-color)"
                                 }}
                             >
                                 {faq.question}
-                                <div style={{ 
-                                    display: "flex", alignItems: "center", justifyContent: "center",
-                                    width: "32px", height: "32px", borderRadius: "50%", 
-                                    background: openIndex === index ? "var(--bg-primary-btn)" : "var(--bg-card)",
-                                    border: "1px solid var(--border-color)",
-                                    color: openIndex === index ? "var(--text-on-active)" : "var(--text-secondary)",
-                                    transition: "all 0.2s ease"
-                                }}>
-                                    {openIndex === index ? <FiMinus size={18} /> : <FiPlus size={18} />}
-                                </div>
+                                <FiChevronRight 
+                                    size={18} 
+                                    style={{ 
+                                        opacity: activeIndex === index ? 1 : 0, 
+                                        color: "var(--accent-blue)",
+                                        transition: "opacity 0.2s ease",
+                                        flexShrink: 0
+                                    }} 
+                                />
                             </button>
-                            
-                            {openIndex === index && (
-                                <div style={{ padding: "0 0 28px 0", color: "var(--text-secondary)", fontSize: "16px", lineHeight: "1.7", maxWidth: "850px" }}>
-                                    {faq.answer}
-                                </div>
-                            )}
-                        </div>
-                    ))}
-                </div>
+                        ))}
+                    </div>
 
-                <div style={{ padding: "40px", background: "var(--bg-card)", borderRadius: "12px", border: "1px solid var(--border-color)", textAlign: "center" }}>
-                    <h3 style={{ color: "var(--text-primary)", margin: "0 0 10px 0", fontSize: "20px" }}>Still have questions?</h3>
-                    <p style={{ color: "var(--text-secondary)", margin: "0 0 20px 0", fontSize: "15px" }}>Can't find the answer you're looking for? Please chat with our friendly team.</p>
-                    <Link to="/support" style={{ display: "inline-block", padding: "12px 28px", background: "var(--bg-primary-btn)", color: "var(--text-on-active)", borderRadius: "8px", fontWeight: "600", textDecoration: "none" }}>
-                        Contact Support
-                    </Link>
+                    {/* RIGHT: Active Answer */}
+                    <div style={{ padding: isMobile ? "30px" : "40px", display: "flex", flexDirection: "column" }}>
+                        <h2 style={{ color: "var(--text-primary)", fontSize: "24px", margin: "0 0 20px 0", fontWeight: "700" }}>
+                            {faqs[activeIndex].question}
+                        </h2>
+                        <p style={{ color: "var(--text-secondary)", fontSize: "16px", lineHeight: "1.8", margin: 0, flex: 1 }}>
+                            {faqs[activeIndex].answer}
+                        </p>
+
+                        {/* CONTACT SUPPORT INTEGRATED AT BOTTOM */}
+                        <div style={{ marginTop: "40px", paddingTop: "24px", borderTop: "1px solid var(--border-color)", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "15px" }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: "10px", color: "var(--text-secondary)" }}>
+                                <FiMessageCircle size={20} />
+                                <span style={{ fontSize: "14px" }}>Didn't find your answer?</span>
+                            </div>
+                            <Link to="/support" style={{ 
+                                display: "inline-block", padding: "10px 20px", 
+                                background: "var(--bg-primary-btn)", color: "var(--text-on-active)", 
+                                borderRadius: "8px", fontWeight: "600", textDecoration: "none", fontSize: "14px" 
+                            }}>
+                                Contact Support
+                            </Link>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>

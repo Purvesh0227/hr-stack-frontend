@@ -42,7 +42,7 @@ function PrivacyPolicy() {
                             e.currentTarget.style.borderColor = "var(--border-color)";
                         }}
                     >
-                        <FiX size={16} /> Exit
+                        <FiX size={16} /> Close Page
                     </button>
                 </div>
 
