@@ -6,9 +6,12 @@ import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import FAQ from "./pages/FAQ";
+
 import VerifyEmail from "./pages/VerifyEmail";
 import AppReleasesPage from "./pages/Dashboard/AppReleasesPage";
-
+import Support from "./pages/Support";
 import QrScanPage from "./pages/QrScanPage";
 
 import DashboardHome from "./pages/Dashboard/DashboardHome";
@@ -69,8 +72,11 @@ function AppRoutes() {
                     </ProtectedRoute>
                 }
             />
-
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/faq" element={<FAQ />} />
+            
             <Route path="*" element={<NotFound />} />
+            <Route path="/support" element={<Support />} />
         </Routes>
     );
 }
