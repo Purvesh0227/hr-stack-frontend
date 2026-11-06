@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { FiChevronDown, FiChevronUp } from "react-icons/fi";
+import { Link, useNavigate } from "react-router-dom";
+import { FiPlus, FiMinus, FiX } from "react-icons/fi";
 import "../styles/global.css";
 
 const faqs = [
@@ -15,6 +15,7 @@ const faqs = [
 function FAQ() {
     const [openIndex, setOpenIndex] = useState(null);
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth <= 768);
@@ -26,65 +27,70 @@ function FAQ() {
         setOpenIndex(openIndex === index ? null : index);
     };
 
+    const handleExit = () => {
+        const isLoggedIn = localStorage.getItem("token") && localStorage.getItem("employee");
+        if (isLoggedIn) navigate("/"); else navigate("/login");
+    };
+
     return (
-        <div style={{ 
-            minHeight: "100vh", 
-            background: "var(--bg-page)", 
-            padding: isMobile ? "30px 15px" : "60px 20px",
-            display: "flex",
-            justifyContent: "center"
-        }}>
-            <div 
-                className="content-card" 
-                style={{ 
-                    width: "100%", 
-                    maxWidth: "850px", 
-                    padding: isMobile ? "25px" : "50px", 
-                    background: "var(--bg-card)", 
-                    borderRadius: "16px", 
-                    border: "1px solid var(--border-color)",
-                    boxShadow: "0 10px 30px rgba(0,0,0,0.05)"
-                }}
-            >
-                {/* TOP NAVIGATION */}
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "30px", flexWrap: "wrap", gap: "10px" }}>
-                    <Link to="/login" style={{ color: "var(--text-secondary)", textDecoration: "none", fontWeight: "600", display: "flex", alignItems: "center", gap: "5px" }}>
-                        ← Back to Login
-                    </Link>
-                    <Link to="/" style={{ color: "var(--accent-blue)", textDecoration: "none", fontWeight: "600" }}>
-                        Go to Dashboard →
-                    </Link>
+        <div style={{ minHeight: "100vh", background: "var(--bg-page)", padding: isMobile ? "20px" : "40px", display: "flex", justifyContent: "center" }}>
+            <div style={{ width: "100%", maxWidth: "1000px", display: "flex", flexDirection: "column", marginTop: "20px" }}>
+                
+                {/* EXIT BUTTON */}
+                <div style={{ marginBottom: "40px" }}>
+                    <button 
+                        onClick={handleExit} 
+                        style={{ 
+                            display: "inline-flex", alignItems: "center", gap: "8px", 
+                            padding: "8px 16px", background: "var(--bg-card)", 
+                            border: "1px solid var(--border-color)", borderRadius: "99px", 
+                            color: "var(--text-secondary)", cursor: "pointer", fontSize: "14px", 
+                            fontWeight: "500", transition: "all 0.2s ease"
+                        }}
+                        onMouseOver={(e) => e.currentTarget.style.borderColor = "var(--border-strong)"}
+                        onMouseOut={(e) => e.currentTarget.style.borderColor = "var(--border-color)"}
+                    >
+                        <FiX size={16} /> Exit
+                    </button>
                 </div>
 
-                <div style={{ textAlign: "center", marginBottom: isMobile ? "30px" : "40px" }}>
-                    <h1 style={{ color: "var(--text-primary)", fontSize: isMobile ? "26px" : "32px", margin: "0 0 10px 0", letterSpacing: "-0.5px" }}>
+                <div style={{ marginBottom: "50px" }}>
+                    <h1 style={{ color: "var(--text-primary)", fontSize: isMobile ? "36px" : "48px", margin: "0 0 15px 0", fontWeight: "700", letterSpacing: "-1px" }}>
                         Frequently Asked Questions
                     </h1>
-                    <p style={{ color: "var(--text-secondary)", margin: 0, fontSize: "15px" }}>
-                        Find quick answers to common questions about HR-Stack.
+                    <p style={{ color: "var(--text-secondary)", margin: 0, fontSize: "18px" }}>
+                        Everything you need to know about HR-Stack.
                     </p>
                 </div>
 
-                <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
+                {/* FAQ LIST WITH PLUS/MINUS */}
+                <div style={{ borderTop: "1px solid var(--border-color)", marginBottom: "60px" }}>
                     {faqs.map((faq, index) => (
-                        <div key={index} style={{ border: "1px solid var(--border-color)", borderRadius: "10px", overflow: "hidden" }}>
+                        <div key={index} style={{ borderBottom: "1px solid var(--border-color)" }}>
                             <button
                                 onClick={() => toggleFAQ(index)}
                                 style={{
                                     width: "100%", display: "flex", justifyContent: "space-between", alignItems: "center",
-                                    padding: isMobile ? "15px" : "20px",
-                                    background: openIndex === index ? "var(--bg-hover-row)" : "transparent",
-                                    border: "none", color: "var(--text-primary)",
-                                    fontSize: isMobile ? "15px" : "16px",
-                                    fontWeight: "600", cursor: "pointer", textAlign: "left", transition: "background 0.2s ease"
+                                    padding: "28px 0", background: "transparent", border: "none",
+                                    color: "var(--text-primary)", fontSize: isMobile ? "16px" : "18px",
+                                    fontWeight: "600", cursor: "pointer", textAlign: "left"
                                 }}
                             >
                                 {faq.question}
-                                {openIndex === index ? <FiChevronUp size={20} /> : <FiChevronDown size={20} />}
+                                <div style={{ 
+                                    display: "flex", alignItems: "center", justifyContent: "center",
+                                    width: "32px", height: "32px", borderRadius: "50%", 
+                                    background: openIndex === index ? "var(--bg-primary-btn)" : "var(--bg-card)",
+                                    border: "1px solid var(--border-color)",
+                                    color: openIndex === index ? "var(--text-on-active)" : "var(--text-secondary)",
+                                    transition: "all 0.2s ease"
+                                }}>
+                                    {openIndex === index ? <FiMinus size={18} /> : <FiPlus size={18} />}
+                                </div>
                             </button>
                             
                             {openIndex === index && (
-                                <div style={{ padding: isMobile ? "0 15px 15px 15px" : "0 20px 20px 20px", color: "var(--text-secondary)", fontSize: isMobile ? "14px" : "15px", lineHeight: "1.6" }}>
+                                <div style={{ padding: "0 0 28px 0", color: "var(--text-secondary)", fontSize: "16px", lineHeight: "1.7", maxWidth: "850px" }}>
                                     {faq.answer}
                                 </div>
                             )}
@@ -92,10 +98,11 @@ function FAQ() {
                     ))}
                 </div>
 
-                <div style={{ marginTop: "50px", paddingTop: "20px", borderTop: "1px solid var(--border-color)", textAlign: "center" }}>
-                    <p style={{ color: "var(--text-secondary)", marginBottom: "15px" }}>Still have questions?</p>
-                    <Link to="/support" style={{ display: "inline-block", padding: "10px 24px", background: "var(--bg-primary-btn)", color: "var(--text-on-active)", borderRadius: "8px", fontWeight: "600", textDecoration: "none" }}>
-                        Raise a Support Ticket
+                <div style={{ padding: "40px", background: "var(--bg-card)", borderRadius: "12px", border: "1px solid var(--border-color)", textAlign: "center" }}>
+                    <h3 style={{ color: "var(--text-primary)", margin: "0 0 10px 0", fontSize: "20px" }}>Still have questions?</h3>
+                    <p style={{ color: "var(--text-secondary)", margin: "0 0 20px 0", fontSize: "15px" }}>Can't find the answer you're looking for? Please chat with our friendly team.</p>
+                    <Link to="/support" style={{ display: "inline-block", padding: "12px 28px", background: "var(--bg-primary-btn)", color: "var(--text-on-active)", borderRadius: "8px", fontWeight: "600", textDecoration: "none" }}>
+                        Contact Support
                     </Link>
                 </div>
             </div>

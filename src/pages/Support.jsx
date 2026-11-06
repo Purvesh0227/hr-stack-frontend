@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { FiMail, FiPhone } from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
+import { FiMail, FiPhone, FiX, FiClock } from "react-icons/fi";
 import "../styles/global.css";
 
 function Support() {
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth <= 768);
@@ -12,134 +13,104 @@ function Support() {
         return () => window.removeEventListener("resize", handleResize);
     }, []);
 
+    const handleExit = () => {
+        const isLoggedIn = localStorage.getItem("token") && localStorage.getItem("employee");
+        if (isLoggedIn) navigate("/"); else navigate("/login");
+    };
+
+    const cardStyle = {
+        display: "flex", 
+        alignItems: "flex-start",
+        flexDirection: "column",
+        padding: "30px", 
+        background: "var(--bg-card)", 
+        border: "1px solid var(--border-color)", 
+        borderRadius: "16px", 
+        textDecoration: "none",
+        transition: "all 0.2s ease",
+        cursor: "pointer"
+    };
+
     return (
-        <div style={{ 
-            minHeight: "100vh", 
-            background: "var(--bg-page)", 
-            padding: isMobile ? "30px 15px" : "60px 20px",
-            display: "flex",
-            justifyContent: "center"
-        }}>
-            <div 
-                className="content-card" 
-                style={{ 
-                    width: "100%", 
-                    maxWidth: "850px", 
-                    padding: isMobile ? "25px" : "50px", 
-                    background: "var(--bg-card)", 
-                    borderRadius: "16px", 
-                    border: "1px solid var(--border-color)",
-                    boxShadow: "0 10px 30px rgba(0,0,0,0.05)"
-                }}
-            >
-                {/* TOP NAVIGATION */}
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "30px", flexWrap: "wrap", gap: "10px" }}>
-                    <Link 
-                        to="/login" 
-                        style={{ color: "var(--text-secondary)", textDecoration: "none", fontWeight: "600", display: "flex", alignItems: "center", gap: "5px" }}
+        <div style={{ minHeight: "100vh", background: "var(--bg-page)", padding: isMobile ? "20px" : "40px", display: "flex", justifyContent: "center" }}>
+            <div style={{ width: "100%", maxWidth: "1000px", display: "flex", flexDirection: "column", marginTop: "20px" }}>
+                
+                {/* EXIT BUTTON */}
+                <div style={{ marginBottom: "40px" }}>
+                    <button 
+                        onClick={handleExit} 
+                        style={{ 
+                            display: "inline-flex", alignItems: "center", gap: "8px", 
+                            padding: "8px 16px", background: "var(--bg-card)", 
+                            border: "1px solid var(--border-color)", borderRadius: "99px", 
+                            color: "var(--text-secondary)", cursor: "pointer", fontSize: "14px", 
+                            fontWeight: "500", transition: "all 0.2s ease"
+                        }}
+                        onMouseOver={(e) => e.currentTarget.style.borderColor = "var(--border-strong)"}
+                        onMouseOut={(e) => e.currentTarget.style.borderColor = "var(--border-color)"}
                     >
-                        ← Back to Login
-                    </Link>
-                    <Link 
-                        to="/" 
-                        style={{ color: "var(--accent-blue)", textDecoration: "none", fontWeight: "600" }}
-                    >
-                        Go to Dashboard →
-                    </Link>
+                        <FiX size={16} /> Exit
+                    </button>
                 </div>
 
-                <div style={{ textAlign: "center", marginBottom: isMobile ? "30px" : "40px" }}>
-                    <h1 style={{ color: "var(--text-primary)", fontSize: isMobile ? "26px" : "32px", margin: "0 0 10px 0", letterSpacing: "-0.5px" }}>
-                        Raise a Support Ticket
+                {/* HEADER */}
+                <div style={{ marginBottom: "50px", textAlign: "center" }}>
+                    <h1 style={{ color: "var(--text-primary)", fontSize: isMobile ? "36px" : "48px", margin: "0 0 15px 0", fontWeight: "700", letterSpacing: "-1px" }}>
+                        Contact Support
                     </h1>
-                    <p style={{ color: "var(--text-secondary)", margin: 0, fontSize: "15px" }}>
-                        Need help with HR-Stack? We are here for you.
+                    <p style={{ color: "var(--text-secondary)", margin: 0, fontSize: "18px" }}>
+                        Our team is here to help you with any issues or questions.
                     </p>
                 </div>
 
-                {/* Cards - Grid on desktop, stacked on mobile */}
-                <div style={{ 
-                    display: "grid", 
-                    gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", 
-                    gap: "20px", 
-                    marginBottom: "40px" 
-                }}>
+                {/* CONTACT CARDS */}
+                <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "20px", marginBottom: "40px" }}>
                     
                     {/* Email Card */}
-                    <div style={{ padding: "25px", background: "var(--bg-hover-row)", borderRadius: "12px", border: "1px solid var(--border-color)", textAlign: "center" }}>
-                        <div style={{ width: "50px", height: "50px", background: "var(--bg-page)", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 15px auto", color: "var(--accent-blue)" }}>
+                    <a 
+                        href="mailto:support@hrstack.com" 
+                        style={cardStyle}
+                        onMouseOver={(e) => { e.currentTarget.style.borderColor = "var(--border-strong)"; e.currentTarget.style.transform = "translateY(-2px)"; }}
+                        onMouseOut={(e) => { e.currentTarget.style.borderColor = "var(--border-color)"; e.currentTarget.style.transform = "translateY(0)"; }}
+                    >
+                        <div style={{ padding: "12px", background: "var(--bg-hover-row)", borderRadius: "12px", marginBottom: "20px", color: "var(--text-primary)" }}>
                             <FiMail size={24} />
                         </div>
-                        <h3 style={{ margin: "0 0 10px 0", color: "var(--text-primary)" }}>Email Support</h3>
-                        <p style={{ color: "var(--text-secondary)", fontSize: "14px", marginBottom: "15px" }}>Send us an email and we will reply within 24 hours.</p>
-                        
-                        <a 
-                            href="mailto:support@hrstack.com" 
-                            style={{ 
-                                display: "inline-block", 
-                                padding: "10px 16px", 
-                                background: "var(--bg-card)", 
-                                color: "var(--accent-blue)",
-                                borderRadius: "8px", 
-                                fontWeight: "600",
-                                border: "1px solid var(--border-strong)",
-                                textDecoration: "none",
-                                transition: "opacity 0.2s ease"
-                            }}
-                            onMouseOver={(e) => e.target.style.opacity = "0.8"}
-                            onMouseOut={(e) => e.target.style.opacity = "1"}
-                        >
+                        <h3 style={{ color: "var(--text-primary)", fontSize: "20px", margin: "0 0 10px 0", fontWeight: "600" }}>Email Us</h3>
+                        <p style={{ color: "var(--text-secondary)", margin: "0 0 20px 0", fontSize: "15px", lineHeight: "1.6" }}>
+                            Our friendly team is here to help. We usually reply within 24 hours.
+                        </p>
+                        <span style={{ color: "var(--accent-blue)", fontWeight: "600", fontSize: "15px" }}>
                             support@hrstack.com
-                        </a>
-                    </div>
+                        </span>
+                    </a>
 
                     {/* Phone Card */}
-                    <div style={{ padding: "25px", background: "var(--bg-hover-row)", borderRadius: "12px", border: "1px solid var(--border-color)", textAlign: "center" }}>
-                        <div style={{ width: "50px", height: "50px", background: "var(--bg-page)", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 15px auto", color: "var(--accent-blue)" }}>
+                    <a 
+                        href="tel:+919999999999" 
+                        style={cardStyle}
+                        onMouseOver={(e) => { e.currentTarget.style.borderColor = "var(--border-strong)"; e.currentTarget.style.transform = "translateY(-2px)"; }}
+                        onMouseOut={(e) => { e.currentTarget.style.borderColor = "var(--border-color)"; e.currentTarget.style.transform = "translateY(0)"; }}
+                    >
+                        <div style={{ padding: "12px", background: "var(--bg-hover-row)", borderRadius: "12px", marginBottom: "20px", color: "var(--text-primary)" }}>
                             <FiPhone size={24} />
                         </div>
-                        <h3 style={{ margin: "0 0 10px 0", color: "var(--text-primary)" }}>Call Us</h3>
-                        <p style={{ color: "var(--text-secondary)", fontSize: "14px", marginBottom: "15px" }}>Available Mon-Fri, 9:00 AM to 6:00 PM.</p>
-                        
-                        <a 
-                            href="tel:+919999999999" 
-                            style={{ 
-                                display: "inline-block", 
-                                padding: "10px 16px", 
-                                background: "var(--bg-card)", 
-                                color: "var(--accent-blue)",
-                                borderRadius: "8px", 
-                                fontWeight: "600",
-                                border: "1px solid var(--border-strong)",
-                                textDecoration: "none",
-                                transition: "opacity 0.2s ease"
-                            }}
-                            onMouseOver={(e) => e.target.style.opacity = "0.8"}
-                            onMouseOut={(e) => e.target.style.opacity = "1"}
-                        >
+                        <h3 style={{ color: "var(--text-primary)", fontSize: "20px", margin: "0 0 10px 0", fontWeight: "600" }}>Call Us</h3>
+                        <p style={{ color: "var(--text-secondary)", margin: "0 0 20px 0", fontSize: "15px", lineHeight: "1.6" }}>
+                            Our team is available to assist you over the phone during business hours.
+                        </p>
+                        <span style={{ color: "var(--accent-blue)", fontWeight: "600", fontSize: "15px" }}>
                             +91 99999 99999
-                        </a>
-                    </div>
-
+                        </span>
+                    </a>
                 </div>
 
-                {/* Footer Button */}
-                <div style={{ marginTop: "40px", paddingTop: "20px", borderTop: "1px solid var(--border-color)", textAlign: "center" }}>
-                    <Link 
-                        to="/faq" 
-                        style={{ 
-                            display: "inline-block",
-                            padding: "10px 24px",
-                            background: "var(--bg-primary-btn)", 
-                            color: "var(--text-on-active)", 
-                            borderRadius: "8px",
-                            fontWeight: "600", 
-                            textDecoration: "none" 
-                        }}
-                    >
-                        ← Back to FAQ
-                    </Link>
+                {/* HOURS BANNER */}
+                <div style={{ display: "flex", alignItems: "center", gap: "12px", padding: "20px", background: "var(--bg-hover-row)", borderRadius: "12px", border: "1px solid var(--border-color)", color: "var(--text-secondary)", fontSize: "15px" }}>
+                    <FiClock size={20} color="var(--text-primary)" />
+                    <span><strong>Support Hours:</strong> Monday to Friday, 9:00 AM to 6:00 PM IST.</span>
                 </div>
+
             </div>
         </div>
     );
