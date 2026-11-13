@@ -9,6 +9,7 @@ import {
 import AppReleaseModal from "../../components/AppReleaseModal";
 import Loader from "../../components/Loader";
 import { openUrl } from "@tauri-apps/plugin-opener";
+import SkeletonTable from "../../components/SkeletonTable";
 
 export default function AppReleasesPage() {
     const { role, showNotification } = useOutletContext();
@@ -215,7 +216,7 @@ export default function AppReleasesPage() {
                 </div>
 
                 {loading ? (
-                    <Loader />
+                    <SkeletonTable rows={5} cols={5} />
                 ) : releases.length === 0 ? (
                     <p className="no-attendance">
                         No {platform === "WINDOWS" ? "Windows" : "Android"}{" "}

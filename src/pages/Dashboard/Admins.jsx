@@ -8,8 +8,9 @@ import PageSizeSelect from "../../components/PageSizeSelect";
 import Loader from "../../components/Loader";
 import useAdminList from "../../hooks/useAdminList";
 import { FiShield, FiUserPlus } from "react-icons/fi";
+import SkeletonTable from "../../components/SkeletonTable";
 
-// Separate component: the hook (and its API call) only runs for admins
+
 function AdminsContent() {
     const [showAddAdminModal, setShowAddAdminModal] = useState(false);
 
@@ -103,8 +104,7 @@ function AdminsContent() {
                         />
                     </div>
 
-                    {/* First load only, so the table doesn't vanish on every search */}
-                    {loading && admins.length === 0 && <Loader />}
+                    {loading && admins.length === 0 && <SkeletonTable rows={5} cols={6} />}
 
                     {/* Admin Table */}
                     {admins.length > 0 && (

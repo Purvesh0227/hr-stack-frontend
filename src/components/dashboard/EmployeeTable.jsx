@@ -5,6 +5,7 @@ import TableFilters from "./TableFilters";
 import { FiEdit2, FiEye } from "react-icons/fi";
 import { formatDate } from "../../utils/dateUtils";
 import { formatPhoneNumber } from "../../utils/phoneFormatter";
+import SkeletonTable from "../SkeletonTable";
 
 
 const STATUS_OPTIONS = [
@@ -88,8 +89,8 @@ function EmployeeTable({
                 </div>
             </div>
 
-            {/* Loading (first load only, so the table doesn't vanish on every search) */}
-            {loadingEmployees && employees.length === 0 && <Loader />}
+            
+            {loadingEmployees && employees.length === 0 && <SkeletonTable rows={5} cols={8} />}
 
             {/* Employee Table */}
             {employees.length > 0 && (

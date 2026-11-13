@@ -29,12 +29,13 @@ const ALLOWED_TYPES = [
     "image/webp"
 ];
 
+const DRAFT_KEY = "hrstack-announcement-draft";
+
 const formatSize = (bytes) =>
     bytes < 1024 * 1024
         ? `${Math.max(1, Math.round(bytes / 1024))} KB`
         : `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 
-// announcement = null -> create mode, object -> edit mode
 function AnnouncementModal({ isOpen, onClose, onSaved, announcement = null }) {
     const { showNotification } = useNotification();
     const [loading, run] = useSubmitLock();
@@ -45,30 +46,63 @@ function AnnouncementModal({ isOpen, onClose, onSaved, announcement = null }) {
     const [type, setType] = useState("GENERAL");
     const [title, setTitle] = useState("");
     const [message, setMessage] = useState("");
-    const [newFiles, setNewFiles] = useState([]);              // File[]
-    const [removedIds, setRemovedIds] = useState([]);          // existing attachment ids
+    const [newFiles, setNewFiles] = useState([]);
+    const [removedIds, setRemovedIds] = useState([]);
     const [fileError, setFileError] = useState("");
 
-    // Fill / reset the form every time the modal opens
+    // Load draft on open (only for new announcements)
     useEffect(() => {
         if (!isOpen) return;
 
-        setType(announcement?.type || "GENERAL");
-        setTitle(announcement?.title || "");
-        setMessage(announcement?.message || "");
+        if (!isEdit) {
+            try {
+                const savedDraft = localStorage.getItem(DRAFT_KEY);
+                if (savedDraft) {
+                    const parsed = JSON.parse(savedDraft);
+                    setType(parsed.type || "GENERAL");
+                    setTitle(parsed.title || "");
+                    setMessage(parsed.message || "");
+                    // Note: Files cannot be saved to localStorage, so we only restore text
+                } else {
+                    setType("GENERAL");
+                    setTitle("");
+                    setMessage("");
+                }
+            } catch {
+                setType("GENERAL");
+                setTitle("");
+                setMessage("");
+            }
+        } else {
+            // Editing existing announcement: load from props
+            setType(announcement?.type || "GENERAL");
+            setTitle(announcement?.title || "");
+            setMessage(announcement?.message || "");
+        }
+
         setNewFiles([]);
         setRemovedIds([]);
         setFileError("");
-    }, [isOpen, announcement]);
+    }, [isOpen, announcement, isEdit]);
 
-    // Esc closes (not while saving)
+    // Save draft on change (only for new announcements)
+    useEffect(() => {
+        if (!isOpen || isEdit) return;
+
+        const draft = { type, title, message };
+        try {
+            localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+        } catch {
+            // Ignore storage limit errors
+        }
+    }, [isOpen, isEdit, type, title, message]);
+
+    // Esc closes
     useEffect(() => {
         if (!isOpen) return;
-
         const onKey = (e) => {
             if (e.key === "Escape" && !loading) onClose();
         };
-
         document.addEventListener("keydown", onKey);
         return () => document.removeEventListener("keydown", onKey);
     }, [isOpen, loading, onClose]);
@@ -79,16 +113,14 @@ function AnnouncementModal({ isOpen, onClose, onSaved, announcement = null }) {
         (a) => !removedIds.includes(a.id)
     );
     const totalFiles = keptExisting.length + newFiles.length;
-
     const formValid = title.trim() && message.trim();
 
     const handlePickFiles = (e) => {
         const picked = Array.from(e.target.files || []);
-        e.target.value = "";               // allows picking the same file again
+        e.target.value = "";
         setFileError("");
 
         const accepted = [];
-
         for (const file of picked) {
             if (!ALLOWED_TYPES.includes(file.type)) {
                 setFileError(`${file.name}: only PDF, PNG, JPG or WEBP allowed`);
@@ -116,13 +148,10 @@ function AnnouncementModal({ isOpen, onClose, onSaved, announcement = null }) {
 
         run(async () => {
             try {
-                // 1) upload new files straight to storage
                 const uploaded = [];
-
                 for (const file of newFiles) {
                     const { data } = await getAnnouncementUploadUrl(file.name, file.type);
                     await uploadAnnouncementFile(data.uploadUrl, file);
-
                     uploaded.push({
                         objectKey: data.objectKey,
                         fileName: file.name,
@@ -131,7 +160,6 @@ function AnnouncementModal({ isOpen, onClose, onSaved, announcement = null }) {
                     });
                 }
 
-                // 2) save the announcement
                 const payload = {
                     title: title.trim(),
                     message: message.trim(),
@@ -144,21 +172,23 @@ function AnnouncementModal({ isOpen, onClose, onSaved, announcement = null }) {
                     await updateAnnouncement(announcement.id, payload);
                 } else {
                     await createAnnouncement(payload);
+                    // Clear draft after successful submit
+                    localStorage.removeItem(DRAFT_KEY);
                 }
 
-                showNotification(
-                    isEdit ? "Announcement updated" : "Announcement posted",
-                    "success"
-                );
+                showNotification(isEdit ? "Announcement updated" : "Announcement posted", "success");
                 onSaved();
                 onClose();
             } catch (error) {
-                showNotification(
-                    getErrorMessage(error, "Unable to save announcement"),
-                    "error"
-                );
+                showNotification(getErrorMessage(error, "Unable to save announcement"), "error");
             }
         });
+    };
+
+    const handleClose = () => {
+        // Note: We do NOT clear the draft on close. If the user accidentally closes the modal,
+        // their draft will be waiting for them next time.
+        onClose();
     };
 
     const FileIcon = ({ contentType }) =>
@@ -168,7 +198,7 @@ function AnnouncementModal({ isOpen, onClose, onSaved, announcement = null }) {
         <div
             className="ann-modal-overlay"
             onMouseDown={(e) => {
-                if (e.target === e.currentTarget && !loading) onClose();
+                if (e.target === e.currentTarget && !loading) handleClose();
             }}
         >
             <div className="ann-modal" role="dialog" aria-modal="true">
@@ -180,7 +210,7 @@ function AnnouncementModal({ isOpen, onClose, onSaved, announcement = null }) {
                     <button
                         type="button"
                         className="ann-icon-btn"
-                        onClick={onClose}
+                        onClick={handleClose}
                         disabled={loading}
                         aria-label="Close"
                     >
@@ -191,15 +221,9 @@ function AnnouncementModal({ isOpen, onClose, onSaved, announcement = null }) {
                 <form className="ann-form" onSubmit={handleSubmit}>
                     <div className="ann-field">
                         <label htmlFor="ann-type">Type</label>
-                        <select
-                            id="ann-type"
-                            value={type}
-                            onChange={(e) => setType(e.target.value)}
-                        >
+                        <select id="ann-type" value={type} onChange={(e) => setType(e.target.value)}>
                             {ANNOUNCEMENT_TYPES.map((t) => (
-                                <option key={t.value} value={t.value}>
-                                    {t.label}
-                                </option>
+                                <option key={t.value} value={t.value}>{t.label}</option>
                             ))}
                         </select>
                     </div>
@@ -236,9 +260,7 @@ function AnnouncementModal({ isOpen, onClose, onSaved, announcement = null }) {
                     <div className="ann-field">
                         <label>
                             Attachments
-                            <span className="ann-counter">
-                                {totalFiles}/{MAX_FILES} · PDF, PNG, JPG, WEBP · 10 MB each
-                            </span>
+                            <span className="ann-counter">{totalFiles}/{MAX_FILES} · PDF, PNG, JPG, WEBP · 10 MB each</span>
                         </label>
 
                         <button
@@ -271,16 +293,13 @@ function AnnouncementModal({ isOpen, onClose, onSaved, announcement = null }) {
                                         <button
                                             type="button"
                                             className="ann-icon-btn"
-                                            onClick={() =>
-                                                setRemovedIds((ids) => [...ids, file.id])
-                                            }
+                                            onClick={() => setRemovedIds((ids) => [...ids, file.id])}
                                             aria-label={`Remove ${file.fileName}`}
                                         >
                                             <FiTrash2 />
                                         </button>
                                     </li>
                                 ))}
-
                                 {newFiles.map((file, index) => (
                                     <li key={`${file.name}-${index}`}>
                                         <FileIcon contentType={file.type} />
@@ -289,11 +308,7 @@ function AnnouncementModal({ isOpen, onClose, onSaved, announcement = null }) {
                                         <button
                                             type="button"
                                             className="ann-icon-btn"
-                                            onClick={() =>
-                                                setNewFiles((files) =>
-                                                    files.filter((_, i) => i !== index)
-                                                )
-                                            }
+                                            onClick={() => setNewFiles((files) => files.filter((_, i) => i !== index))}
                                             aria-label={`Remove ${file.name}`}
                                         >
                                             <FiTrash2 />
@@ -305,24 +320,11 @@ function AnnouncementModal({ isOpen, onClose, onSaved, announcement = null }) {
                     </div>
 
                     <div className="ann-modal-actions">
-                        <button
-                            type="button"
-                            className="ann-btn ann-btn-secondary"
-                            onClick={onClose}
-                            disabled={loading}
-                        >
+                        <button type="button" className="ann-btn ann-btn-secondary" onClick={handleClose} disabled={loading}>
                             Cancel
                         </button>
-                        <button
-                            type="submit"
-                            className="ann-btn ann-btn-primary"
-                            disabled={!formValid || loading}
-                        >
-                            {loading
-                                ? "Saving..."
-                                : isEdit
-                                    ? "Save changes"
-                                    : "Post announcement"}
+                        <button type="submit" className="ann-btn ann-btn-primary" disabled={!formValid || loading}>
+                            {loading ? "Saving..." : isEdit ? "Save changes" : "Post announcement"}
                         </button>
                     </div>
                 </form>

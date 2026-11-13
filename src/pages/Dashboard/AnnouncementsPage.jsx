@@ -8,6 +8,7 @@ import {
     FiImage,
     FiBell
 } from "react-icons/fi";
+import SkeletonTable from "../../components/SkeletonTable";
 import AnnouncementModal, {
     ANNOUNCEMENT_TYPES
 } from "../../components/AnnouncementModal";
@@ -201,7 +202,7 @@ function AnnouncementsPage() {
             </div>
 
             {loading ? (
-                <Loader />
+                <SkeletonTable rows={3} cols={3} />
             ) : items.length === 0 ? (
                 <div className="ann-empty">
                     <FiBell />

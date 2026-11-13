@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiX } from "react-icons/fi";
 import "../styles/global.css";
+import { Helmet } from "react-helmet-async";
 
 function PrivacyPolicy() {
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
@@ -19,10 +20,18 @@ function PrivacyPolicy() {
     };
 
     return (
+        <>
+        <Helmet>
+                <title>Privacy Policy - HRStack</title>
+                <meta name="description" content="Read the HRStack privacy policy to understand how we collect, use, and protect your data." />
+                <meta property="og:title" content="Privacy Policy - HRStack" />
+                <meta property="og:description" content="Learn how HRStack handles your data and privacy." />
+                <meta property="og:image" content="https://purvesh0227.github.io/hr-stack-frontend/icons/icon-512.png" />
+        </Helmet>
         <div style={{ minHeight: "100vh", background: "var(--bg-page)", padding: isMobile ? "20px" : "40px", display: "flex", justifyContent: "center" }}>
             <div style={{ width: "100%", maxWidth: "900px", display: "flex", flexDirection: "column", marginTop: "20px" }}>
                 
-                {/* PROFESSIONAL EXIT BUTTON */}
+                
                 <div style={{ marginBottom: "40px" }}>
                     <button 
                         onClick={handleExit} 
@@ -98,6 +107,7 @@ function PrivacyPolicy() {
                 </div>
             </div>
         </div>
+    </>
     );
 }
 

@@ -5,6 +5,7 @@ import { getAdminSupportTickets, updateSupportTicketStatus } from "../../service
 import { useNotification } from "../../contexts/NotificationContext";
 import Loader from "../../components/Loader";
 import Pagination from "../../components/Pagination";
+import SkeletonTable from "../../components/SkeletonTable";
 
 const formatDateTime = (millis) =>
     millis ? new Date(millis).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" }) : "-";
@@ -115,7 +116,7 @@ function SupportTicketsPage() {
             {/* Tickets List */}
             <div className="attendance-card" style={{ padding: "20px" }}>
                 {loading ? (
-                    <Loader />
+                    <SkeletonTable rows={4} cols={4} />
                 ) : tickets.length === 0 ? (
                     <p style={{ textAlign: "center", padding: "40px", color: "var(--text-secondary)" }}>
                         No {filter !== "ALL" ? filter.toLowerCase() : ""} tickets found.
