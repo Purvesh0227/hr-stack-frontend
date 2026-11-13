@@ -467,10 +467,15 @@ function Login() {
                             )}
 
                         </div>
-                         <div style={{ textAlign: "center", marginTop: "30px", fontSize: "12px", color: "var(--text-secondary)", lineHeight: "1.6" }}>
-                            By signing in, you agree to our <br />
+                            <div style={{ textAlign: "center", marginTop: "30px", fontSize: "13px", color: "var(--text-secondary)", lineHeight: "1.8" }}>
+                            By signing in, you agree to our{" "}
                             <Link to="/privacy-policy" style={{ color: "var(--text-primary)", textDecoration: "underline", fontWeight: "600" }}>
                                 Privacy Policy
+                            </Link>.
+                            <br />
+                            Need help? Visit our{" "}
+                            <Link to="/help" style={{ color: "var(--text-primary)", textDecoration: "underline", fontWeight: "600" }}>
+                                Help Center
                             </Link>.
                         </div>
 
