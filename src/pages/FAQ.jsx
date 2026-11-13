@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FiX, FiChevronRight, FiMessageCircle } from "react-icons/fi";
 import "../styles/global.css";
+import { Helmet } from "react-helmet-async";
 
 const faqs = [
     { question: "How do I mark my attendance?", answer: "You can mark your attendance using the 6-digit OTP sent to your registered email, or by scanning the QR code provided by your Admin on the Attendance page." },
@@ -29,6 +30,14 @@ function FAQ() {
     };
 
     return (
+        <>
+         <Helmet>
+                <title>Help Center - HRStack</title>
+                <meta name="description" content="Find answers to frequently asked questions about HRStack attendance, documents, and finance." />
+                <meta property="og:title" content="Help Center - HRStack" />
+                <meta property="og:description" content="Browse HRStack FAQs." />
+                <meta property="og:image" content="https://purvesh0227.github.io/hr-stack-frontend/icons/icon-512.png" />
+        </Helmet>
         <div style={{ minHeight: "100vh", background: "var(--bg-page)", padding: isMobile ? "20px" : "40px", display: "flex", justifyContent: "center" }}>
             <div style={{ width: "100%", maxWidth: "1100px", display: "flex", flexDirection: "column", marginTop: "20px" }}>
                 
@@ -138,6 +147,7 @@ function FAQ() {
                 </div>
             </div>
         </div>
+    </>
     );
 }
 

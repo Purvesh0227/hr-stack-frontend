@@ -8,6 +8,7 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import "./styles/theme.css";
 import "./index.css";
 import "./App.css";
+import { HelmetProvider } from "react-helmet-async";
 
 const registerServiceWorker = async () => {
     if (!("serviceWorker" in navigator)) {
@@ -17,7 +18,7 @@ const registerServiceWorker = async () => {
 
     const isProduction = import.meta.env.PROD;
 
-    // CHANGED: Removed /hr-stack-frontend/ prefix
+    
     const swUrl = isProduction
         ? "/hr-stack-frontend/sw.js"
         : "/dev-sw.js?dev-sw";
@@ -26,7 +27,6 @@ const registerServiceWorker = async () => {
         const registration = await navigator.serviceWorker.register(
             swUrl,
             {
-                // CHANGED: Removed /hr-stack-frontend/ prefix
                 scope: "/",
                 type: isProduction ? "classic" : "module",
             }
@@ -51,7 +51,9 @@ ReactDOM.createRoot(
 ).render(
     <BrowserRouter basename="/hr-stack-frontend">
         <ThemeProvider>
-            <App />
+            <HelmetProvider> 
+                <App />
+            </HelmetProvider>
         </ThemeProvider>
     </BrowserRouter>
 );

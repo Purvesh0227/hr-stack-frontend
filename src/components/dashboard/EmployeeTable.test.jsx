@@ -64,14 +64,14 @@ describe("EmployeeTable", () => {
         expect(screen.getByText("user@example.com")).toBeInTheDocument();
     });
 
-    it("shows loader on first load", () => {
+    it("shows skeleton loader on first load", () => {
         renderWithProviders(
             <EmployeeTable
                 {...makeProps({ employees: [], loadingEmployees: true })}
             />
         );
 
-        expect(document.querySelector(".loader")).toBeTruthy();
+        expect(document.querySelector('[style*="skeleton-pulse"]')).toBeTruthy();
     });
 
     it("shows 'No employees available' when empty and no filters", () => {

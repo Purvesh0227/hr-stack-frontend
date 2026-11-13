@@ -6,6 +6,7 @@ import {
     resendLoginOtp,
     googleLogin
 } from "../services/api";
+import { Helmet } from "react-helmet-async";
 import { useNotification } from "../contexts/NotificationContext";
 import { FiEye, FiEyeOff, FiArrowRight } from "react-icons/fi";
 import "../styles/global.css";
@@ -16,7 +17,7 @@ import { signIn } from '@choochmeque/tauri-plugin-google-auth-api';
 
 import { consumePostLoginPath } from "../utils/postLoginRedirect";
 
-// Backend sends {error: "..."} or {field: "..."} for validation
+
 const getErrorMessage = (error, fallback) => {
     const data = error.response?.data;
     if (data?.error) return data.error;
@@ -35,7 +36,7 @@ function Login() {
     const navigate = useNavigate();
     const { showNotification } = useNotification();
 
-    // "credentials" -> "otp"
+    
     const [step, setStep] = useState("credentials");
 
     const { theme } = useTheme();
@@ -46,7 +47,7 @@ function Login() {
     });
     const [showPassword, setShowPassword] = useState(false);
 
-    // OTP step state. mfaToken lives in memory only (never localStorage)
+   
     const [mfaToken, setMfaToken] = useState("");
     const [maskedEmail, setMaskedEmail] = useState("");
     const [otp, setOtp] = useState("");
@@ -96,7 +97,7 @@ function Login() {
         setLoginData((prev) => ({ ...prev, password: "" }));
     };
 
-    // Backend says "...Please log in again." when the login attempt is dead
+   
     const handleOtpError = (error, fallback) => {
         const message = getErrorMessage(error, fallback);
         showNotification(message, "error");
@@ -105,7 +106,7 @@ function Login() {
         }
     };
 
-    // Save the real session (used after OTP, Google, or when 2FA is off)
+    
     const completeLogin = (data) => {
         const { token, employee } = data;
 
@@ -190,11 +191,14 @@ function Login() {
 
     return (
         <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID || ""}>
+             <Helmet>
+                <title>Sign In - HRStack</title>
+                <meta name="description" content="Sign in to HRStack to manage your employee dashboard, attendance, and payroll." />
+                <meta property="og:title" content="Sign In - HRStack" />
+                <meta property="og:description" content="Sign in to your HRStack employee dashboard." />
+                <meta property="og:image" content="https://purvesh0227.github.io/hr-stack-frontend/icons/icon-512.png" />
+            </Helmet>
             <div className="login-page">
-
-                {/* =========================================
-                    LEFT BRANDING PANEL
-                ========================================= */}
 
                 <section className="login-brand-panel">
 

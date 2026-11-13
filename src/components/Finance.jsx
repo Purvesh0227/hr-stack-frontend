@@ -9,6 +9,7 @@ import {
     uploadFileDirectlyToMinio,
     isRequestCancelled
 } from "../services/api";
+import SkeletonTable from "./SkeletonTable";
 import {
     getMonthName,
     formatCurrency
@@ -597,10 +598,7 @@ useEffect(() => {
                     </div>
 
                     {loading && salarySlips.length === 0 ? (
-                        <div className="finance-empty-state">
-                            <span className="finance-loading-spinner" />
-                            <p>Loading salary slips...</p>
-                        </div>
+                        <SkeletonTable rows={5} cols={5} />
                     ) : salarySlips.length === 0 ? (
                         <div className="finance-empty-state">
                             <p>

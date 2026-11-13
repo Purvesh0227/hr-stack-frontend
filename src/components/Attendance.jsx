@@ -5,6 +5,7 @@ import {
     createOtp,
     isRequestCancelled
 } from "../services/api";
+import SkeletonTable from "./SkeletonTable";
 import { formatDateTime, dateToMillis } from "../utils/dateUtils";
 import { DEPARTMENTS } from "../constants/departmentConstants";
 import { useNotification } from "../contexts/NotificationContext";
@@ -772,14 +773,14 @@ function Attendance({ role }) {
                     </div>
 
                     {/* Empty State */}
-                    {attendance.length === 0 ? (
-                        !loadingAttendance && (
-                            <p className="no-attendance">
-                               {debouncedSearchTerm || selectedMonth
-                                    ? "No attendance records match the selected filters."
-                                    : "No attendance records found."}
-                            </p>
-                        )
+                    {loadingAttendance && attendance.length === 0 ? (
+                        <SkeletonTable rows={5} cols={4} />
+                    ) : attendance.length === 0 ? (
+                        <p className="no-attendance">
+                            {debouncedSearchTerm || selectedMonth
+                                ? "No attendance records match the selected filters."
+                                : "No attendance records found."}
+                        </p>
                     ) : (
                         <>
                             <div
