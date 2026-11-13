@@ -47,8 +47,6 @@ jobs:
           VITE_GOOGLE_DESKTOP_CLIENT_SECRET: ${{ secrets.VITE_GOOGLE_DESKTOP_CLIENT_SECRET }}
         run: npm run build
 
-      - name: Configure SPA fallback
-        run: cp dist/index.html dist/404.html
 
       - name: Setup Pages
         if: github.event_name == 'push'
