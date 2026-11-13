@@ -4,6 +4,20 @@
     <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-LXQ2032T7Y"></script>
   <script>
+  (function() {
+    // 1. Check if we were redirected from the 404 page
+    var redirectPath = sessionStorage.getItem('redirectPath');
+    
+    if (redirectPath) {
+      // 2. Clear it from memory so it doesn't loop
+      sessionStorage.removeItem('redirectPath');
+      
+      // 3. Change the URL back to what the user originally wanted (e.g., /privacy-policy)
+      window.history.replaceState(null, null, redirectPath);
+    }
+  })();
+</script>
+  <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
