@@ -23,7 +23,7 @@ export default defineConfig(({ mode }) => ({
                 type: "module",
             },
 
-            includeAssets: ["favicon.ico", "robots.txt"],
+              includeAssets: ["favicon.ico", "robots.txt", "sitemap.xml"],
 
             manifest: {
                 id: "/hr-stack-frontend/",
