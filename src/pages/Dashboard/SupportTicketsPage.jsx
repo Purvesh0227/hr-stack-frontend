@@ -62,14 +62,14 @@ function SupportTicketsPage() {
         }
     };
 
-    const handleResolve = async (e, ticketId) => {
-        e.stopPropagation(); 
-        if (!window.confirm("Mark this ticket as RESOLVED?")) return;
+    const handleUpdateStatus = async (e, ticketId, newStatus) => {
+        e.stopPropagation();
+        if (newStatus === "RESOLVED" && !window.confirm("Mark this ticket as RESOLVED?")) return;
         
         try {
             setResolvingId(ticketId); 
-            await updateSupportTicketStatus(ticketId, "RESOLVED");
-            showNotification("Ticket resolved successfully", "success");
+            await updateSupportTicketStatus(ticketId, newStatus);
+            showNotification(`Status updated to ${newStatus}`, "success");
             fetchTickets(); 
         } catch {
             showNotification("Failed to update status", "error");
@@ -110,8 +110,8 @@ function SupportTicketsPage() {
                 </div>
             </div>
 
-            <div style={{ display: "flex", gap: "10px", marginBottom: "20px" }}>
-                {["ALL", "OPEN", "RESOLVED"].map((status) => (
+            <div style={{ display: "flex", gap: "10px", marginBottom: "20px", flexWrap: "wrap" }}>
+                {["ALL", "OPEN", "TODO", "IN_PROGRESS", "READY_FOR_REVIEW", "RESOLVED"].map((status) => (
                     <button
                         key={status}
                         onClick={() => { setFilter(status); setPage(1); }}
@@ -125,7 +125,7 @@ function SupportTicketsPage() {
                             cursor: "pointer"
                         }}
                     >
-                        {status}
+                        {status.replace("_", " ")}
                     </button>
                 ))}
             </div>
@@ -135,7 +135,7 @@ function SupportTicketsPage() {
                     <Loader />
                 ) : tickets.length === 0 ? (
                     <p style={{ textAlign: "center", padding: "40px", color: "var(--text-secondary)" }}>
-                        No {filter !== "ALL" ? filter.toLowerCase() : ""} tickets found.
+                        No {filter !== "ALL" ? filter.toLowerCase().replace("_", " ") : ""} tickets found.
                     </p>
                 ) : (
                     <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
@@ -162,25 +162,8 @@ function SupportTicketsPage() {
                                         </div>
 
                                         <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
-                                            {ticket.status !== "RESOLVED" && (
-                                                <button
-                                                    onClick={(e) => handleResolve(e, ticket.id)}
-                                                    disabled={isResolving}
-                                                    style={{ 
-                                                        display: "flex", alignItems: "center", gap: "6px",
-                                                        padding: "6px 12px", borderRadius: "6px", 
-                                                        background: isResolving ? "var(--bg-page)" : "transparent", 
-                                                        border: "1px solid #16a34a", 
-                                                        color: "#16a34a", fontSize: "12px", fontWeight: "600", 
-                                                        cursor: isResolving ? "not-allowed" : "pointer", 
-                                                        transition: "all 0.2s ease" 
-                                                    }}
-                                                >
-                                                    {isResolving ? "Resolving..." : "Resolve"}
-                                                </button>
-                                            )}
                                             <span style={{ display: "flex", alignItems: "center", gap: "5px", fontSize: "12px", fontWeight: "600", color: ticket.status === "RESOLVED" ? "#16a34a" : "#ca8a04" }}>
-                                                {ticket.status === "RESOLVED" ? <FiCheckCircle /> : <FiClock />} {ticket.status}
+                                                {ticket.status === "RESOLVED" ? <FiCheckCircle /> : <FiClock />} {ticket.status.replace("_", " ")}
                                             </span>
                                             {isExpanded ? <FiChevronUp color="var(--text-secondary)" /> : <FiChevronDown color="var(--text-secondary)" />}
                                         </div>
@@ -201,9 +184,41 @@ function SupportTicketsPage() {
                                                 </a>
                                             </div>
 
+                                            {/* Admin Status Dropdown */}
+                                            <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "20px" }}>
+                                                <label style={{ fontSize: "14px", fontWeight: "600", color: "var(--text-secondary)" }}>Update Status:</label>
+                                                <select 
+                                                    value={ticket.status} 
+                                                    onChange={(e) => handleUpdateStatus(e, ticket.id, e.target.value)}
+                                                    disabled={isResolving}
+                                                    style={{ padding: "8px", borderRadius: "6px", border: "1px solid var(--border-color)", background: "var(--bg-page)", color: "var(--text-primary)", cursor: "pointer" }}
+                                                >
+                                                    <option value="OPEN">OPEN</option>
+                                                    <option value="TODO">TODO</option>
+                                                    <option value="IN_PROGRESS">IN PROGRESS</option>
+                                                    <option value="READY_FOR_REVIEW">READY FOR REVIEW</option>
+                                                    <option value="RESOLVED">RESOLVED</option>
+                                                </select>
+                                            </div>
+
                                             <div style={{ padding: "16px", background: "var(--bg-page)", borderLeft: "4px solid var(--accent-blue)", borderRadius: "4px", color: "var(--text-primary)", lineHeight: "1.6", fontSize: "14px", whiteSpace: "pre-wrap", marginBottom: "20px" }}>
                                                 {ticket.message}
                                             </div>
+
+                                            {/* Status History Timeline */}
+                                            {ticket.statusHistory && ticket.statusHistory.length > 0 && (
+                                                <div style={{ marginBottom: "20px", padding: "16px", background: "var(--bg-page)", borderRadius: "8px" }}>
+                                                    <h4 style={{ margin: "0 0 12px 0", fontSize: "14px", color: "var(--text-primary)" }}>Status History</h4>
+                                                    <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                                                        {ticket.statusHistory.map((h, idx) => (
+                                                            <div key={idx} style={{ display: "flex", justifyContent: "space-between", fontSize: "13px", borderBottom: idx !== ticket.statusHistory.length - 1 ? "1px solid var(--border-color)" : "none", paddingBottom: "4px" }}>
+                                                                <span style={{ fontWeight: "600", color: "var(--text-primary)" }}>{h.status.replace("_", " ")}</span>
+                                                                <span style={{ color: "var(--text-secondary)" }}>{formatDateTime(h.changedOn)}</span>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
 
                                             {/* RENDER ATTACHMENTS */}
                                             {ticket.attachments && ticket.attachments.length > 0 && (
