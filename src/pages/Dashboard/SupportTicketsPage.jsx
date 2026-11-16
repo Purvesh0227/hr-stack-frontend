@@ -52,7 +52,7 @@ function SupportTicketsPage() {
     const fetchTickets = async () => {
         try {
             setLoading(true);
-            const { data } = await getAdminSupportTickets(filter, page - 1, 10);
+            const { data } = await getAdminSupportTickets(filter, page - 1, 5);
             setTickets(data.content);
             setTotalPages(data.totalPages);
         } catch {
@@ -110,7 +110,7 @@ function SupportTicketsPage() {
                 </div>
             </div>
 
-            <div style={{ display: "flex", gap: "10px", marginBottom: "20px", flexWrap: "wrap" }}>
+            <div style={{ display: "flex", gap: "10px", marginBottom: "20px", overflowX: "auto", paddingBottom: "5px" }}>
                 {["ALL", "OPEN", "TODO", "IN_PROGRESS", "READY_FOR_REVIEW", "RESOLVED"].map((status) => (
                     <button
                         key={status}
@@ -122,7 +122,8 @@ function SupportTicketsPage() {
                             background: filter === status ? "var(--bg-primary-btn)" : "var(--bg-card)",
                             color: filter === status ? "var(--text-on-active)" : "var(--text-secondary)",
                             fontWeight: "600",
-                            cursor: "pointer"
+                            cursor: "pointer",
+                            whiteSpace: "nowrap"
                         }}
                     >
                         {status.replace("_", " ")}
