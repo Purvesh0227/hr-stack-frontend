@@ -19,7 +19,7 @@ function Footer() {
                     alignItems: "center", 
                     gap: "12px", 
                     flexWrap: "wrap",
-                    padding: "20px 15px",
+                    padding: "8px 15px",
                     fontSize: "14px",
                     textAlign: "center"
                 }}

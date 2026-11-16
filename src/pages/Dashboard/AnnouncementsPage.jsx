@@ -8,6 +8,7 @@ import {
     FiImage,
     FiBell
 } from "react-icons/fi";
+import AttachmentViewer from "../../components/common/AttachmentViewer";
 import SkeletonTable from "../../components/SkeletonTable";
 import AnnouncementModal, {
     ANNOUNCEMENT_TYPES
@@ -58,6 +59,8 @@ function AnnouncementsPage() {
 
     const [modalOpen, setModalOpen] = useState(false);
     const [editing, setEditing] = useState(null);
+
+    const [viewingFile, setViewingFile] = useState(null);
 
     const refresh = useCallback(() => setRefreshKey((k) => k + 1), []);
 
@@ -132,23 +135,14 @@ function AnnouncementsPage() {
         }
     };
 
-    // Open the tab first (popup blockers), then point it at the signed URL
     const openAttachment = async (announcementId, attachment) => {
-        const tab = window.open("", "_blank");
-
         try {
             const { data } = await getAnnouncementAttachmentUrl(
                 announcementId,
                 attachment.id
             );
-
-            if (tab) {
-                tab.location.href = data.url;
-            } else {
-                window.location.href = data.url;
-            }
+            setViewingFile({ ...attachment, url: data.url });
         } catch (error) {
-            tab?.close();
             notify(
                 getErrorMessage(error, "Unable to open file"),
                 "error"
@@ -292,6 +286,13 @@ function AnnouncementsPage() {
                         setCurrentPage(1);
                         refresh();
                     }}
+                />
+            )}
+            {viewingFile && (
+                <AttachmentViewer
+                    file={viewingFile}
+                    url={viewingFile.url}
+                    onClose={() => setViewingFile(null)}
                 />
             )}
         </div>

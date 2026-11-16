@@ -378,5 +378,11 @@ export const updateSupportTicketStatus = (ticketId, status) =>
 export const getMySupportTickets = (page = 0, size = 5) =>
     API.get("/support/my-tickets", { params: { page, size } });
 
+export const getSupportTicketUploadUrl = (fileName, contentType) =>
+    API.get("/support/upload-url", { params: { fileName, contentType } });
+
+export const getSupportAttachmentViewUrl = (ticketId, attachmentId) =>
+    API.get(`/support/admin/${ticketId}/attachments/${attachmentId}/view-url`);
+
 export default API;
 
