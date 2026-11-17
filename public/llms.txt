@@ -1,0 +1,19 @@
+# HR-Stack
+
+> HR-Stack is an employee management application for managing employees, attendance, finance, announcements, and support tickets. It includes a dashboard for administrators and employees.
+
+## Core Features
+- [Login](https://purvesh0227.github.io/hr-stack-frontend/login): Access the HR-Stack dashboard.
+- [Attendance](https://purvesh0227.github.io/hr-stack-frontend/): Track and manage attendance via OTP or QR codes.
+- [Announcements](https://purvesh0227.github.io/hr-stack-frontend/): Company-wide announcements and updates.
+- [App Releases](https://purvesh0227.github.io/hr-stack-frontend/): Manage and view application release notes.
+- [Support Tickets](https://purvesh0227.github.io/hr-stack-frontend/support): Submit and manage internal support requests.
+
+## Admin Tools
+- [Employees Directory](https://purvesh0227.github.io/hr-stack-frontend/): Manage employee records, profiles, and documents.
+- [Admins Directory](https://purvesh0227.github.io/hr-stack-frontend/): Manage administrator accounts.
+- [Finance](https://purvesh0227.github.io/hr-stack-frontend/): Manage salary structures and generate salary slips.
+
+## Optional
+- [Privacy Policy](https://purvesh0227.github.io/hr-stack-frontend/privacy-policy): Data handling and privacy practices.
+- [FAQ / Help](https://purvesh0227.github.io/hr-stack-frontend/help): Frequently asked questions.
