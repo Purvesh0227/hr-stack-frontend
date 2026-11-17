@@ -5,7 +5,9 @@ import {
     getAdminSupportTickets,
     getMySupportTickets,
     getAdminAppReleases,   
-    getPublicAppReleases   
+    getPublicAppReleases,
+    getAdminProfile, 
+    getEmployeeById    
 } from "../services/api";
 import { getAnnouncements } from "../services/announcementService"; 
 import { getNotifications } from "../services/notificationService"; 
@@ -21,6 +23,10 @@ export default function useBackgroundSync() {
             
             const role = readStorageItem("role");
             const isAdmin = role === "ADMIN";
+            
+        
+            const email = readStorageItem("email");
+            const uuid = readStorageItem("uuid"); 
 
             try {
                 console.log("[Background Sync] Fetching latest data...");
@@ -29,11 +35,13 @@ export default function useBackgroundSync() {
                 getNotifications();
                 
                 if (isAdmin) {
+                    if (email) getAdminProfile(email);
                     getAllEmployees({ page: 0, size: 10 });
                     getAllAdmins({ page: 0, size: 10 });
                     getAdminSupportTickets("ALL", 0, 10);
                     getAdminAppReleases(); 
                 } else {
+                    if (uuid) getEmployeeById(uuid);
                     getMySupportTickets(0, 5);
                     getPublicAppReleases(); 
                 }
@@ -44,7 +52,7 @@ export default function useBackgroundSync() {
 
         // Run the timer
         const interval = setInterval(() => {
-            // Only trigger if the user has switched to another tab (app is hidden)
+            
             if (document.visibilityState === "hidden") {
                 syncData();
             }
