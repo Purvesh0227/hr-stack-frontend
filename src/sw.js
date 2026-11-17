@@ -80,7 +80,18 @@ registerRoute(
     })
 );
 
-// 7. NEVER Cache Finance/Salary
+// 7. Cache User/Admin Profile
+registerRoute(
+    ({ url }) => 
+        isApiMatch(url, "/employee/adminProfile") || 
+        url.href.includes("/employee/") && url.pathname.split('/').length === 4 && !url.href.includes("documents") && !url.href.includes("salary"),
+    new NetworkFirst({
+        cacheName: "hrstack-profile",
+        plugins: [new ExpirationPlugin({ maxEntries: 2, maxAgeSeconds: 86400 })],
+    })
+);
+
+// 8. NEVER Cache Finance/Salary
 registerRoute(
     ({ url }) => isApiMatch(url, "/employee/salary"),
     new NetworkOnly()

@@ -5,7 +5,9 @@ import {
     getAdminSupportTickets,
     getMySupportTickets,
     getAdminAppReleases,   
-    getPublicAppReleases   
+    getPublicAppReleases,
+    getAdminProfile, 
+    getEmployeeById    
 } from "../services/api";
 import { getAnnouncements } from "../services/announcementService"; 
 import { getNotifications } from "../services/notificationService"; 
@@ -29,11 +31,13 @@ export default function useBackgroundSync() {
                 getNotifications();
                 
                 if (isAdmin) {
+                    if (email) getAdminProfile(email);
                     getAllEmployees({ page: 0, size: 10 });
                     getAllAdmins({ page: 0, size: 10 });
                     getAdminSupportTickets("ALL", 0, 10);
                     getAdminAppReleases(); 
                 } else {
+                    if (uuid) getEmployeeById(uuid);
                     getMySupportTickets(0, 5);
                     getPublicAppReleases(); 
                 }
