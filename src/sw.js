@@ -91,7 +91,18 @@ registerRoute(
     })
 );
 
-// 8. NEVER Cache Finance/Salary
+// 8. Cache Profile Pictures & Images
+registerRoute(
+    ({ request, url }) => 
+        request.destination === "image" || 
+        url.href.includes("/employee/") && url.href.includes("/profile-photo"), // adjust based on your actual image URL
+    new NetworkFirst({
+        cacheName: "hrstack-images",
+        plugins: [new ExpirationPlugin({ maxEntries: 10, maxAgeSeconds: 86400 })],
+    })
+);
+
+// 9. NEVER Cache Finance/Salary
 registerRoute(
     ({ url }) => isApiMatch(url, "/employee/salary"),
     new NetworkOnly()
