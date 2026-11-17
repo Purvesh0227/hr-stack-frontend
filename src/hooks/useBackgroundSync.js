@@ -23,6 +23,10 @@ export default function useBackgroundSync() {
             
             const role = readStorageItem("role");
             const isAdmin = role === "ADMIN";
+            
+        
+            const email = readStorageItem("email");
+            const uuid = readStorageItem("uuid"); 
 
             try {
                 console.log("[Background Sync] Fetching latest data...");
@@ -48,7 +52,7 @@ export default function useBackgroundSync() {
 
         // Run the timer
         const interval = setInterval(() => {
-            // Only trigger if the user has switched to another tab (app is hidden)
+            
             if (document.visibilityState === "hidden") {
                 syncData();
             }
