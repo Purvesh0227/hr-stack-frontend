@@ -20,6 +20,9 @@ import { dateToMillis, dateToEndMillis } from "../utils/dateUtils";
 
 import AnnouncementPopup from "../components/AnnouncementPopup";
 
+import OfflineBanner from "../components/common/OfflineBanner";
+import useBackgroundSync from "../hooks/useBackgroundSync";
+
 
 const getErrorMessage = (error, fallback) => {
     const data = error.response?.data;
@@ -35,6 +38,8 @@ const getErrorMessage = (error, fallback) => {
 function Dashboard() {
     const role = readStorageItem("role");
     const email = readStorageItem("email");
+
+    useBackgroundSync(); 
 
     const [employee, setEmployee] = useState(() => readStorageJson("employee"));
     const [employees, setEmployees] = useState([]);
@@ -147,8 +152,7 @@ function Dashboard() {
         return () => clearTimeout(timer);
     }, [notification.message]);
 
-    // Refresh the employee list (used after save / activate).
-    // It only re-runs the fetch effect below.
+
     const handleGetAllEmployees = () => {
         setEmployeeRefreshKey((key) => key + 1);
     };
@@ -161,7 +165,7 @@ function Dashboard() {
         }
 
         if (employeeRangeInvalid) {
-            setLoadingEmployees(false);   // otherwise the loader can stay stuck
+            setLoadingEmployees(false);   
             return;
         }
 
@@ -181,7 +185,7 @@ function Dashboard() {
                     signal: controller.signal
                 });
 
-                // Current page no longer exists (e.g. last row removed)
+                
                 if (
                     data.totalPages > 0 &&
                     employeeCurrentPage > data.totalPages
@@ -194,12 +198,12 @@ function Dashboard() {
                 setEmployeeTotalElements(data.totalElements);
                 setEmployeeTotalPages(data.totalPages);
 
-                // Unfiltered total is only known when nothing is filtered
+                
                 if (!hasEmployeeFilters) {
                     setTotalEmployees(data.totalElements);
                 }
             } catch (error) {
-                // Request was superseded by a newer one
+                
                 if (isRequestCancelled(error)) {
                     return;
                 }
@@ -219,9 +223,9 @@ function Dashboard() {
 
         loadEmployees();
 
-        // Cancels the stale request on every change / unmount
+        
         return () => controller.abort();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+        
     }, [
         role,
         debouncedEmployeeSearchTerm,
@@ -580,6 +584,7 @@ function Dashboard() {
 
     return (
         <>
+            <OfflineBanner />
             <Navbar
                 role={role}
                 employee={employee}
