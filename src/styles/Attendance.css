@@ -857,3 +857,19 @@
         width: 100%;
     }
 }
+
+
+/* date picker  */
+/* Add to Attendance.css to make the popup fit the form */
+.react-datepicker-wrapper {
+    width: 100%;
+}
+.attendance-date-picker {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--bg-input);
+    color: var(--text-primary);
+    font-family: inherit;
+}

@@ -1,5 +1,6 @@
 import { useOutletContext } from "react-router-dom";
 import EmployeeDocumentUpload from "../../components/EmployeeDocumentUpload";
+import AdminAnalytics from "../../components/dashboard/AdminAnalytics";
 
 function DashboardHome() {
     const {
@@ -33,6 +34,9 @@ function DashboardHome() {
                     </p>
                 </div>
             </div>
+
+            {/* Admin analytics */}
+            {role === "ADMIN" && <AdminAnalytics />}
 
             {/* Verification section */}
             {isPendingVerification && (
