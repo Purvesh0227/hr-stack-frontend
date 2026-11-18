@@ -5,6 +5,10 @@ import {
     createOtp,
     isRequestCancelled
 } from "../services/api";
+
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+
 import SkeletonTable from "./SkeletonTable";
 import { formatDateTime, dateToMillis } from "../utils/dateUtils";
 import { DEPARTMENTS } from "../constants/departmentConstants";
@@ -284,6 +288,14 @@ function Attendance({ role }) {
         if (otpCooldown > 0 || generatingOtp) {
             return;
         }
+
+        const selectedDateObj = new Date(selectedDate + "T00:00:00");
+        const dayOfWeek = selectedDateObj.getDay(); // 0 = Sunday, 6 = Saturday
+
+        if (dayOfWeek === 0 || dayOfWeek === 6) {
+            showNotification("Attendance cannot be initiated on weekends (Saturday/Sunday).", "error");
+            return; 
+        }
     
 
         try {
@@ -479,20 +491,29 @@ function Attendance({ role }) {
                                 <div className="attendance-form-group">
                                     <label>Date</label>
 
-                                    <input
-                                        type="date"
-                                        value={selectedDate}
-                                        max={
-                                            new Date()
-                                                .toISOString()
-                                                .split("T")[0]
-                                        }
-                                        onChange={(e) =>
-                                            setSelectedDate(
-                                                e.target.value
-                                            )
-                                        }
+                                    <DatePicker
+                                        selected={selectedDate ? new Date(selectedDate + "T00:00:00") : null}
+                                        onChange={(date) => {
+                                            if (date) {
+                                                // Format back to YYYY-MM-DD for your backend
+                                                const year = date.getFullYear();
+                                                const month = String(date.getMonth() + 1).padStart(2, '0');
+                                                const day = String(date.getDate()).padStart(2, '0');
+                                                setSelectedDate(`${year}-${month}-${day}`);
+                                            }
+                                        }}
+                                        maxDate={new Date()} // Disables future dates
+                                        filterDate={(date) => {
+                                            const day = date.getDay();
+                                            return day !== 0 && day !== 6; // 0 is Sunday, 6 is Saturday
+                                        }}
+                                        className="attendance-date-picker"
+                                        dateFormat="dd/MM/yyyy"
+                                        placeholderText="Select a weekday"
                                     />
+                                    <small style={{ color: "var(--danger)", marginTop: "4px", display: "block", fontSize: "12px" }}>
+                                        Weekends (Sat/Sun) are disabled.
+                                    </small>
                                 </div>
                             )}
                                 <div className="attendance-form-group">

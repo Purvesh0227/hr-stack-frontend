@@ -102,6 +102,10 @@ export const getAllAdmins = ({
 export const getAdminProfile = (email) =>
     API.get("/adminProfile", { params: { email } });
 
+// Admin dashboard analytics
+export const getAnalytics = ({ signal } = {}) =>
+    API.get("/analytics", { signal });
+
 
 export const getAllEmployees = ({
     search = "",
