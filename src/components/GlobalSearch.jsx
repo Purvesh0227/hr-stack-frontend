@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FiSearch, FiUser, FiShield, FiCornerDownLeft } from "react-icons/fi";
+import { FiSearch, FiUser, FiShield, FiCornerDownLeft, FiLifeBuoy, FiSmartphone  } from "react-icons/fi";
 import {
     MdDashboard,
     MdAccountBalanceWallet
@@ -20,12 +20,14 @@ const PAGES = [
     { label: "Attendance", path: "/attendance", icon: FaCalendarCheck, keywords: "qr otp present absent mark" },
     { label: "Finance", path: "/finance", icon: MdAccountBalanceWallet, keywords: "salary slip payroll payslip" },
     { label: "Announcements", path: "/announcements", icon: FiBell, keywords: "notice news update circular" },
+    { label: "App Releases", path: "/app-releases", icon: FiSmartphone, keywords: "apk exe download version release" },
     { label: "Settings", path: "/settings", icon: IoSettingsSharp, keywords: "password security 2fa profile notification theme" }
 ];
 
 const ADMIN_PAGES = [
     { label: "Employees", path: "/employees", icon: FaUsers, keywords: "staff people team" },
-    { label: "Admins", path: "/admins", icon: FiShield, keywords: "administrators" }
+    { label: "Admins", path: "/admins", icon: FiShield, keywords: "administrators" },
+    { label: "Support Tickets", path: "/support-tickets", icon: FiLifeBuoy, keywords: "help desk issue problem ticket" }
 ];
 
 const MIN_PEOPLE_QUERY = 2;
